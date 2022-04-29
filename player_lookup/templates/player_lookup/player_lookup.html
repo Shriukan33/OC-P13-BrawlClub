@@ -1,7 +1,15 @@
 {% extends 'player_lookup/base.html' %}
+{% load crispy_forms_tags %}
 
 {% block content %}
 
-<h1 class="d-flex mx-auto">Hello world !</h1>
+<section class="d-flex flex-column col-12 col-md-8 col-lg-6 mx-auto">
+    <h1 class="d-flex mx-auto">BrawlClub</i></h1>
+    <form action="{% url 'player_lookup:index' %}" method="POST" class="d-flex flex-column col-4 mx-auto">
+        {% csrf_token %}
+        {{form|crispy}}
+        <button type="submit" class="btn btn-primary mx-auto">Search</button>
+    </form>
+</section>
 
 {% endblock content %}
