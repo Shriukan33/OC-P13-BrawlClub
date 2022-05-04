@@ -20,6 +20,7 @@ class BrawlAPi:
         return response.json()
 
     def get_player_battlelog(self, player_tag: str) -> dict:
+        """Get data from the player's last 24 matches"""
         # We remove the # from the player tag
         player_tag = player_tag[1:]
         url = f"{self.base_url}players/%23{player_tag}/battlelog"
