@@ -118,6 +118,14 @@ def create_or_update_club(club_tag: str) -> models.Club:
 
 def create_or_update_player(player: dict, club: models.Club) -> models.Player:
     """Create or update a player"""
+
+    if not club:
+        club_tag = player["club"].get("tag", None)
+        if club_tag:
+            club = create_or_update_club(club_tag)
+        else:
+            club = None
+
     defaults = {
         "player_tag": player['tag'],
         "player_name": player['name'],
