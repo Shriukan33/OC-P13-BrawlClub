@@ -59,19 +59,34 @@ class PlayerPageView(TemplateView):
 
 @async_to_sync
 async def get_club_members_data(request, club_tag) -> dict:
-    """Get the profile page of every member of a given club"""
+    """Get the profile page and battlelog of every member of a given club"""
     member_list = brawl_api.get_club_members_tag_list(club_tag)
+    # We prepare the api calls in a list so we're able to await them all
     api_calls = []
     for member in member_list:
         response = get_player_data(member)
         api_calls.append(response)
 
+    # We await all the api calls
     responses = await asyncio.gather(*api_calls)
-
+    # The respons is a list of all players profile from the given clan
     results = {"Player data": responses}
-    results = {player["tag"]: player for player in results["Player data"]}
+    tag_profile = {player["tag"]: player for player in results["Player data"]}
 
-    return results
+    # We now get the battlelog of each player usig the tags we retrieved
+    api_calls = []
+    for tag, _ in tag_profile.items():
+        response = get_player_battlelog(tag)
+        api_calls.append(response)
+
+    battlelogs = await asyncio.gather(*api_calls)
+
+    # Now we match the battlelogs with the player tags
+    tag_battlelog = {}
+    for tag, battlelog in zip(tag_profile.keys(), battlelogs):
+        tag_battlelog[tag] = battlelog
+
+    return tag_profile, tag_battlelog
 
 
 async def get_player_data(player_tag: str) -> dict:
@@ -84,11 +99,11 @@ async def get_player_data(player_tag: str) -> dict:
 
 def update_club_members(request, club_tag: str) -> JsonResponse:
     """Test async to sync"""
-    results = get_club_members_data(request, club_tag)
+    tag_profile, tag_battlelogs = get_club_members_data(request, club_tag)
     club = create_or_update_club(club_tag)
-    for _, value in results.items():
+    for _, value in tag_profile.items():
         create_or_update_player(value, club)
-    return JsonResponse(results, safe=False)
+    return JsonResponse(tag_battlelogs, safe=False)
 
 
 def create_or_update_club(club_tag: str) -> models.Club:
@@ -142,3 +157,12 @@ def create_or_update_player(player: dict, club: models.Club) -> models.Player:
         logger.info(f"Updated player {player.player_name}")
 
     return player
+
+
+async def get_player_battlelog(player_tag: str) -> dict:
+    """Return player's battlelog given a player tag"""
+    async with httpx.AsyncClient() as client:
+        url = brawl_api.get_player_battlelog_url(player_tag)
+        response = await client.get(url, headers=brawl_api.headers)
+        return response.json()
+
