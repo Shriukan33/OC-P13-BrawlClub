@@ -20,6 +20,9 @@ class Player(models.Model):
                              validators=[limit_number_of_players])
     total_club_war_trophy_count = models.IntegerField(default=0)
 
+    def __str__(self):
+        return f"{self.player_name} ({self.player_tag})"
+
 
 class Club(models.Model):
     """Clubs are groups of players up to 30 persons"""
@@ -30,6 +33,9 @@ class Club(models.Model):
     club_type = models.CharField(max_length=20, default="open")
     required_trophies = models.IntegerField(default=0)
     trophies = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.club_name
 
 
 class Brawler(models.Model):
