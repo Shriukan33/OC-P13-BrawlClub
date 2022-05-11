@@ -43,10 +43,16 @@ class Brawler(models.Model):
     name = models.CharField(max_length=30)
     image = models.ImageField(upload_to='brawlers/')
 
+    def __str__(self):
+        return self.name
+
 
 class BrawlMap(models.Model):
     name = models.CharField(max_length=30)
     image = models.ImageField(upload_to='maps/')
+
+    def __str__(self):
+        return self.name
 
 
 class Match(models.Model):
@@ -62,6 +68,9 @@ class Match(models.Model):
     # Provided in the API
     date = models.DateTimeField()
 
+    def __str__(self):
+        return f"{self.date} - {self.mode}"
+
 
 class MatchIssue(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
@@ -69,3 +78,6 @@ class MatchIssue(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     has_won = models.BooleanField(default=False)
     trophies_won = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.player} - {self.brawler} - {self.match}"
