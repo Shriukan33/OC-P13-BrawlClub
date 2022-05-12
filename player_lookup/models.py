@@ -10,6 +10,11 @@ def limit_number_of_players(value):
 
 
 class Player(models.Model):
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['player_tag']),
+        ]
     # One can link any player tag to its profile, as it doesn't
     # give any special right to the user.
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
@@ -26,6 +31,11 @@ class Player(models.Model):
 
 class Club(models.Model):
     """Clubs are groups of players up to 30 persons"""
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['club_tag', ]),
+        ]
 
     club_name = models.CharField(max_length=50)
     club_tag = models.CharField(max_length=9, unique=True)
