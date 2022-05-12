@@ -1,15 +1,19 @@
+import asyncio
+from datetime import datetime
+import logging
+from typing import Tuple
+
+import dateutil.parser
+import httpx
+from asgiref.sync import async_to_sync
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse_lazy
 from django.views.generic import FormView, TemplateView
-import httpx
-import logging
-import asyncio
-from asgiref.sync import async_to_sync
 
-from .forms import PlayerLookupForm
-from .brawlstars_api import BrawlAPi
 from . import models
+from .brawlstars_api import BrawlAPi
+from .forms import PlayerLookupForm
 
 brawl_api = BrawlAPi()
 
@@ -97,12 +101,18 @@ async def get_player_data(player_tag: str) -> dict:
         return response.json()
 
 
+# Entry point
 def update_club_members(request, club_tag: str) -> JsonResponse:
     """Test async to sync"""
     tag_profile, tag_battlelogs = get_club_members_data(request, club_tag)
     club = create_or_update_club(club_tag)
-    for _, value in tag_profile.items():
-        create_or_update_player(value, club)
+    for _, profile in tag_profile.items():
+        create_or_update_player(profile, club)
+
+    for tag, battlelog in tag_battlelogs.items():
+        # player = models.Player.objects.get(player_tag=tag)
+        create_matches_from_battlelog(tag, battlelog)
+
     return JsonResponse(tag_battlelogs, safe=False)
 
 
@@ -132,7 +142,7 @@ def create_or_update_club(club_tag: str) -> models.Club:
 
 
 def create_or_update_player(player: dict, club: models.Club) -> models.Player:
-    """Create or update a player"""
+    """Create or update a player."""
 
     if not club:
         club_tag = player["club"].get("tag", None)
@@ -160,9 +170,126 @@ def create_or_update_player(player: dict, club: models.Club) -> models.Player:
 
 
 async def get_player_battlelog(player_tag: str) -> dict:
-    """Return player's battlelog given a player tag"""
+    """Return player's battlelog given a player tag."""
     async with httpx.AsyncClient() as client:
         url = brawl_api.get_player_battlelog_url(player_tag)
         response = await client.get(url, headers=brawl_api.headers)
         return response.json()
 
+
+def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
+        -> None:
+    """
+    Create matches from a given battlelog.
+
+    Keyword arguments:
+    - player_tag -- the player's tag
+    - battlelog -- the battlelog of the player, including its 24 last matches
+    """
+
+    def get_battle_data(player_tag, battle: dict) \
+            -> Tuple[list, list, str, str, str, datetime, bool, int]:
+        """Return data from a battle.
+
+        Keyword arguments:
+        - player_tag -- the player's tag
+        - battle -- the battle to get the data from
+
+        Returns:
+        A tuple with the following data:
+        - a list of player tags
+        - a list of player names
+        - a string indicating the outcome of the match
+        - a string with the played map's name
+        - a string with the played mode's name
+        - a datetime with the match's date
+        - a bool indicating if the player is Star Player (=MVP)
+        - an int indicating the number of trophies the player won
+        """
+        player_list = []
+        winning_team = None
+        match_outcome = None
+        map_played = None
+        mode = None
+        is_star_player = None
+        battle_date = None
+        trophies_won = None
+        # We are only interested in Team ranked matches
+        if battle["battle"].get("type", None) == "teamRanked" and \
+                battle["battle"].get("trophyChange", None):
+            # Now we examinate each of the two teams to get the winning one
+            for team_number, team in enumerate(battle["battle"]["teams"]):
+                for player in team:
+                    if player["tag"] == player_tag:
+                        if battle["battle"]["result"] == "victory":
+                            winning_team = team
+                        elif battle["battle"]["result"] == "defeat":
+                            # There are only two teams : 0 and 1
+                            winning_team = \
+                                battle["battle"]["teams"][1 - team_number]
+                        elif battle["battle"]["result"] == "draw":
+                            winning_team = None
+                    # We add to the player list the player tags
+                    player_list.append(
+                        (player["tag"], player["brawler"]["name"]))
+
+            winning_team = [(player["tag"], player["brawler"]["name"])
+                            for player in winning_team]
+            map_played = battle["event"].get("map", None)
+            mode = battle["event"].get("mode", None)
+            battle_date = dateutil.parser.parse(battle["battleTime"])
+            match_outcome = battle["battle"].get("result", None)
+            is_star_player = \
+                player_tag in battle["battle"].get(
+                    "starPlayer", {}).get("tag", "")
+            trophies_won = battle["battle"].get("trophyChange")
+
+        return (player_list, winning_team, match_outcome, map_played, mode,
+                battle_date, is_star_player, trophies_won)
+
+    def get_match_type(match_outcome: str) -> Tuple[bool, bool]:
+        """Return the match type.
+
+        Keyword arguments:
+        - match_outcome -- the outcome of the match (Victory, Defeat, Draw)
+
+        Returns:
+        A tuple containing two booleans to indicate if the player played a
+        power match or not and if they played with a clubmate or not.
+        """
+        played_with_team = False
+        is_power_match = False
+        if match_outcome == "victory":
+            if trophies_won == 9:
+                played_with_team = True
+                is_power_match = True
+            elif trophies_won == 4:
+                played_with_team = True
+        elif match_outcome == "defeat":
+            if trophies_won == 5:
+                played_with_team = True
+                is_power_match = True
+            elif trophies_won == 2:
+                played_with_team = True
+        # Can't draw in Power matches
+        elif match_outcome == "draw" and trophies_won == 3:
+            played_with_team = True
+
+        return (is_power_match, played_with_team)
+
+    # match_batch = []
+    for battle in battlelog["items"]:
+        (player_list, winning_team, match_outcome, map_played, mode,
+            battle_date, is_star_player, trophies_won) \
+            = get_battle_data(player_tag, battle)
+
+        if player_list and map_played:
+            played_with_team, is_power_match = get_match_type(match_outcome)
+            print("#"*30,
+                  f"\n{player_tag} - {battle_date}\nList of players :\n"
+                  f"{player_list}"
+                  f"\nWinning team : {winning_team}\nPlayed on : {map_played}"
+                  f"\nMode : {mode}\nResult : {match_outcome}\nTrophies Won :"
+                  f"{trophies_won}\nIs Star Player : {is_star_player}\n"
+                  f"Is Power Match : {is_power_match}\n"
+                  f"Played with team : {played_with_team}")
