@@ -73,10 +73,18 @@ class Match(models.Model):
 
 
 class MatchIssue(models.Model):
+
+    class MatchOutcomes(models.TextChoices):
+        WIN = 'WIN', 'Win'
+        LOSS = 'LOSS', 'Loss'
+        DRAW = 'DRAW', 'Draw'
+        UNKNOWN = 'UNKNOWN', 'Unknown'
+
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     brawler = models.ForeignKey(Brawler, on_delete=models.CASCADE)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
-    has_won = models.BooleanField(default=False)
+    has_won = models.CharField(max_length=7, choices=MatchOutcomes.choices,
+                               default=MatchOutcomes.UNKNOWN)
     trophies_won = models.IntegerField(default=0)
     is_star_player = models.BooleanField(default=False)
 
