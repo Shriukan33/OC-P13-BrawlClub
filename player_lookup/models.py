@@ -78,6 +78,7 @@ class MatchIssue(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     has_won = models.BooleanField(default=False)
     trophies_won = models.IntegerField(default=0)
+    is_star_player = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.player} - {self.brawler} - {self.match}"
