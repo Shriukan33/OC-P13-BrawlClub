@@ -106,11 +106,21 @@ def update_club_members(request, club_tag: str) -> JsonResponse:
     """Test async to sync"""
     tag_profile, tag_battlelogs = get_club_members_data(request, club_tag)
     club = create_or_update_club(club_tag)
+    player_ids = models.Player.objects.values_list('player_tag', flat=True)
+    players_to_update = []
+    players_to_create = []
     for _, profile in tag_profile.items():
-        create_or_update_player(profile, club)
+        player_instance = create_player_instance(profile, club)
+        if player_instance.player_tag in player_ids:
+            players_to_update.append(player_instance)
+        else:
+            players_to_create.append(player_instance)
+
+    models.Player.objects.bulk_create(players_to_create)
+    models.Player.objects.bulk_update(players_to_update,
+                                      ['trophy_count', 'club'], 999)
 
     for tag, battlelog in tag_battlelogs.items():
-        # player = models.Player.objects.get(player_tag=tag)
         create_matches_from_battlelog(tag, battlelog)
 
     return JsonResponse(tag_battlelogs, safe=False)
@@ -141,15 +151,16 @@ def create_or_update_club(club_tag: str) -> models.Club:
     return club
 
 
-def create_or_update_player(player: dict, club: models.Club) -> models.Player:
-    """Create or update a player."""
+def create_player_instance(player: dict, club: models.Club) -> models.Player:
+    """Create a player instance.
 
-    if not club:
-        club_tag = player["club"].get("tag", None)
-        if club_tag:
-            club = create_or_update_club(club_tag)
-        else:
-            club = None
+    Keyword arguments:
+    - player -- the player's profile
+    - club -- the club the player belongs to
+
+    Returns:
+    - the player instance
+    """
 
     defaults = {
         "player_tag": player['tag'],
@@ -157,16 +168,9 @@ def create_or_update_player(player: dict, club: models.Club) -> models.Player:
         "trophy_count": player['trophies'],
         "club": club,
     }
-    player, created = models.Player.objects.update_or_create(
-        player_tag=player['tag'],
-        defaults=defaults)
+    player_instance = models.Player(**defaults)
 
-    if created:
-        logger.info(f"Created player {player.player_name}")
-    else:
-        logger.info(f"Updated player {player.player_name}")
-
-    return player
+    return player_instance
 
 
 async def get_player_battlelog(player_tag: str) -> dict:
