@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.db import models
 from django.forms import ValidationError
 
@@ -11,14 +10,7 @@ def limit_number_of_players(value):
 
 class Player(models.Model):
 
-    class Meta:
-        indexes = [
-            models.Index(fields=['player_tag']),
-        ]
-    # One can link any player tag to its profile, as it doesn't
-    # give any special right to the user.
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    player_tag = models.CharField(max_length=9, unique=True)
+    player_tag = models.CharField(max_length=9, primary_key=True)
     player_name = models.CharField(max_length=50)
     trophy_count = models.IntegerField(default=0)
     club = models.ForeignKey('Club', on_delete=models.SET_NULL, null=True,
@@ -32,13 +24,8 @@ class Player(models.Model):
 class Club(models.Model):
     """Clubs are groups of players up to 30 persons"""
 
-    class Meta:
-        indexes = [
-            models.Index(fields=['club_tag', ]),
-        ]
-
+    club_tag = models.CharField(max_length=9, primary_key=True)
     club_name = models.CharField(max_length=50)
-    club_tag = models.CharField(max_length=9, unique=True)
     club_description = models.CharField(max_length=100, blank=True)
     club_type = models.CharField(max_length=20, default="open")
     required_trophies = models.IntegerField(default=0)
@@ -66,8 +53,10 @@ class BrawlMap(models.Model):
 
 
 class Match(models.Model):
-    # Matches are 3v3
-    players = models.ManyToManyField(Player)
+
+    # The match id is build with the following format:
+    # <star_player_tag_without_#><timestamp_in_epoch_seconds>
+    match_id = models.CharField(max_length=18, primary_key=True)
     # Brawlball, Gem grab, Knockout ...
     mode = models.CharField(max_length=20)
     # Map
