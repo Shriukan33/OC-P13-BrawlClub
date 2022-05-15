@@ -68,7 +68,8 @@ class Match(models.Model):
     date = models.DateTimeField()
 
     def __str__(self):
-        return f"{self.date} - {self.mode}"
+        return (f"{self.battle_type} - {self.mode} "
+                f"- {self.date.strftime('%d/%m/%Y')}")
 
 
 class MatchIssue(models.Model):

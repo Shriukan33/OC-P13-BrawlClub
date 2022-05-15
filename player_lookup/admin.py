@@ -2,13 +2,25 @@ from django.contrib import admin
 from . import models
 
 
+class PlayerInline(admin.TabularInline):
+    model = models.Player
+
+
+class MatchIssueInline(admin.TabularInline):
+    model = models.MatchIssue
+
+
 class PlayerAdmin(admin.ModelAdmin):
+    inlines = [MatchIssueInline]
     list_display = ('player_tag', 'player_name', 'club', 'trophy_count')
     list_filter = ('club',)
     search_fields = ('player_tag', 'player_name')
 
 
 class ClubAdmin(admin.ModelAdmin):
+    inlines = [
+        PlayerInline,
+    ]
     list_display = ('club_tag', 'club_name', 'club_type', 'trophies',
                     'required_trophies')
     list_filter = ('club_type',)
@@ -28,13 +40,17 @@ class BrawlerAdmin(admin.ModelAdmin):
 
 
 class MatchAdmin(admin.ModelAdmin):
+    inlines = [
+        MatchIssueInline,
+    ]
     list_display = ('mode', 'map_played', 'date')
     list_filter = ('mode', 'map_played')
     search_fields = ('mode', 'map_played')
 
 
 class MatchIssueAdmin(admin.ModelAdmin):
-    list_display = ("player", "brawler", "outcome", "trophies_won")
+    list_display = ("player", "brawler", "outcome", "trophies_won",
+                    "is_star_player", "played_with_clubmate")
     list_filter = ("player", "brawler", "outcome")
     search_fields = ("player", "brawler")
 
