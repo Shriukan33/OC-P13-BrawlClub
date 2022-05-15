@@ -192,7 +192,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
     """
 
     def get_battle_data(player_tag, battle: dict) \
-            -> Tuple[list, list, str, str, str, datetime, bool, int]:
+            -> Tuple[list, list, str, str, str, datetime, bool, int, str]:
         """Return data from a battle.
 
         Keyword arguments:
@@ -209,6 +209,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
         - a datetime with the match's date
         - a bool indicating if the player is Star Player (=MVP)
         - an int indicating the number of trophies the player won
+        - a string with the star player's tag (without #)
         """
         player_list = []
         winning_team = None
@@ -218,6 +219,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
         is_star_player = None
         battle_date = None
         trophies_won = None
+        star_players_tag = None
         # We are only interested in Team ranked matches
         if battle["battle"].get("type", None) == "teamRanked" and \
                 battle["battle"].get("trophyChange", None):
@@ -247,9 +249,11 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
                 player_tag in battle["battle"].get(
                     "starPlayer", {}).get("tag", "")
             trophies_won = battle["battle"].get("trophyChange")
+            star_players_tag = battle["battle"].get("starPlayer", {}).get(
+                "tag", '')[1:]  # We remove the #
 
         return (player_list, winning_team, match_outcome, map_played, mode,
-                battle_date, is_star_player, trophies_won)
+                battle_date, is_star_player, trophies_won, star_players_tag)
 
     def get_match_type(match_outcome: str) -> Tuple[bool, bool]:
         """Return the match type.
@@ -281,13 +285,19 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
 
         return (is_power_match, played_with_team)
 
-    # match_batch = []
+    all_match_ids = models.Match.objects.values_list("match_id", flat=True)
+    match_batch = []
     for battle in battlelog["items"]:
         (player_list, winning_team, match_outcome, map_played, mode,
-            battle_date, is_star_player, trophies_won) \
+            battle_date, is_star_player, trophies_won, star_players_tag) \
             = get_battle_data(player_tag, battle)
 
-        if player_list and map_played:
+        if player_list:
+            # We don't want to create a match if it already exists
+            match_id = f"{star_players_tag}{battle_date.strftime('%s')}"
+            if all_match_ids.filter(match_id=match_id).exists():
+                continue
+
             played_with_team, is_power_match = get_match_type(match_outcome)
             print("#"*30,
                   f"\n{player_tag} - {battle_date}\nList of players :\n"
@@ -297,3 +307,16 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
                   f"{trophies_won}\nIs Star Player : {is_star_player}\n"
                   f"Is Power Match : {is_power_match}\n"
                   f"Played with team : {played_with_team}")
+
+            battle_type = "Power Match" if is_power_match else "Normal Match"
+            the_match = models.Match(
+                match_id=match_id,
+                mode=mode,
+                map_played=map_played,
+                battle_type=battle_type,
+                date=battle_date,
+            )
+
+            match_batch.append(the_match)
+
+    models.Match.objects.bulk_create(match_batch)
