@@ -192,7 +192,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
     """
 
     def get_battle_data(player_tag, battle: dict) \
-            -> Tuple[list, list, str, str, str, datetime, bool, int, str]:
+            -> Tuple[list, list, str, str, str, datetime, bool, int, str, str]:
         """Return data from a battle.
 
         Keyword arguments:
@@ -210,6 +210,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
         - a bool indicating if the player is Star Player (=MVP)
         - an int indicating the number of trophies the player won
         - a string with the star player's tag (without #)
+        - a string with the name of the brawler that the player used.
         """
         player_list = []
         winning_team = None
@@ -220,6 +221,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
         battle_date = None
         trophies_won = None
         star_players_tag = None
+        played_brawler = None
         # We are only interested in Team ranked matches
         if battle["battle"].get("type", None) == "teamRanked" and \
                 battle["battle"].get("trophyChange", None):
@@ -245,15 +247,29 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
             mode = battle["event"].get("mode", None)
             battle_date = dateutil.parser.parse(battle["battleTime"])
             match_outcome = battle["battle"].get("result", None)
+            # In the model, we store the outcome as WIN, LOSS or DRAW
+            if match_outcome == "victory":
+                match_outcome = "WIN"
+            elif match_outcome == "defeat":
+                match_outcome = "LOSS"
+            elif match_outcome == "draw":
+                match_outcome = "DRAW"
+            else:
+                match_outcome = "UNKNOWN"
             is_star_player = \
                 player_tag in battle["battle"].get(
                     "starPlayer", {}).get("tag", "")
             trophies_won = battle["battle"].get("trophyChange")
             star_players_tag = battle["battle"].get("starPlayer", {}).get(
                 "tag", '')[1:]  # We remove the #
+            for tag, brawler in player_list:
+                if tag == player_tag:
+                    played_brawler = brawler
+                    break
 
         return (player_list, winning_team, match_outcome, map_played, mode,
-                battle_date, is_star_player, trophies_won, star_players_tag)
+                battle_date, is_star_player, trophies_won, star_players_tag,
+                played_brawler)
 
     def get_match_type(match_outcome: str) -> Tuple[bool, bool]:
         """Return the match type.
@@ -287,9 +303,12 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
 
     all_match_ids = models.Match.objects.values_list("match_id", flat=True)
     match_batch = []
+    incomplete_match_issue_list = []
+    match_issues_batch = []
     for battle in battlelog["items"]:
         (player_list, winning_team, match_outcome, map_played, mode,
-            battle_date, is_star_player, trophies_won, star_players_tag) \
+         battle_date, is_star_player, trophies_won, star_players_tag,
+         brawler_used) \
             = get_battle_data(player_tag, battle)
 
         if player_list:
@@ -299,24 +318,40 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
                 continue
 
             played_with_team, is_power_match = get_match_type(match_outcome)
-            print("#"*30,
-                  f"\n{player_tag} - {battle_date}\nList of players :\n"
-                  f"{player_list}"
-                  f"\nWinning team : {winning_team}\nPlayed on : {map_played}"
-                  f"\nMode : {mode}\nResult : {match_outcome}\nTrophies Won :"
-                  f"{trophies_won}\nIs Star Player : {is_star_player}\n"
-                  f"Is Power Match : {is_power_match}\n"
-                  f"Played with team : {played_with_team}")
 
             battle_type = "Power Match" if is_power_match else "Normal Match"
+            the_map = models.BrawlMap.objects.get_or_create(
+                name=map_played,
+                defaults={"name": map_played})[0]
             the_match = models.Match(
                 match_id=match_id,
                 mode=mode,
-                map_played=map_played,
+                map_played=the_map,
                 battle_type=battle_type,
                 date=battle_date,
             )
-
             match_batch.append(the_match)
 
-    models.Match.objects.bulk_create(match_batch)
+            # We now create the associated MatchIssue
+            player = models.Player.objects.get(player_tag=player_tag)
+            brawler = models.Brawler.objects.get_or_create(
+                name=brawler_used,
+                defaults={"name": brawler_used})[0]
+            # MatchIssue has a FK to Match, which isn't created yet.
+            # We're going to add it once the Match is created
+            the_match_issue = models.MatchIssue(
+                player=player,
+                brawler=brawler,
+                outcome=match_outcome,
+                trophies_won=trophies_won,
+                is_star_player=is_star_player,
+                played_with_clubmate=played_with_team)
+            incomplete_match_issue_list.append(the_match_issue)
+
+    created_matches = models.Match.objects.bulk_create(match_batch)
+    for match, incomplete_match_issue in \
+            zip(created_matches, incomplete_match_issue_list):
+        incomplete_match_issue.match = match
+        match_issues_batch.append(incomplete_match_issue)
+
+    models.MatchIssue.objects.bulk_create(match_issues_batch)
