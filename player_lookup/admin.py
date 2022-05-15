@@ -34,8 +34,8 @@ class MatchAdmin(admin.ModelAdmin):
 
 
 class MatchIssueAdmin(admin.ModelAdmin):
-    list_display = ("player", "brawler", "has_won", "trophies_won")
-    list_filter = ("player", "brawler", "has_won")
+    list_display = ("player", "brawler", "outcome", "trophies_won")
+    list_filter = ("player", "brawler", "outcome")
     search_fields = ("player", "brawler")
 
 

@@ -82,7 +82,7 @@ class MatchIssue(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     brawler = models.ForeignKey(Brawler, on_delete=models.CASCADE)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
-    has_won = models.CharField(max_length=7, choices=MatchOutcomes.choices,
+    outcome = models.CharField(max_length=7, choices=MatchOutcomes.choices,
                                default=MatchOutcomes.UNKNOWN)
     trophies_won = models.IntegerField(default=0)
     is_star_player = models.BooleanField(default=False)
