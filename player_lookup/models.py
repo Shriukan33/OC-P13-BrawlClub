@@ -86,6 +86,7 @@ class MatchIssue(models.Model):
                                default=MatchOutcomes.UNKNOWN)
     trophies_won = models.IntegerField(default=0)
     is_star_player = models.BooleanField(default=False)
+    played_with_clubmate = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.player} - {self.brawler} - {self.match}"
