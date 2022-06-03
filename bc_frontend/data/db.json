@@ -1,0 +1,44 @@
+{
+    "player": [
+        {
+            "id": 1,
+            "player_tag": "ABCDEFG12",
+            "trophy_count": 1000,
+            "club": {
+                "id": 1,
+                "name": "Club 1",
+                "URL": "club/ZXWYVU123"
+            },
+            "total_club_war_trophy_count": 61
+        },
+        {
+            "id": 2,
+            "player_tag": "YUIDEFG82",
+            "trophy_count": 2000,
+            "club": {
+                "id": 1,
+                "name": "Club 1",
+                "URL": "club/ZXWYVU123"
+            },
+            "total_club_war_trophy_count": 98
+        },
+        {
+            "id": 3,
+            "player_tag": "MLKJHGF12",
+            "trophy_count": 5500,
+            "club": {
+                "id": 2,
+                "name": "Club 2",
+                "URL": "club/ZRTYEU123"
+            },
+            "total_club_war_trophy_count": 128
+        },
+        {
+            "id": 4,
+            "player_tag": "BRTEHFG12",
+            "trophy_count": 200,
+            "club": null,
+            "total_club_war_trophy_count": 0
+        }
+    ]
+}
