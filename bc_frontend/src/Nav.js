@@ -1,14 +1,18 @@
 import React from 'react'
 import "./Nav.css"
 import { Link } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 const Nav = () => {
   return (
     <nav>
-        <ul>
+        <ul className="Logo">
             <li>
                 <Link to="/">Home</Link>
             </li>
+        </ul>
+        <ul className="nav-elements">
             <li>
                 <Link to="/profile">Profile</Link>
             </li>
@@ -18,7 +22,12 @@ const Nav = () => {
             <li>
                 <Link to="leaderboard">Leaderboard</Link>
             </li>
+        </ul>
+        <ul className="searchBar">
             <li>
+                <div className="searchIcon container">
+                    <FontAwesomeIcon icon={faSearch}/>
+                </div>
                 <form className="searchForm" onSubmit={(e) => e.preventDefault()}>
                     <label htmlFor="search">Search</label>
                     <input 

@@ -1,8 +1,11 @@
 nav {
     background-color: #333;
     color: #fff;
-    padding: 0.75rem;
+    padding: 0.75rem 20vw 0.75rem 20vw;
     width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
 }
 nav a {
     color: #fff;
@@ -24,20 +27,45 @@ nav ul {
 }
 nav li {
     display:flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
 }
-nav li a {
+nav li a, nav li input {
     display:flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
+}
+.Logo {
+    flex-grow: 0.5;
+}
+.nav-elements {
+    flex-grow: 1;
+    padding: 0 10rem 0 10rem;
+}
+.searchBar {
+    height: 100%;
+}
+.searchIcon {
+    height: 100%;
+    width: 36px;
+    background-color: grey;
+    border-radius: 0.25rem 0 0 0.25rem;
+
+}
+.searchIcon svg {
+    display: block;
+    margin: auto;
+}
+.container {
+    display: flex;
+    justify-content: center;
 }
 .searchForm input[type="text"] {
     font-family: 'Open Sans', sans-serif;
     width: 100%;
     font-size: 1rem;
-    padding: 0.25rem;
-    border-radius: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0 0.25rem 0 0.25rem;
     outline: none;
   }
   
