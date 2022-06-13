@@ -6,6 +6,7 @@ nav {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    max-height: 6vh;
 }
 nav a {
     color: #fff;
@@ -37,6 +38,17 @@ nav li a, nav li input {
 }
 .Logo {
     flex-grow: 0.5;
+    background-image: url("../public/images/brawlclub_logo.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+.Logo li {
+    width: 100%;
+}
+.Logo li a {
+    width: inherit;
+    height: 100%;
 }
 .nav-elements {
     flex-grow: 1;
