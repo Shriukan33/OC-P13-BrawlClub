@@ -2,6 +2,7 @@ import './App.css';
 import Layout from './Layout';
 import Home from './Home';
 import { Route, Routes, useNavigate } from 'react-router-dom';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
     return (
