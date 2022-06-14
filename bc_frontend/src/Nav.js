@@ -1,8 +1,7 @@
 import React from 'react'
 import "./Nav.css"
+import SearchBar from "./SearchBar"
 import { Link } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 const Nav = () => {
   return (
@@ -25,17 +24,7 @@ const Nav = () => {
         </ul>
         <ul className="searchBar">
             <li>
-                <div className="searchIcon container">
-                    <FontAwesomeIcon icon={faSearch}/>
-                </div>
-                <form className="searchForm" onSubmit={(e) => e.preventDefault()}>
-                    <label htmlFor="search">Search</label>
-                    <input 
-                        id="search"
-                        type="text" 
-                        placholder="Enter a player or a club tag"
-                    />
-                </form>
+                <SearchBar />
             </li>
         </ul>
     </nav>
