@@ -11,7 +11,11 @@ const Nav = () => {
                 <Link to="/"></Link>
             </li>
         </ul>
-        <ul className="nav-elements">
+        <input id="menu-toggle" type="checkbox" />
+        <label class='menu-button-container' for="menu-toggle">
+            <div class='menu-button'></div>
+        </label>
+        <ul class="menu">
             <li>
                 <Link to="/profile">Profile</Link>
             </li>
@@ -22,7 +26,18 @@ const Nav = () => {
                 <Link to="leaderboard">Leaderboard</Link>
             </li>
         </ul>
-        <ul className="searchBar">
+        {/* <ul className="nav-elements">
+            <li>
+                <Link to="/profile">Profile</Link>
+            </li>
+            <li>
+                <Link to="/club">Club</Link>
+            </li>
+            <li>
+                <Link to="leaderboard">Leaderboard</Link>
+            </li>
+        </ul> */}
+        <ul>
             <li>
                 <SearchBar />
             </li>
