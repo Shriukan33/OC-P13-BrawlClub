@@ -1,8 +1,6 @@
 body {
     margin: 0px;
     padding: 0px;
-    width: 100vw;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,4 +35,5 @@ body {
     color: #ffffff;
     background-color: transparent;
     background-color: rgba(117, 117, 117, 0.253);
+    border-bottom: 1px solid rgba(255, 255, 255, .5);
 }

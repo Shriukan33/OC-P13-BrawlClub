@@ -6,13 +6,13 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 function App() {
     return (
-        <div className="App">
+        <>
             <Routes>
                 <Route path="/" element={<Layout />}>
                     <Route index element={<Home />} />
                 </Route>
             </Routes>
-        </div>
+        </>
     );
 }
 
