@@ -5,11 +5,11 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 const SearchBar = () => {
   return (
-    <div class="search-box">
-        <button class="btn-search">
+    <div className="search-box">
+        <button className="btn-search">
             <FontAwesomeIcon icon={faSearch} />
         </button>
-        <input type="text" class="input-search" placeholder="Enter a player or a club tag"/>
+        <input type="text" className="input-search" placeholder="Enter a player or a club tag"/>
     </div>
   )
 }
