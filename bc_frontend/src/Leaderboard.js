@@ -5,9 +5,9 @@ import LeaderboardLine from './LeaderboardLine'
 const Leaderboard = ({title, topEntities}) => {
 
   return (
-    <div className="leaderboard-frame d-flex flex-column col-10 col-md-4 my-1">
-      <header className="mx-auto">{title}</header>
-      <div className="d-flex flex-column p-1 leaderboard-body">
+    <div className="leaderboard-frame d-flex flex-column col-10 col-md-4 my-3 mx-5">
+      <header className="mx-auto mt-2">{title}</header>
+      <div className="d-flex flex-column p-1 leaderboard-body mb-2">
         {topEntities.length ?
           topEntities.map(entity => (
             <LeaderboardLine key={entity.id} entity={entity} />

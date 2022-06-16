@@ -72,9 +72,9 @@ const Home = () => {
         <div className="my-5">
           <StaticSearchBar />
         </div>
-        <section className="d-flex flex-wrap col-10 justify-content-around mx-auto">
+        <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
           <Leaderboard title="Player Rating Leaderboard" topEntities={topPlayers}/>
-          <Leaderboard title="Club Leaderboard" topEntities={topClubs} />
+          <Leaderboard title="Club Leaderboard" topEntities={topPlayers} />
         </section>
     </main>
   )
