@@ -1,8 +1,6 @@
 .leaderboard-frame {
     max-width: 300px;
     width: 100%;
-    max-height: 40vh;
-    height: fit-content;
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 5px;
     font-weight: bold;
