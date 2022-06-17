@@ -2,69 +2,26 @@ import React from 'react'
 import './Home.css'
 import StaticSearchBar from "./StaticSearchBar"
 import Leaderboard from './Leaderboard'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const Home = () => {
 
-  const [topPlayers, setTopPlayers] = useState([
-    {
-      id: 1,
-      name: 'Player 1',
-      metric: '99.5',
-    },
-    {
-      id: 2,
-      name: 'Player 2',
-      metric: '94.57',
-    },
-    {
-      id: 3,
-      name: 'Player 3',
-      metric: '92.5',
-    },
-    {
-      id: 4,
-      name: 'Player 4',
-      metric: '91.5',
-    },
-    {
-      id: 5,
-      name: 'Player 5',
-      metric: '90.5',
-    },
-    {
-      id: 6,
-      name: 'Player 6',
-      metric: '89.5',
-    },
-    {
-      id: 7,
-      name: 'Player 7',
-      metric: '88.5',
-    },
-    {
-      id: 8,
-      name: 'Player 8',
-      metric: '87.5',
-    },
-    {
-      id: 9,
-      name: 'Player 9',
-      metric: '86.5',
-    },
-    {
-      id: 10,
-      name: 'Player 10',
-      metric: '85.5',
-    }
-  ])
+  const API_URL = 'http://localhost:3500'
+  const [topPlayers, setTopPlayers] = useState([])
   const [topClubs, setTopClubs] = useState([])
 
-  // const fetchTopPlayers = async () => {
-  //   const response = await fetch('/api/top_players')
-  //   const json = await response.json()
-  //   setTopPlayers(json)
-  // }
+  const fetchTopEntities = async (entity) => {
+    const response = await fetch(`${API_URL}/top-${entity}`)
+    if (response.ok) {
+      const json = await response.json()
+      return json
+    }
+  }
+
+  useEffect(() => {
+    fetchTopEntities("players").then(setTopPlayers)
+    fetchTopEntities("clubs").then(setTopClubs)
+  }, [])
 
   return (
     <main className='HomePage'>
@@ -74,7 +31,7 @@ const Home = () => {
         </div>
         <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
           <Leaderboard title="Player Rating Leaderboard" topEntities={topPlayers}/>
-          <Leaderboard title="Club Leaderboard" topEntities={topPlayers} />
+          <Leaderboard title="Club Leaderboard" topEntities={topClubs} />
         </section>
     </main>
   )
