@@ -13,6 +13,11 @@ nav {
         padding: 0.75rem 10vw 0.75rem 10vw;
     }
 }
+@media screen and (max-width: 480px) {
+    nav {
+        padding: 0.75rem 5vw 0.75rem 5vw;
+    }
+}
 nav a {
     color: #fff;
     text-decoration: none;
@@ -23,6 +28,9 @@ nav a:hover {
 }
 nav a.active {
     font-weight: bold;
+}
+nav a img {
+  min-height: 36px;
 }
 nav ul {
     list-style: none;

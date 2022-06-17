@@ -10,6 +10,7 @@ body {
 
 .input-search {
     height: 50px;
+    max-width: 75vw;
     border-style: none;
     padding: 10px;
     font-size: 17px;
