@@ -17,7 +17,7 @@ const SearchBar = () => {
   }
   const handleChange = (e) => {
     let new_value = e.target.value
-    new_value = new_value.replace('#', '')
+    new_value = new_value.replaceAll('#', '')
     setSearchValue(new_value) 
   }
 

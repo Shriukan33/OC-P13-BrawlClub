@@ -17,7 +17,8 @@ const StaticSearchBar = () => {
   }
   const handleChange = (e) => {
     let new_value = e.target.value
-    new_value = new_value.replace('#', '')
+    new_value = new_value.replaceAll('#', '')
+    console.log(new_value)
     setSearchValue(new_value) 
   }
   return (
