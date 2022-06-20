@@ -1,7 +1,7 @@
 import './App.css';
-import Layout from './Layout';
-import Home from './Home';
-import Player from './Player';
+import Layout from './common/Layout';
+import Home from './home/Home';
+import Player from './player/Player';
 import { Route, Routes } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 
