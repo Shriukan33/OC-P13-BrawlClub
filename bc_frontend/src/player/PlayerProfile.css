@@ -12,7 +12,7 @@
     color: white;
     font-weight:900;
     border-color: black;
-
+    text-shadow: 1px 1px 1px black;
     background: linear-gradient(110deg, #0076B9 55%, #3fe5ffa8 50%);
 }
 #PlayerProfilePicture img {
