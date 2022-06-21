@@ -1,10 +1,11 @@
 import React from 'react'
 import './Player.css'
+import PlayerProfile from "./PlayerProfile"
 
 const Player = () => {
   return (
-    <main className='Player-profile'>
-        <h1>Player profile here</h1>
+    <main className='Player justify-content-center'>
+        <PlayerProfile />
     </main>
   )
 }

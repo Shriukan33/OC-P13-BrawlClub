@@ -1,0 +1,42 @@
+/* Bootstrap left and right classes don't seem to work */
+.mleft-2 {
+    margin-left: 0.5rem !important
+}
+.mright-2 {
+    margin-right: 0.5rem !important
+}
+
+.PlayerProfile {
+    border: 1px solid;
+    border-radius: 10px;
+    color: white;
+    font-weight:900;
+    border-color: black;
+
+    background: linear-gradient(110deg, #0076B9 55%, #3fe5ffa8 50%);
+}
+#PlayerProfilePicture img {
+    max-height: 8vh;
+}
+#PlayerIdentity span {
+    width:max-content;
+    height:max-content
+}
+#PlayerLevel img{
+    max-height: 3rem;
+}
+#PlayerTotalTrophies img {
+    max-height: 3rem
+}
+.level-badge {
+    position:relative;
+    text-align: center;
+    color: white;
+}
+.level-icon~span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1rem;
+}

@@ -1,3 +1,5 @@
-.Player-profile {
+.Player{
     flex-grow: 1;
+    width: 100vw;
+    padding-top: 30px
 }
