@@ -9,11 +9,11 @@
 .leaderboard-line-name a:hover {
     color: #F01919;
 }
-.leaderboard-line-name:visited {
-    color: white;
-}
 .leaderboard-line-name:hover+.leaderboard-line-metric {
     font-size: 1.1em;
     font-weight: bold;
+    color: #F01919;
+}
+.leaderboard-line-name:hover a {
     color: #F01919;
 }
