@@ -22,10 +22,12 @@ const PlayerProfile = () => {
                     <span>150</span>
                 </div>
             </div>
-            <div id="PlayerTotalTrophies" className="d-flex mx-2 my-auto">
-                <span className="m-auto">Total of Trophies :</span>
-                <img className="mleft-2" src="/images/trophy.png" alt="Player trophies" />
-                <span className="m-auto">28250</span>
+            <div id="PlayerTotalTrophies" className="d-flex mx-2 my-auto flex-wrap">
+                <span className="m-auto">Total of Trophies&nbsp;:</span>
+                <div className="m-auto">
+                    <img className="mleft-2" src="/images/trophy.png" alt="Player trophies" />
+                    <span className="m-auto">28250</span>
+                </div>
             </div>
         </div>
     </div>
