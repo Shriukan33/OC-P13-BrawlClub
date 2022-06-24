@@ -9,7 +9,40 @@
                 "name": "Club 1",
                 "URL": "club/ZXWYVU123"
             },
-            "total_club_war_trophy_count": 61
+            "total_club_war_trophy_count": 61,
+            "stats" : [
+                {
+                    "statName": "3v3 victories",
+                    "statValue": 14222,
+                    "statIcon": "3v3"
+                },
+                {
+                    "statName": "Duo victories",
+                    "statValue": 1227,
+                    "statIcon": "duo"
+                },
+                {
+                    "statName": "Solo victories",
+                    "statValue": 1347,
+                    "statIcon": "solo"
+                },
+                {
+                    "statName": "Highest Trophies",
+                    "statValue": 28250,
+                    "statIcon": "trophy"
+                },
+                {
+                    "statName": "Club war win rate",
+                    "statValue": "94%",
+                    "statIcon": "club_league_icon"
+                },
+                {
+                    "statName": "Total tickets spent",
+                    "statValue": 597,
+                    "statIcon": "ticket"
+                }
+            ], 
+            "Bc_rating": "98,8%"
         },
         {
             "id": 2,
