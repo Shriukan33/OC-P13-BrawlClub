@@ -5,3 +5,10 @@
     color: white;
     font-weight: bold;
 }
+
+
+@media screen and (min-width: 1200px) {
+    #Rating-and-stats {
+        padding-left: 1rem;
+    }
+}

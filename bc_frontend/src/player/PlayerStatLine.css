@@ -1,0 +1,26 @@
+.PlayerStatLine {
+    border: 1px solid #000;
+    border-radius: 5px;
+    background-color: #3fe5ffa8;
+    color: white;
+    text-shadow: 1px 1px 1px #000;
+}
+/* Bootstrap's lg
+To leave some space between stat lines and keep the responsive
+working, I reduced the width (adding margin makes the width bigger
+and trigger the wrap).
+*/
+@media screen and (min-width: 768px) {
+    .col-md-49 {
+        flex: 0 0 auto !important;
+        width: 49% !important;
+    }
+}
+
+.stat-line-icon {
+    height: 32px;
+    margin-right: 2px;
+}
+.stat-name-text {
+    white-space: nowrap;
+}
