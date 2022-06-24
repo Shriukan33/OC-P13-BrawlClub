@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 
 const Home = () => {
 
-  const API_URL = 'http://localhost:3500'
+  const API_URL = process.env.REACT_APP_API_ENDPOINT
   const [topPlayers, setTopPlayers] = useState([])
   const [topClubs, setTopClubs] = useState([])
 
