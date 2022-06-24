@@ -3,7 +3,7 @@ import "./PlayerProfile.css"
 
 const PlayerProfile = () => {
   return (
-    <div className="PlayerProfile d-flex flex-column p-2 col-10 col-lg-3 mx-auto">
+    <div className="PlayerProfile d-flex flex-column p-2 w-100">
         <div className='d-flex flex-row'>
             <div id="PlayerProfilePicture">
                 <img src="/images/Portrait_placeholder.png" alt="Player profile pic"/>
