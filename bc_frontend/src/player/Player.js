@@ -3,40 +3,39 @@ import './Player.css'
 import PlayerBcRating from './PlayerBcRating'
 import PlayerProfile from "./PlayerProfile"
 import PlayerStats from "./PlayerStats"
+import {useState, useEffect} from 'react'
+import { useParams } from 'react-router-dom'
+
 
 const Player = () => {
-  const playerStats = [
-    {
-      statName: "3v3 victories",
-      statValue: 14222,
-      statIcon: "3v3"
-    },
-    {
-      statName: "Duo victories",
-      statValue: 1227,
-      statIcon: "duo"
-    },
-    {
-      statName: "Solo victories",
-      statValue: 1347,
-      statIcon: "solo"
-    },
-    {
-      statName: "Highest Trophies",
-      statValue: 28250,
-      statIcon: "trophy"
-    },
-    {
-      statName: "Club war win rate",
-      statValue: "94%",
-      statIcon: "club_league_icon"
-    },
-    {
-      statName: "Total tickets spent",
-      statValue: 597,
-      statIcon: "ticket"
+  
+  const [playerStats, setPlayerStats] = useState([])
+  const [player_bc_rating, setPlayerBcRating] = useState('')
+  const { id } = useParams()
+
+  useEffect(() => {
+    const API_URL = process.env.REACT_APP_API_ENDPOINT
+    const fetchPlayerStats = async (player_id) => {
+      const response = await fetch(`${API_URL}/player/${player_id}`)
+      if (response.ok) {
+        const json = await response.json()
+        return json
+      }
     }
-  ]
+    
+    fetchPlayerStats({id}.id).then((response) => {
+        if (response.stats) {
+          setPlayerStats(response.stats)
+        } else {
+          setPlayerStats([])
+        }
+        if (response.Bc_rating) {
+          setPlayerBcRating(response.Bc_rating)
+        } else {
+          setPlayerBcRating('Unknown')
+        }
+      })
+  }, [id])
 
   return (
     <main className='col-10 col-lg-7 Player justify-content-center'>
@@ -45,7 +44,7 @@ const Player = () => {
           <PlayerProfile />
         </div>
         <div id="Rating-and-stats" className="d-flex flex-column col-12 col-xl-8 ml-2">
-          <PlayerBcRating bcRating={'94.58'} />
+          <PlayerBcRating bcRating={player_bc_rating} />
           <PlayerStats stats={playerStats} />
         </div>
 
