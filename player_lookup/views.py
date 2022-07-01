@@ -21,33 +21,34 @@ logger = logging.getLogger("django")
 
 
 class PlayerLookupView(FormView):
-    template_name = 'player_lookup/player_lookup.html'
+    template_name = "player_lookup/player_lookup.html"
     form_class = PlayerLookupForm
-    success_url = 'player_lookup:player_page'
+    success_url = "player_lookup:player_page"
 
     def form_valid(self, form):
         """If the form is valid, redirect to the supplied URL."""
-        player_tag = form.cleaned_data['player_tag']
+        player_tag = form.cleaned_data["player_tag"]
         return HttpResponseRedirect(self.get_success_url(player_tag))
 
     def get_success_url(self, player_tag) -> str:
         """Return the URL to redirect to after processing a valid form."""
         if not self.success_url:
-            raise ImproperlyConfigured("No URL to redirect to. "
-                                       "Provide a success_url.")
+            raise ImproperlyConfigured(
+                "No URL to redirect to. " "Provide a success_url."
+            )
         success_url = reverse_lazy(self.success_url, args=[player_tag])
         return success_url
 
 
 class PlayerPageView(TemplateView):
-    template_name = 'player_lookup/player_page.html'
+    template_name = "player_lookup/player_page.html"
 
     def get_context_data(self, **kwargs):
         """Displays the stats of the player."""
-        player_tag = kwargs['player_tag']
+        player_tag = kwargs["player_tag"]
         player_data = self.get_number_of_trophies_in_club_war(player_tag)
         context = super().get_context_data(**kwargs)
-        context['player_data'] = player_data
+        context["player_data"] = player_data
         return context
 
     def get_number_of_trophies_in_club_war(self, player_tag: str) -> int:
@@ -55,8 +56,8 @@ class PlayerPageView(TemplateView):
         the last 24 matches."""
         player_battlelog = brawl_api.get_player_battlelog(player_tag)
         number_of_trophies = 0
-        for match in player_battlelog['items']:
-            if match['battle']['type'] == 'teamRanked':
+        for match in player_battlelog["items"]:
+            if match["battle"]["type"] == "teamRanked":
                 number_of_trophies += match["battle"].get("trophyChange", 0)
         return number_of_trophies
 
@@ -106,7 +107,7 @@ def update_club_members(request, club_tag: str) -> JsonResponse:
     """Test async to sync"""
     tag_profile, tag_battlelogs = get_club_members_data(request, club_tag)
     club = create_or_update_club(club_tag)
-    player_ids = models.Player.objects.values_list('player_tag', flat=True)
+    player_ids = models.Player.objects.values_list("player_tag", flat=True)
     players_to_update = []
     players_to_create = []
     for _, profile in tag_profile.items():
@@ -117,8 +118,7 @@ def update_club_members(request, club_tag: str) -> JsonResponse:
             players_to_create.append(player_instance)
 
     models.Player.objects.bulk_create(players_to_create)
-    models.Player.objects.bulk_update(players_to_update,
-                                      ['trophy_count', 'club'], 999)
+    models.Player.objects.bulk_update(players_to_update, ["trophy_count", "club"], 999)
 
     for tag, battlelog in tag_battlelogs.items():
         create_matches_from_battlelog(tag, battlelog)
@@ -132,16 +132,16 @@ def create_or_update_club(club_tag: str) -> models.Club:
         return None
     club_information = brawl_api.get_club_information(club_tag)
     defaults = {
-        "club_name": club_information['name'],
-        "club_description": club_information['description'],
-        "club_type": club_information['type'],
-        "club_tag": club_information['tag'],
-        "trophies": club_information['trophies'],
-        "required_trophies": club_information['requiredTrophies']
+        "club_name": club_information["name"],
+        "club_description": club_information["description"],
+        "club_type": club_information["type"],
+        "club_tag": club_information["tag"],
+        "trophies": club_information["trophies"],
+        "required_trophies": club_information["requiredTrophies"],
     }
     club, created = models.Club.objects.update_or_create(
-        club_tag=club_information['tag'],
-        defaults=defaults)
+        club_tag=club_information["tag"], defaults=defaults
+    )
 
     if created:
         logger.info(f"Created club {club.club_name}")
@@ -163,9 +163,9 @@ def create_player_instance(player: dict, club: models.Club) -> models.Player:
     """
 
     defaults = {
-        "player_tag": player['tag'],
-        "player_name": player['name'],
-        "trophy_count": player['trophies'],
+        "player_tag": player["tag"],
+        "player_name": player["name"],
+        "trophy_count": player["trophies"],
         "club": club,
     }
     player_instance = models.Player(**defaults)
@@ -181,8 +181,7 @@ async def get_player_battlelog(player_tag: str) -> dict:
         return response.json()
 
 
-def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
-        -> None:
+def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
     """
     Create matches from a given battlelog.
 
@@ -191,8 +190,9 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
     - battlelog -- the battlelog of the player, including its 24 last matches
     """
 
-    def get_battle_data(player_tag, battle: dict) \
-            -> Tuple[list, list, str, str, str, datetime, bool, int, str, str]:
+    def get_battle_data(
+        player_tag, battle: dict
+    ) -> Tuple[list, list, str, str, str, datetime, bool, int, str, str]:
         """Return data from a battle.
 
         Keyword arguments:
@@ -223,8 +223,9 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
         star_players_tag = None
         played_brawler = None
         # We are only interested in Team ranked matches
-        if battle["battle"].get("type", None) == "teamRanked" and \
-                battle["battle"].get("trophyChange", None):
+        if battle.get("battle", {}).get("type", None) == "teamRanked" and battle.get(
+            "battle", {}
+        ).get("trophyChange", None):
             # Now we examinate each of the two teams to get the winning one
             for team_number, team in enumerate(battle["battle"]["teams"]):
                 for player in team:
@@ -233,16 +234,15 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
                             winning_team = team
                         elif battle["battle"]["result"] == "defeat":
                             # There are only two teams : 0 and 1
-                            winning_team = \
-                                battle["battle"]["teams"][1 - team_number]
+                            winning_team = battle["battle"]["teams"][1 - team_number]
                         elif battle["battle"]["result"] == "draw":
                             winning_team = None
                     # We add to the player list the player tags
-                    player_list.append(
-                        (player["tag"], player["brawler"]["name"]))
+                    player_list.append((player["tag"], player["brawler"]["name"]))
 
-            winning_team = [(player["tag"], player["brawler"]["name"])
-                            for player in winning_team]
+            winning_team = [
+                (player["tag"], player["brawler"]["name"]) for player in winning_team
+            ]
             map_played = battle["event"].get("map", None)
             mode = battle["event"].get("mode", None)
             battle_date = dateutil.parser.parse(battle["battleTime"])
@@ -256,20 +256,30 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
                 match_outcome = "DRAW"
             else:
                 match_outcome = "UNKNOWN"
-            is_star_player = \
-                player_tag in battle["battle"].get(
-                    "starPlayer", {}).get("tag", "")
+            is_star_player = player_tag in battle["battle"].get("starPlayer", {}).get(
+                "tag", ""
+            )
             trophies_won = battle["battle"].get("trophyChange")
-            star_players_tag = battle["battle"].get("starPlayer", {}).get(
-                "tag", '')[1:]  # We remove the #
+            star_players_tag = (
+                battle["battle"].get("starPlayer", {}).get("tag", "")[1:]
+            )  # We remove the #
             for tag, brawler in player_list:
                 if tag == player_tag:
                     played_brawler = brawler
                     break
 
-        return (player_list, winning_team, match_outcome, map_played, mode,
-                battle_date, is_star_player, trophies_won, star_players_tag,
-                played_brawler)
+        return (
+            player_list,
+            winning_team,
+            match_outcome,
+            map_played,
+            mode,
+            battle_date,
+            is_star_player,
+            trophies_won,
+            star_players_tag,
+            played_brawler,
+        )
 
     def get_match_type(match_outcome: str) -> Tuple[bool, bool]:
         """Return the match type.
@@ -306,10 +316,18 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
     incomplete_match_issue_list = []
     match_issues_batch = []
     for battle in battlelog["items"]:
-        (player_list, winning_team, match_outcome, map_played, mode,
-         battle_date, is_star_player, trophies_won, star_players_tag,
-         brawler_used) \
-            = get_battle_data(player_tag, battle)
+        (
+            player_list,
+            winning_team,
+            match_outcome,
+            map_played,
+            mode,
+            battle_date,
+            is_star_player,
+            trophies_won,
+            star_players_tag,
+            brawler_used,
+        ) = get_battle_data(player_tag, battle)
 
         if player_list:
             # We don't want to create a match if it already exists
@@ -321,8 +339,8 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
 
             battle_type = "Power Match" if is_power_match else "Normal Match"
             the_map = models.BrawlMap.objects.get_or_create(
-                name=map_played,
-                defaults={"name": map_played})[0]
+                name=map_played, defaults={"name": map_played}
+            )[0]
             the_match = models.Match(
                 match_id=match_id,
                 mode=mode,
@@ -335,8 +353,8 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
             # We now create the associated MatchIssue
             player = models.Player.objects.get(player_tag=player_tag)
             brawler = models.Brawler.objects.get_or_create(
-                name=brawler_used,
-                defaults={"name": brawler_used})[0]
+                name=brawler_used, defaults={"name": brawler_used}
+            )[0]
             # MatchIssue has a FK to Match, which isn't created yet.
             # We're going to add it once the Match is created
             the_match_issue = models.MatchIssue(
@@ -345,12 +363,14 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict)\
                 outcome=match_outcome,
                 trophies_won=trophies_won,
                 is_star_player=is_star_player,
-                played_with_clubmate=played_with_team)
+                played_with_clubmate=played_with_team,
+            )
             incomplete_match_issue_list.append(the_match_issue)
 
     created_matches = models.Match.objects.bulk_create(match_batch)
-    for match, incomplete_match_issue in \
-            zip(created_matches, incomplete_match_issue_list):
+    for match, incomplete_match_issue in zip(
+        created_matches, incomplete_match_issue_list
+    ):
         incomplete_match_issue.match = match
         match_issues_batch.append(incomplete_match_issue)
 
