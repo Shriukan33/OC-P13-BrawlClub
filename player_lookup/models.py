@@ -4,8 +4,7 @@ from django.forms import ValidationError
 
 def limit_number_of_players(value):
     if Player.objects.filter(club__id=value).count() > 30:
-        raise ValidationError(
-            "The number of players in a club must be less than 30.")
+        raise ValidationError("The number of players in a club must be less than 30.")
 
 
 class Player(models.Model):
@@ -13,12 +12,38 @@ class Player(models.Model):
     player_tag = models.CharField(max_length=9, primary_key=True)
     player_name = models.CharField(max_length=50)
     trophy_count = models.IntegerField(default=0)
-    club = models.ForeignKey('Club', on_delete=models.SET_NULL, null=True,
-                             validators=[limit_number_of_players])
+    club = models.ForeignKey(
+        "Club",
+        on_delete=models.SET_NULL,
+        null=True,
+        validators=[limit_number_of_players],
+    )
     total_club_war_trophy_count = models.IntegerField(default=0)
+    brawlclub_rating = models.FloatField(default=0)
+    club_league_winrate = models.FloatField(default=0)
+    # Number of tickets spent on total possible
+    club_league_playrate = models.FloatField(default=0)
+    # Frequence of game played with a clubmate
+    club_league_teamplay_rate = models.FloatField(default=0)
 
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
+
+    def update_brawlclub_rating(self):
+        """Update player's club league rating.
+
+        Brawlclub rating rates a player according to three parameters :
+        - The number of tickets spent per week
+        - The frequence the player plays with a club mate
+        - The win rate
+        """
+        rate = (
+            self.club_league_playrate * 50
+            + self.club_league_teamplay_rate * 30
+            + self.club_league_winrate * 20
+        )
+        self.brawlclub_rating = rate
+        self.save()
 
 
 class Club(models.Model):
@@ -37,8 +62,9 @@ class Club(models.Model):
 
 class Brawler(models.Model):
     """Brawlers are characters the players can choose from."""
+
     name = models.CharField(max_length=30)
-    image = models.ImageField(upload_to='brawlers/')
+    image = models.ImageField(upload_to="brawlers/")
 
     def __str__(self):
         return self.name
@@ -46,7 +72,7 @@ class Brawler(models.Model):
 
 class BrawlMap(models.Model):
     name = models.CharField(max_length=30)
-    image = models.ImageField(upload_to='maps/')
+    image = models.ImageField(upload_to="maps/")
 
     def __str__(self):
         return self.name
@@ -60,31 +86,31 @@ class Match(models.Model):
     # Brawlball, Gem grab, Knockout ...
     mode = models.CharField(max_length=20)
     # Map
-    map_played = models.ForeignKey(BrawlMap, on_delete=models.SET_NULL,
-                                   null=True)
+    map_played = models.ForeignKey(BrawlMap, on_delete=models.SET_NULL, null=True)
     # Power match or normal match
     battle_type = models.CharField(max_length=20)
     # Provided in the API
     date = models.DateTimeField()
 
     def __str__(self):
-        return (f"{self.battle_type} - {self.mode} "
-                f"- {self.date.strftime('%d/%m/%Y')}")
+        return (
+            f"{self.battle_type} - {self.mode} " f"- {self.date.strftime('%d/%m/%Y')}"
+        )
 
 
 class MatchIssue(models.Model):
-
     class MatchOutcomes(models.TextChoices):
-        WIN = 'WIN', 'Win'
-        LOSS = 'LOSS', 'Loss'
-        DRAW = 'DRAW', 'Draw'
-        UNKNOWN = 'UNKNOWN', 'Unknown'
+        WIN = "WIN", "Win"
+        LOSS = "LOSS", "Loss"
+        DRAW = "DRAW", "Draw"
+        UNKNOWN = "UNKNOWN", "Unknown"
 
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     brawler = models.ForeignKey(Brawler, on_delete=models.CASCADE)
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
-    outcome = models.CharField(max_length=7, choices=MatchOutcomes.choices,
-                               default=MatchOutcomes.UNKNOWN)
+    outcome = models.CharField(
+        max_length=7, choices=MatchOutcomes.choices, default=MatchOutcomes.UNKNOWN
+    )
     trophies_won = models.IntegerField(default=0)
     is_star_player = models.BooleanField(default=False)
     played_with_clubmate = models.BooleanField(default=False)
