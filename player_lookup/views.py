@@ -293,20 +293,20 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
         """
         played_with_team = False
         is_power_match = False
-        if match_outcome == "victory":
+        if match_outcome == "WIN":
             if trophies_won == 9:
                 played_with_team = True
                 is_power_match = True
             elif trophies_won == 4:
                 played_with_team = True
-        elif match_outcome == "defeat":
+        elif match_outcome == "LOSS":
             if trophies_won == 5:
                 played_with_team = True
                 is_power_match = True
             elif trophies_won == 2:
                 played_with_team = True
         # Can't draw in Power matches
-        elif match_outcome == "draw" and trophies_won == 3:
+        elif match_outcome == "DRAW" and trophies_won == 3:
             played_with_team = True
 
         return (is_power_match, played_with_team)
