@@ -311,9 +311,9 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
 
         return (is_power_match, played_with_team)
 
-    all_match_ids = models.Match.objects.values_list("match_id", flat=True)
     match_batch = []
     incomplete_match_issue_list = []
+    match_issues_with_pre_existing_match_batch = []
     match_issues_batch = []
     for battle in battlelog["items"]:
         (
@@ -328,34 +328,44 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
             star_players_tag,
             brawler_used,
         ) = get_battle_data(player_tag, battle)
-
+        match_already_exists = False
         if player_list:
             # We don't want to create a match if it already exists
             match_id = f"{star_players_tag}{battle_date.strftime('%s')}"
-            if all_match_ids.filter(match_id=match_id).exists():
-                continue
-
             played_with_team, is_power_match = get_match_type(match_outcome)
-
-            battle_type = "Power Match" if is_power_match else "Normal Match"
-            the_map = models.BrawlMap.objects.get_or_create(
-                name=map_played, defaults={"name": map_played}
-            )[0]
-            the_match = models.Match(
-                match_id=match_id,
-                mode=mode,
-                map_played=the_map,
-                battle_type=battle_type,
-                date=battle_date,
-            )
-            match_batch.append(the_match)
+            try:
+                the_match = models.Match.objects.get(match_id=match_id)
+                match_already_exists = True
+            except models.Match.DoesNotExist:
+                # We create a match instance but don't save it yet
+                battle_type = "Power Match" if is_power_match else "Normal Match"
+                the_map = models.BrawlMap.objects.get_or_create(
+                    name=map_played, defaults={"name": map_played}
+                )[0]
+                the_match = models.Match(
+                    match_id=match_id,
+                    mode=mode,
+                    map_played=the_map,
+                    battle_type=battle_type,
+                    date=battle_date,
+                )
+                match_batch.append(the_match)
 
             # We now create the associated MatchIssue
             player = models.Player.objects.get(player_tag=player_tag)
+
+            if match_already_exists:
+                # We check if the match already has an issue with the player
+                match_issue_exists = models.MatchIssue.objects.filter(
+                    match=the_match, player=player
+                ).exists()
+                if match_issue_exists:
+                    continue
+
             brawler = models.Brawler.objects.get_or_create(
                 name=brawler_used, defaults={"name": brawler_used}
             )[0]
-            # MatchIssue has a FK to Match, which isn't created yet.
+            # MatchIssue has a FK to Match, which might not be created yet.
             # We're going to add it once the Match is created
             the_match_issue = models.MatchIssue(
                 player=player,
@@ -365,7 +375,11 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
                 is_star_player=is_star_player,
                 played_with_clubmate=played_with_team,
             )
-            incomplete_match_issue_list.append(the_match_issue)
+            if not match_already_exists:
+                incomplete_match_issue_list.append(the_match_issue)
+            else:
+                the_match_issue.match = the_match
+                match_issues_with_pre_existing_match_batch.append(the_match_issue)
 
     created_matches = models.Match.objects.bulk_create(match_batch)
     for match, incomplete_match_issue in zip(
@@ -375,3 +389,4 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
         match_issues_batch.append(incomplete_match_issue)
 
     models.MatchIssue.objects.bulk_create(match_issues_batch)
+    models.MatchIssue.objects.bulk_create(match_issues_with_pre_existing_match_batch)
