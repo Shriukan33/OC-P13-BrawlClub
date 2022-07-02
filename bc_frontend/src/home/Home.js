@@ -2,25 +2,30 @@ import React from 'react'
 import './Home.css'
 import StaticSearchBar from "./StaticSearchBar"
 import Leaderboard from './Leaderboard'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 const Home = () => {
 
-  const API_URL = process.env.REACT_APP_API_ENDPOINT
+  
   const [topPlayers, setTopPlayers] = useState([])
   const [topClubs, setTopClubs] = useState([])
-
-  const fetchTopEntities = async (entity) => {
-    const response = await fetch(`${API_URL}/top-${entity}`)
-    if (response.ok) {
-      const json = await response.json()
-      return json
-    }
-  }
+  const hasFetched = useRef(false)
 
   useEffect(() => {
-    fetchTopEntities("players").then(setTopPlayers)
-    fetchTopEntities("clubs").then(setTopClubs)
+    const API_URL = process.env.REACT_APP_API_ENDPOINT
+    const fetchTopEntities = async (entity) => {
+      const response = await fetch(`${API_URL}/top-${entity}`)
+      if (response.ok) {
+        const json = await response.json()
+        return json
+      }
+    }
+
+    if (!hasFetched.current) {
+      fetchTopEntities("players").then(setTopPlayers)
+      fetchTopEntities("clubs").then(setTopClubs)
+      hasFetched.current = true
+    }
   }, [])
 
   return (
