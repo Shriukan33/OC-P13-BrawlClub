@@ -5,8 +5,8 @@ from typing import Tuple
 
 import dateutil.parser
 import httpx
-from asgiref.sync import async_to_sync
-from django.http import JsonResponse
+from asgiref.sync import async_to_sync, sync_to_async
+from django.http import HttpResponse, JsonResponse
 
 from . import models
 from .brawlstars_api import BrawlAPi
@@ -344,3 +344,39 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
 
     models.MatchIssue.objects.bulk_create(match_issues_batch)
     models.MatchIssue.objects.bulk_create(match_issues_with_pre_existing_match_batch)
+
+
+async def update_player_profile(request, player_tag: str):
+    """
+    Update on demand the profile of a single player.
+
+    Keyword arguments:
+    - player_tag -- the tag of the player to update
+    """
+    if not player_tag.startswith("#"):
+        player_tag = "#" + player_tag
+    response = get_player_data(player_tag)
+    player_profile = await asyncio.gather(response)
+    player_profile = player_profile[0]
+    response = get_player_battlelog(player_tag)
+    battlelog = await asyncio.gather(response)
+
+    player_club_tag = player_profile.get("club", {}).get("tag", None)
+
+    club = await sync_to_async(create_or_update_club)(player_club_tag)
+    player, _ = await sync_to_async(models.Player.objects.get_or_create)(
+        player_tag=player_tag,
+        defaults={
+            "player_tag": player_tag,
+            "player_name": player_profile["name"],
+            "trophy_count": player_profile["trophies"],
+            "player_name": player_profile["name"],
+            "club": club,
+        },
+    )
+    player.club = club
+    await sync_to_async(player.save)()
+
+    await sync_to_async(create_matches_from_battlelog)(player_tag, battlelog[0])
+
+    return HttpResponse(status=200)
