@@ -1,5 +1,16 @@
+from datetime import datetime, timezone
+import logging
+
 from django.db import models
 from django.forms import ValidationError
+
+from player_lookup.utils import (
+    get_number_of_weeks_since_date,
+    get_this_weeks_number_of_available_tickets,
+)
+
+
+logger = logging.getLogger("django")
 
 
 def limit_number_of_players(value):
@@ -38,12 +49,119 @@ class Player(models.Model):
         - The win rate
         """
         rate = (
-            self.club_league_playrate * 50
-            + self.club_league_teamplay_rate * 30
-            + self.club_league_winrate * 20
+            self.get_win_rate() * 50
+            + self.get_teamplay_rate() * 30
+            + self.get_win_rate() * 20
         )
         self.brawlclub_rating = rate
         self.save()
+
+    def get_brawclub_rating(self, since: datetime = None) -> float:
+        """Get the brawlclub rating of the player.
+
+        Args:
+            since (datetime): The date since when the brawlclub rating is calculated.
+        """
+        if not since:
+            since = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
+
+        return (
+            self.get_win_rate(since) * 50
+            + self.get_teamplay_rate(since) * 30
+            + self.get_playrate(since) * 20
+        )
+
+    def get_win_rate(self, since: datetime = None) -> float:
+        """Get the win rate of the player.
+
+        Args:
+            since (datetime): The date since when the win rate is calculated.
+        """
+        winrate = 0
+        try:
+            if since:
+                all_wins = MatchIssue.objects.filter(
+                    player=self, match__date__gte=since, outcome="WIN"
+                )
+                all_losses = MatchIssue.objects.filter(
+                    player=self, match__date__gte=since, outcome="LOSS"
+                )
+                winrate = all_wins.count() / (all_wins.count() + all_losses.count())
+            else:
+                all_wins = MatchIssue.objects.filter(player=self, outcome="WIN")
+                all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS")
+                winrate = all_wins.count() / (all_wins.count() + all_losses.count())
+        except ZeroDivisionError:
+            logger.info(f"ZeroDivisionError for {self.player_tag} in get_win_rate")
+
+        return winrate
+
+    def get_teamplay_rate(self, since: datetime = None) -> float:
+        """Get the teamplay rate of the player.
+
+        Args:
+            since (datetime): The date since when the teamplay rate is calculated.
+
+        Returns:
+            float: The teamplay rate of the player.
+        """
+        teamplay_rate = 0
+        try:
+            if since:
+                played_with_clubmate = MatchIssue.objects.filter(
+                    player=self, match__date__gte=since, played_with_clubmate=True
+                )
+                all_matches_since = MatchIssue.objects.filter(
+                    player=self, match__date__gte=since
+                )
+                teamplay_rate = played_with_clubmate.count() / all_matches_since.count()
+            else:
+                played_with_clubmate = MatchIssue.objects.filter(
+                    player=self, played_with_clubmate=True
+                )
+                all_matches = MatchIssue.objects.filter(player=self)
+                teamplay_rate = played_with_clubmate.count() / all_matches.count()
+        except ZeroDivisionError:
+            logger.info(f"ZeroDivisionError for {self.player_tag} in teamplay_rate")
+
+        return teamplay_rate
+
+    def get_playrate(self, since: datetime = None) -> float:
+        """
+        Get the rate of the number of tickets spent on the number of tickets available.
+
+        Every week, one has 14 tickets to spend, from wednesday to wednesday.
+        One update will make it every other week.
+        """
+        if not since:
+            since = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
+
+        this_weeks_number_of_available_tickets = (
+            get_this_weeks_number_of_available_tickets()
+        )
+
+        # Because a club league is likely to be going on at any time, we count
+        # the results to end of last week's league and add to that the partial
+        # results of this week.
+        # The formula goes as follows:
+        # total tickets spent since date / (number of whole weeks since date * 14)
+        # + partial results
+
+        whole_weeks_since = get_number_of_weeks_since_date(since)
+
+        all_matches_since = MatchIssue.objects.filter(
+            player=self, match__date__gte=since
+        )
+        total_tickets_spent = 0
+        for match in all_matches_since:
+            if match.match.battle_type == "Power Match":
+                total_tickets_spent += 2
+            else:
+                total_tickets_spent += 1
+
+        return total_tickets_spent / (
+            whole_weeks_since * 14 + this_weeks_number_of_available_tickets
+        )
 
 
 class Club(models.Model):
@@ -58,6 +176,17 @@ class Club(models.Model):
 
     def __str__(self):
         return self.club_name
+
+    def get_average_brawlclub_rating(self):
+        """Get the average brawlclub rating of the club."""
+        return self.player_set.aggregate(models.Avg("brawlclub_rating"))[
+            "brawlclub_rating__avg"
+        ]
+
+    def update_all_club_members_ratings(self):
+        """Update all club members ratings."""
+        for player in self.player_set.all():
+            player.update_brawlclub_rating()
 
 
 class Brawler(models.Model):
