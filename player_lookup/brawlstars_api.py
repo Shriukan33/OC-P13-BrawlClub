@@ -6,11 +6,27 @@ class BrawlAPi:
 
     def __init__(self) -> None:
         self.base_url = "https://api.brawlstars.com/v1/"
-        self.api_key = os.environ.get("BRAWLSTARS_API_KEY")
-        self.headers = {
+        self._api_key = os.environ.get("BRAWLSTARS_API_KEY")
+        # To use multiple API keys, separate them with a #
+        # The need of multiple keys is to avoid being throttled.
+        # Up to 10 keys are allowed per account.
+        self._api_key = iter(self._api_key.split("#"))
+
+    @property
+    def api_key(self) -> str:
+        try:
+            return next(self._api_key)
+        except StopIteration:
+            self.__init__()
+            return next(self._api_key)
+
+    @property
+    def headers(self) -> dict:
+        header = {
             "Authorization": f"Bearer {self.api_key}",
             "Accept": "application/json"
         }
+        return header
 
     def get_player_stats(self, player_tag: str) -> dict:
         if player_tag.startswith("#"):
