@@ -80,6 +80,15 @@ def update_club_members(request, club_tag: str) -> JsonResponse:
     return JsonResponse(tag_battlelogs, safe=False)
 
 
+def update_all_clubs(request):
+    """Update all clubs"""
+    clubs = models.Club.objects.all().iterator()
+    for club in clubs:
+        update_club_members({}, club.club_tag)
+
+    return HttpResponse("Updated all clubs")
+
+
 def create_or_update_club(club_tag: str) -> models.Club:
     """Create  or udpate a club"""
     if not club_tag:
