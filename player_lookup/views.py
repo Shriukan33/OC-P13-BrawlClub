@@ -96,7 +96,7 @@ def create_or_update_club(club_tag: str) -> models.Club:
     club_information = brawl_api.get_club_information(club_tag)
     defaults = {
         "club_name": club_information["name"],
-        "club_description": club_information["description"],
+        "club_description": club_information.get("description", ""),
         "club_type": club_information["type"],
         "club_tag": club_information["tag"],
         "trophies": club_information["trophies"],
@@ -278,6 +278,11 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
     incomplete_match_issue_list = []
     match_issues_with_pre_existing_match_batch = []
     match_issues_batch = []
+    if battlelog.get("reason", None) == "notFound":
+        # Happens sometimes that the player's battlelog can't be found
+        # It's not specific to this app
+        logger.info(player_tag + ": Battlelog not found")
+        return
     for battle in battlelog["items"]:
         (
             player_list,
