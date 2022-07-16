@@ -78,21 +78,22 @@ class Player(models.Model):
             since (datetime): The date since when the win rate is calculated.
         """
         winrate = 0
-        try:
-            if since:
-                all_wins = MatchIssue.objects.filter(
-                    player=self, match__date__gte=since, outcome="WIN"
-                )
-                all_losses = MatchIssue.objects.filter(
-                    player=self, match__date__gte=since, outcome="LOSS"
-                )
-                winrate = all_wins.count() / (all_wins.count() + all_losses.count())
-            else:
-                all_wins = MatchIssue.objects.filter(player=self, outcome="WIN")
-                all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS")
-                winrate = all_wins.count() / (all_wins.count() + all_losses.count())
-        except ZeroDivisionError:
-            logger.info(f"ZeroDivisionError for {self.player_tag} in get_win_rate")
+        
+        if since:
+            all_wins = MatchIssue.objects.filter(
+                player=self, match__date__gte=since, outcome="WIN"
+            )
+            all_losses = MatchIssue.objects.filter(
+                player=self, match__date__gte=since, outcome="LOSS"
+            )
+        else:
+            all_wins = MatchIssue.objects.filter(player=self, outcome="WIN")
+            all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS")
+        
+        if all_wins.count() + all_losses.count() == 0:
+                return 0
+
+        winrate = all_wins.count() / (all_wins.count() + all_losses.count())
 
         return winrate
 
@@ -106,23 +107,24 @@ class Player(models.Model):
             float: The teamplay rate of the player.
         """
         teamplay_rate = 0
-        try:
-            if since:
-                played_with_clubmate = MatchIssue.objects.filter(
-                    player=self, match__date__gte=since, played_with_clubmate=True
-                )
-                all_matches_since = MatchIssue.objects.filter(
-                    player=self, match__date__gte=since
-                )
-                teamplay_rate = played_with_clubmate.count() / all_matches_since.count()
-            else:
-                played_with_clubmate = MatchIssue.objects.filter(
-                    player=self, played_with_clubmate=True
-                )
-                all_matches = MatchIssue.objects.filter(player=self)
-                teamplay_rate = played_with_clubmate.count() / all_matches.count()
-        except ZeroDivisionError:
-            logger.info(f"ZeroDivisionError for {self.player_tag} in teamplay_rate")
+        if since:
+            played_with_clubmate = MatchIssue.objects.filter(
+                player=self, match__date__gte=since, played_with_clubmate=True
+            )
+            all_matches = MatchIssue.objects.filter(
+                player=self, match__date__gte=since
+            )
+            
+        else:
+            played_with_clubmate = MatchIssue.objects.filter(
+                player=self, played_with_clubmate=True
+            )
+            all_matches = MatchIssue.objects.filter(player=self)
+
+        if all_matches.count() == 0:
+            return 0
+
+        teamplay_rate = played_with_clubmate.count() / all_matches.count()
 
         return teamplay_rate
 
