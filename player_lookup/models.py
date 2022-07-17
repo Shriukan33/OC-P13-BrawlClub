@@ -63,7 +63,7 @@ class Player(models.Model):
             since (datetime): The date since when the brawlclub rating is calculated.
         """
         if not since:
-            since = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
+            since = datetime(year=2022, month=7, day=6, tzinfo=timezone.utc)
 
         return (
             self.get_win_rate(since) * 50
@@ -132,8 +132,7 @@ class Player(models.Model):
         """
         Get the rate of the number of tickets spent on the number of tickets available.
 
-        Every week, one has 14 tickets to spend, from wednesday to wednesday.
-        One update will make it every other week.
+        Every other week, one has 14 tickets to spend, from wednesday to wednesday.
         """
         if not since:
             since = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
@@ -149,7 +148,7 @@ class Player(models.Model):
         # total tickets spent since date / (number of whole weeks since date * 14)
         # + partial results
 
-        whole_weeks_since = get_number_of_weeks_since_date(since)
+        club_league_weeks_since = get_number_of_weeks_since_date(since)
 
         all_matches_since = MatchIssue.objects.filter(
             player=self, match__date__gte=since
@@ -162,7 +161,7 @@ class Player(models.Model):
                 total_tickets_spent += 1
 
         return total_tickets_spent / (
-            whole_weeks_since * 14 + this_weeks_number_of_available_tickets
+            club_league_weeks_since * 14 + this_weeks_number_of_available_tickets
         )
 
 
