@@ -17,12 +17,37 @@ class Command(BaseCommand):
     help = "Update every player in the database"
 
     def handle(self, *args, **options):
-        logger.info("Starting update_all_players, fetching all players from DB...")
-        all_players = Player.objects.all()
-        logger.info(f"Found {len(all_players)} players in DB.")
-        logger.info("Fetching all players profiles and battlelogs from API...")
+        logger.info("Starting update_all_players command...")
+        player_count = Player.objects.count()
+        logger.info(f"Found {player_count} players in DB")
+        batch_size = 500
+        top_limit = player_count // batch_size * batch_size
+        first_loop = True
+        for i in range(0, top_limit + 1, batch_size):
+            if first_loop:
+                first_loop = False
+                new_start = i
+                continue
+
+            logger.info(f"Updating row {new_start} to {i}")
+            player_batch = Player.objects.all()[new_start:i]
+            self.update_player_batch(player_batch)
+            new_start = i
+
+        logger.info("Updating remaining players...")
+        last_player_batch = Player.objects.all()[top_limit:]
+        self.update_player_batch(last_player_batch)
+        
+
+        self.stdout.write(
+            self.style.SUCCESS("Successfully updated all players"), ending="\n"
+        )
+
+    def update_player_batch(self, player_batch):
+
+        logger.info("Fetching player batch's profiles and battlelogs from API...")
         tag_battlelog, tag_clubtag = \
-            self.get_all_players_profiles_and_battlelog(all_players)
+            self.get_all_players_profiles_and_battlelog(player_batch)
         logger.info("Creating matches from battlelog ...")
         for tag, battlelog in tag_battlelog.items():
             create_matches_from_battlelog(tag, battlelog)
@@ -31,26 +56,23 @@ class Command(BaseCommand):
             self.update_player_club({tag: club_tag})
 
         logger.info("Updating players' brawlclub rating...")
-        for player in all_players:
+        for player in player_batch:
+            player: Player
             player.update_brawlclub_rating()
-
-        self.stdout.write(
-            self.style.SUCCESS("Successfully updated all players"), ending="\n"
-        )
 
     @async_to_sync
     async def get_all_players_profiles_and_battlelog(self, players) -> Tuple[dict, dict]:
         """Get all players profiles and battlelogs.
 
         Keyword arguments:
-        players -- List of players tags
+        players -- Queryset of Player model
 
         Returns
         Tuple with :
         Dict matching player tag and battle log
         Dict matching player tag and club tag
         """
-        players = await sync_to_async(list)(Player.objects.all())
+        players = await sync_to_async(list)(players)
         api_calls = []
         for player in players:
             response = get_player_data(player.player_tag)
