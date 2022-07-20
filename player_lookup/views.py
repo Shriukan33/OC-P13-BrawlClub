@@ -30,7 +30,14 @@ async def get_club_members_data(request, club_tag) -> dict:
     responses = await asyncio.gather(*api_calls)
     # The respons is a list of all players profile from the given clan
     results = {"Player data": responses}
-    tag_profile = {player["tag"]: player for player in results["Player data"]}
+    # tag_profile = {player["tag"]: player for player in results["Player data"]}
+
+    tag_profile = {}
+    for player in results["Player data"]:
+        tag = player.get("tag", None)
+        if not tag:
+            continue
+        tag_profile[tag] = player
 
     # We now get the battlelog of each player usig the tags we retrieved
     api_calls = []
@@ -50,7 +57,7 @@ async def get_club_members_data(request, club_tag) -> dict:
 
 async def get_player_data(player_tag: str) -> dict:
     """Return player's profile data given a player tag"""
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=3600) as client:
         url = brawl_api.get_player_stats_url(player_tag)
         response = await client.get(url, headers=brawl_api.headers)
         return response.json()
@@ -138,7 +145,7 @@ def create_player_instance(player: dict, club: models.Club) -> models.Player:
 
 async def get_player_battlelog(player_tag: str) -> dict:
     """Return player's battlelog given a player tag."""
-    async with httpx.AsyncClient() as client:
+    async with httpx.AsyncClient(timeout=3600) as client:
         url = brawl_api.get_player_battlelog_url(player_tag)
         response = await client.get(url, headers=brawl_api.headers)
         return response.json()

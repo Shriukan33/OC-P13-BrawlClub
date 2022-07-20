@@ -1,17 +1,19 @@
 import asyncio
 import logging
+import httpx
 from typing import Tuple
 from django.core.management.base import BaseCommand
 from asgiref.sync import sync_to_async, async_to_sync
-from player_lookup.models import Player
+from player_lookup.models import Club, Player
 from player_lookup.views import (
     create_matches_from_battlelog,
     get_player_battlelog,
     get_player_data,
-    create_or_update_club,
+    brawl_api,
 )
 
 logger = logging.getLogger("django")
+
 
 class Command(BaseCommand):
     help = "Update every player in the database"
@@ -37,7 +39,6 @@ class Command(BaseCommand):
         logger.info("Updating remaining players...")
         last_player_batch = Player.objects.all()[top_limit:]
         self.update_player_batch(last_player_batch)
-        
 
         self.stdout.write(
             self.style.SUCCESS("Successfully updated all players"), ending="\n"
@@ -46,14 +47,14 @@ class Command(BaseCommand):
     def update_player_batch(self, player_batch):
 
         logger.info("Fetching player batch's profiles and battlelogs from API...")
-        tag_battlelog, tag_clubtag = \
-            self.get_all_players_profiles_and_battlelog(player_batch)
+        tag_battlelog, tag_clubtag = self.get_all_players_profiles_and_battlelog(
+            player_batch
+        )
         logger.info("Creating matches from battlelog ...")
         for tag, battlelog in tag_battlelog.items():
             create_matches_from_battlelog(tag, battlelog)
         logger.info("Updating players clubs...")
-        for tag, club_tag in tag_clubtag.items():
-            self.update_player_club({tag: club_tag})
+        self.update_player_club(tag_clubtag)
 
         logger.info("Updating players' brawlclub rating...")
         for player in player_batch:
@@ -61,7 +62,9 @@ class Command(BaseCommand):
             player.update_brawlclub_rating()
 
     @async_to_sync
-    async def get_all_players_profiles_and_battlelog(self, players) -> Tuple[dict, dict]:
+    async def get_all_players_profiles_and_battlelog(
+        self, players
+    ) -> Tuple[dict, dict]:
         """Get all players profiles and battlelogs.
 
         Keyword arguments:
@@ -108,6 +111,8 @@ class Command(BaseCommand):
         tag_clubtag -- Dict matching player tag and club tag
         """
         players_to_update = []
+        clubs_to_create = []
+        players_with_club_to_create = []
         for tag, clubtag in tag_clubtag.items():
             player = Player.objects.get(player_tag=tag)
             if clubtag is None:
@@ -116,9 +121,67 @@ class Command(BaseCommand):
             elif player.club and player.club.club_tag == clubtag:
                 continue
             else:
-                club = create_or_update_club(clubtag)
-                player.club = club
+                if Club.objects.filter(club_tag=clubtag).first():
+                    club = Club.objects.get(club_tag=clubtag)
+                    player.club = club
+                    players_to_update.append(player)
+                else:
+                    clubs_to_create.append(clubtag)
+                    players_with_club_to_create.append(player)
+
+        if clubs_to_create:
+            club_batch = self.create_club_batch(clubs_to_create)
+            Club.objects.bulk_create(club_batch)
+        if players_with_club_to_create:
+            for player in players_with_club_to_create:
+                player.club = Club.objects.get(club_tag=tag_clubtag[player.player_tag])
                 players_to_update.append(player)
-
-
         Player.objects.bulk_update(players_to_update, ["club"])
+
+    @async_to_sync
+    async def create_club_batch(self, clubs_to_create: list) -> list:
+        """Create club batch.
+
+        Keyword arguments:
+        clubs_to_create -- List of club tags
+        """
+        clubs_to_create = list(set(clubs_to_create))
+        club_batch = []
+
+        logger.info("Fetching club to create data from API...")
+        async with httpx.AsyncClient(timeout=3600) as client:
+            tasks = []
+            for club_tag in clubs_to_create:
+                task = self.get_club_information(club_tag, client)
+                tasks.append(task)
+            responses = await asyncio.gather(*tasks)
+        logger.info(f"Creating {len(tasks)} clubs...")
+
+        for club_information in responses:
+            kwargs = {
+                "club_tag": club_information["tag"],
+                "club_name": club_information["name"],
+                "club_description": club_information.get("description", ""),
+                "club_type": club_information["type"],
+                "club_tag": club_information["tag"],
+                "trophies": club_information["trophies"],
+                "required_trophies": club_information["requiredTrophies"],
+            }
+            club = Club(**kwargs)
+            club_batch.append(club)
+
+        return club_batch
+
+    async def get_club_information(
+        self, clubtag: str, client: httpx.AsyncClient
+    ) -> dict:
+        """Get club information.
+
+        Keyword arguments:
+        clubtag -- Club tag
+        """
+        clubtag = clubtag[1:]
+        url = f"{brawl_api.base_url}clubs/%23{clubtag}"
+        response = await client.get(url, headers=brawl_api.headers)
+        response = response.json()
+        return response
