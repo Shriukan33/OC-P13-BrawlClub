@@ -8,7 +8,7 @@ from player_lookup.utils import (
     get_number_of_weeks_since_date,
     get_this_weeks_number_of_available_tickets,
 )
-
+from player_lookup.brawlstars_api import BrawlAPi
 
 logger = logging.getLogger("django")
 
@@ -197,6 +197,23 @@ class Club(models.Model):
         """Update all club members ratings."""
         for player in self.player_set.all():
             player.update_brawlclub_rating()
+
+    def update_members(self):
+        """Update the club's member list
+        This method is meant to update a single instance, on demand.
+        """
+        api = BrawlAPi()
+        members = api.get_club_members_tag_list(self.club_tag)
+        for player_tag in members:
+            player = Player.objects.get_or_create(player_tag=player_tag)[0]
+            player.club = self
+            player.save()
+
+        for player in self.player_set.all().values_list("player_tag", flat=True):
+            if player not in members:
+                player = Player.objects.get(player_tag=player)
+                player.club = None
+                player.save()
 
 
 class Brawler(models.Model):
