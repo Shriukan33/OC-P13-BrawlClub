@@ -99,6 +99,8 @@ class Command(BaseCommand):
             if profile["club"]:
                 club_tag = profile["club"]["tag"]
                 tag_clubtag[tag] = club_tag
+            else:
+                tag_clubtag[tag] = None
             response = get_player_battlelog(tag)
             api_calls.append(response)
         battlelogs = await asyncio.gather(*api_calls)
@@ -118,15 +120,15 @@ class Command(BaseCommand):
         clubs_to_create = []
         players_with_club_to_create = []
         for tag, clubtag in tag_clubtag.items():
-            player = Player.objects.get(player_tag=tag)
+            player = Player.objects.select_related("club").get(player_tag=tag)
             if clubtag is None:
                 player.club = None
                 players_to_update.append(player)
             elif player.club and player.club.club_tag == clubtag:
                 continue
             else:
-                if Club.objects.filter(club_tag=clubtag).first():
-                    club = Club.objects.get(club_tag=clubtag)
+                club = Club.objects.filter(club_tag=clubtag).first()
+                if club:
                     player.club = club
                     players_to_update.append(player)
                 else:
