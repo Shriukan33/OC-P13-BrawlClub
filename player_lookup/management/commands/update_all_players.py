@@ -62,6 +62,7 @@ class Command(BaseCommand):
         logger.info("Updating players' brawlclub rating...")
         for player in player_batch:
             player: Player
+            player.last_updated = datetime.now(timezone.utc)
             player.update_brawlclub_rating()
 
     @async_to_sync

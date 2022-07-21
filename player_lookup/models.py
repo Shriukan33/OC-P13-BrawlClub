@@ -36,7 +36,7 @@ class Player(models.Model):
     club_league_playrate = models.FloatField(default=0)
     # Frequence of game played with a clubmate
     club_league_teamplay_rate = models.FloatField(default=0)
-    last_updated = models.DateTimeField(auto_now=True)
+    last_updated = models.DateTimeField(null=True, blank=True)
 
     # Date at which we start counting the playrate
     default_date = datetime(year=2022, month=7, day=20, tzinfo=timezone.utc)
