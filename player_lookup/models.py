@@ -38,6 +38,10 @@ class Player(models.Model):
     club_league_teamplay_rate = models.FloatField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
 
+    # Date at which we start counting the playrate
+    default_date = datetime(year=2022, month=7, day=20, tzinfo=timezone.utc)
+
+
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
 
@@ -52,31 +56,27 @@ class Player(models.Model):
         # Do not update if the player is not in a club
         if not self.club:
             return
-
         rate = (
-            self.get_win_rate() * 50
+            self.get_playrate() * 50
             + self.get_teamplay_rate() * 30
             + self.get_win_rate() * 20
         )
         self.brawlclub_rating = rate
         self.save()
 
-    def get_brawclub_rating(self, since: datetime = None) -> float:
+    def get_brawclub_rating(self, since: datetime = default_date) -> float:
         """Get the brawlclub rating of the player.
 
         Args:
             since (datetime): The date since when the brawlclub rating is calculated.
         """
-        if not since:
-            since = datetime(year=2022, month=7, day=6, tzinfo=timezone.utc)
-
         return (
             self.get_win_rate(since) * 50
             + self.get_teamplay_rate(since) * 30
             + self.get_playrate(since) * 20
         )
 
-    def get_win_rate(self, since: datetime = None) -> float:
+    def get_win_rate(self, since: datetime = default_date) -> float:
         """Get the win rate of the player.
 
         Args:
@@ -102,7 +102,7 @@ class Player(models.Model):
         self.club_league_winrate = winrate
         return winrate
 
-    def get_teamplay_rate(self, since: datetime = None) -> float:
+    def get_teamplay_rate(self, since: datetime = default_date) -> float:
         """Get the teamplay rate of the player.
 
         Args:
@@ -133,7 +133,7 @@ class Player(models.Model):
         self.club_league_teamplay_rate = teamplay_rate
         return teamplay_rate
 
-    def get_playrate(self, since: datetime = None) -> float:
+    def get_playrate(self, since: datetime = default_date) -> float:
         """
         Get the rate of the number of tickets spent on the number of tickets available.
 
