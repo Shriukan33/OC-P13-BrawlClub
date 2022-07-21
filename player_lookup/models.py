@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import logging
 
 from django.db import models
@@ -36,6 +36,7 @@ class Player(models.Model):
     club_league_playrate = models.FloatField(default=0)
     # Frequence of game played with a clubmate
     club_league_teamplay_rate = models.FloatField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
@@ -48,6 +49,10 @@ class Player(models.Model):
         - The frequence the player plays with a club mate
         - The win rate
         """
+        # Do not update if the player is not in a club
+        if not self.club:
+            return
+
         rate = (
             self.get_win_rate() * 50
             + self.get_teamplay_rate() * 30
@@ -94,7 +99,7 @@ class Player(models.Model):
                 return 0
 
         winrate = all_wins.count() / (all_wins.count() + all_losses.count())
-
+        self.club_league_winrate = winrate
         return winrate
 
     def get_teamplay_rate(self, since: datetime = None) -> float:
@@ -125,7 +130,7 @@ class Player(models.Model):
             return 0
 
         teamplay_rate = played_with_clubmate.count() / all_matches.count()
-
+        self.club_league_teamplay_rate = teamplay_rate
         return teamplay_rate
 
     def get_playrate(self, since: datetime = None) -> float:
@@ -160,9 +165,12 @@ class Player(models.Model):
             else:
                 total_tickets_spent += 1
 
-        return total_tickets_spent / (
+
+        playrate = total_tickets_spent / (
             club_league_weeks_since * 14 + this_weeks_number_of_available_tickets
         )
+        self.club_league_playrate = playrate
+        return playrate
 
 
 class Club(models.Model):
@@ -174,6 +182,7 @@ class Club(models.Model):
     club_type = models.CharField(max_length=20, default="open")
     required_trophies = models.IntegerField(default=0)
     trophies = models.IntegerField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.club_name

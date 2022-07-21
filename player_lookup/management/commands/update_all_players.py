@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timedelta, timezone
 import logging
 import httpx
 from typing import Tuple
@@ -20,9 +21,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info("Starting update_all_players command...")
-        player_count = Player.objects.count()
-        logger.info(f"Found {player_count} players in DB")
-        batch_size = 500
+        min_time_since_last_update = datetime.now(timezone.utc) - timedelta(minutes=30)
+        total_player_count = Player.objects.count()
+        player_count = Player.objects.filter(last_updated__lte=min_time_since_last_update).count()
+        logger.info(f"Found {player_count} players to update in DB (Total : {total_player_count})")
+        batch_size = 999
         top_limit = player_count // batch_size * batch_size
         first_loop = True
         for i in range(0, top_limit + 1, batch_size):
@@ -32,12 +35,12 @@ class Command(BaseCommand):
                 continue
 
             logger.info(f"Updating row {new_start} to {i}")
-            player_batch = Player.objects.all()[new_start:i]
+            player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)[new_start:i]
             self.update_player_batch(player_batch)
             new_start = i
 
         logger.info("Updating remaining players...")
-        last_player_batch = Player.objects.all()[top_limit:]
+        last_player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)[top_limit:]
         self.update_player_batch(last_player_batch)
 
         self.stdout.write(
