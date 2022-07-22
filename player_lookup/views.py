@@ -8,13 +8,39 @@ import httpx
 from asgiref.sync import async_to_sync, sync_to_async
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Avg, Count
-
+from rest_framework.generics import ListAPIView
+from rest_framework.response import Response
 from . import models
+from . import serializers
 from .brawlstars_api import BrawlAPi
 
 brawl_api = BrawlAPi()
 
 logger = logging.getLogger("django")
+
+
+class LeaderBoardView(ListAPIView):
+    """
+    Return the top entities (Club or players).
+    """
+
+    def get_queryset(self):
+        """
+        Return the context-appropriate queryset.
+        """
+        entity = self.kwargs.get("entity", None)
+        size = int(self.kwargs.get("size", 10))
+        if entity == "players":
+            queryset = get_top_players(size=size)
+            self.serializer_class = serializers.PlayerSerializer
+        elif entity == "clubs":
+            queryset = get_top_clubs(size=size)
+            self.serializer_class = serializers.ClubSerializer
+        else:
+            logger.info(f"Invalid entity type: {entity}")
+            queryset = None
+        return queryset
+
 
 
 @async_to_sync
