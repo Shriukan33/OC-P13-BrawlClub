@@ -67,7 +67,7 @@ def get_this_weeks_number_of_available_tickets() -> int:
     if today_index in range(2, 4):
         # From wednesday to thursday, we only have 4 tickets available
         this_weeks_number_of_available_tickets = 4
-    elif today_index in range(5, 6):
+    elif today_index in range(4, 6):
         # From friday to saturday, we had a total of 8 tickets available
         # over the week
         this_weeks_number_of_available_tickets = 8
