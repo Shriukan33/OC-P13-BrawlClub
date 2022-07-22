@@ -14,7 +14,7 @@ const Home = () => {
   useEffect(() => {
     const API_URL = process.env.REACT_APP_API_ENDPOINT
     const fetchTopEntities = async (entity) => {
-      const response = await fetch(`${API_URL}/top-${entity}`)
+      const response = await fetch(`${API_URL}/api/leaderboard/${entity}/10`)
       if (response.ok) {
         const json = await response.json()
         return json
