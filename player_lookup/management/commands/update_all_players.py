@@ -35,12 +35,12 @@ class Command(BaseCommand):
                 continue
 
             logger.info(f"Updating row {new_start} to {i}")
-            player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)[new_start:i]
+            player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)[:batch_size]
             self.update_player_batch(player_batch)
             new_start = i
 
         logger.info("Updating remaining players...")
-        last_player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)[top_limit:]
+        last_player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)
         self.update_player_batch(last_player_batch)
 
         self.stdout.write(
@@ -108,6 +108,8 @@ class Command(BaseCommand):
         for tag, battlelog in zip(tag_profile.keys(), battlelogs):
             tag_battlelog[tag] = battlelog
 
+        print("Number of tags in tags_profile : ", len(tag_profile.keys()))
+        print("Number of tags in tags_battlelog : ", len(tag_battlelog.keys()))
         return tag_battlelog, tag_clubtag
 
     def update_player_club(self, tag_clubtag: dict) -> None:
