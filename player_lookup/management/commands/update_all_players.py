@@ -81,10 +81,11 @@ class Command(BaseCommand):
         """
         players = await sync_to_async(list)(players)
         api_calls = []
-        for player in players:
-            response = get_player_data(player.player_tag)
-            api_calls.append(response)
-        responses = await asyncio.gather(*api_calls)
+        async with httpx.AsyncClient(timeout=3600) as client:
+            for player in players:
+                response = get_player_data(player.player_tag, client)
+                api_calls.append(response)
+            responses = await asyncio.gather(*api_calls)
         results = {"Player data": responses}
         tag_profile = {}
         for player in results["Player data"]:
@@ -95,21 +96,21 @@ class Command(BaseCommand):
                 continue
         api_calls = []
         tag_clubtag = {}
-        for tag, profile in tag_profile.items():
-            if profile["club"]:
-                club_tag = profile["club"]["tag"]
-                tag_clubtag[tag] = club_tag
-            else:
-                tag_clubtag[tag] = None
-            response = get_player_battlelog(tag)
-            api_calls.append(response)
-        battlelogs = await asyncio.gather(*api_calls)
+        async with httpx.AsyncClient(timeout=3600) as client:
+            for tag, profile in tag_profile.items():
+                if profile["club"]:
+                    club_tag = profile["club"]["tag"]
+                    tag_clubtag[tag] = club_tag
+                else:
+                    tag_clubtag[tag] = None
+                response = get_player_battlelog(tag, client)
+                api_calls.append(response)
+            battlelogs = await asyncio.gather(*api_calls)
         tag_battlelog = {}
         for tag, battlelog in zip(tag_profile.keys(), battlelogs):
             tag_battlelog[tag] = battlelog
 
-        print("Number of tags in tags_profile : ", len(tag_profile.keys()))
-        print("Number of tags in tags_battlelog : ", len(tag_battlelog.keys()))
+        logger.info(f"Number of to be updated players : {len(tag_profile.keys())}")
         return tag_battlelog, tag_clubtag
 
     def update_player_club(self, tag_clubtag: dict) -> None:
@@ -157,7 +158,7 @@ class Command(BaseCommand):
         club_batch = []
 
         logger.info("Fetching club to create data from API...")
-        async with httpx.AsyncClient(timeout=3600) as client:
+        async with httpx.AsyncClient(timeout=None) as client:
             tasks = []
             for club_tag in clubs_to_create:
                 task = self.get_club_information(club_tag, client)

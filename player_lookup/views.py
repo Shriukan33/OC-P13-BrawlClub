@@ -49,12 +49,13 @@ async def get_club_members_data(request, club_tag) -> dict:
     member_list = brawl_api.get_club_members_tag_list(club_tag)
     # We prepare the api calls in a list so we're able to await them all
     api_calls = []
-    for member in member_list:
-        response = get_player_data(member)
-        api_calls.append(response)
+    async with httpx.AsyncClient(timeout=3600) as client:
+        for member in member_list:
+            response = get_player_data(member, client)
+            api_calls.append(response)
 
-    # We await all the api calls
-    responses = await asyncio.gather(*api_calls)
+        # We await all the api calls
+        responses = await asyncio.gather(*api_calls)
     # The respons is a list of all players profile from the given clan
     results = {"Player data": responses}
     # tag_profile = {player["tag"]: player for player in results["Player data"]}
@@ -68,11 +69,12 @@ async def get_club_members_data(request, club_tag) -> dict:
 
     # We now get the battlelog of each player usig the tags we retrieved
     api_calls = []
-    for tag, _ in tag_profile.items():
-        response = get_player_battlelog(tag)
-        api_calls.append(response)
+    async with httpx.AsyncClient(timeout=3600) as client:
+        for tag, _ in tag_profile.items():
+            response = get_player_battlelog(tag)
+            api_calls.append(response)
 
-    battlelogs = await asyncio.gather(*api_calls)
+        battlelogs = await asyncio.gather(*api_calls)
 
     # Now we match the battlelogs with the player tags
     tag_battlelog = {}
@@ -82,12 +84,11 @@ async def get_club_members_data(request, club_tag) -> dict:
     return tag_profile, tag_battlelog
 
 
-async def get_player_data(player_tag: str) -> dict:
+async def get_player_data(player_tag: str, client: httpx.AsyncClient) -> dict:
     """Return player's profile data given a player tag"""
-    async with httpx.AsyncClient(timeout=3600) as client:
-        url = brawl_api.get_player_stats_url(player_tag)
-        response = await client.get(url, headers=brawl_api.headers)
-        return response.json()
+    url = brawl_api.get_player_stats_url(player_tag)
+    response = await client.get(url, headers=brawl_api.headers)
+    return response.json()
 
 
 # Entry point
@@ -170,12 +171,11 @@ def create_player_instance(player: dict, club: models.Club) -> models.Player:
     return player_instance
 
 
-async def get_player_battlelog(player_tag: str) -> dict:
+async def get_player_battlelog(player_tag: str, client: httpx.AsyncClient) -> dict:
     """Return player's battlelog given a player tag."""
-    async with httpx.AsyncClient(timeout=3600) as client:
-        url = brawl_api.get_player_battlelog_url(player_tag)
-        response = await client.get(url, headers=brawl_api.headers)
-        return response.json()
+    url = brawl_api.get_player_battlelog_url(player_tag)
+    response = await client.get(url, headers=brawl_api.headers)
+    return response.json()
 
 
 def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
@@ -403,11 +403,12 @@ async def update_player_profile(request, player_tag: str):
     """
     if not player_tag.startswith("#"):
         player_tag = "#" + player_tag
-    response = get_player_data(player_tag)
-    player_profile = await asyncio.gather(response)
-    player_profile = player_profile[0]
-    response = get_player_battlelog(player_tag)
-    battlelog = await asyncio.gather(response)
+    async with httpx.AsyncClient as client:
+        response = get_player_data(player_tag, client)
+        player_profile = await asyncio.gather(response)
+        player_profile = player_profile[0]
+        response = get_player_battlelog(player_tag, client)
+        battlelog = await asyncio.gather(response)
 
     player_club_tag = player_profile.get("club", {}).get("tag", None)
 

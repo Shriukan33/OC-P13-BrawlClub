@@ -1,5 +1,10 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 import os
 import requests
+
+if TYPE_CHECKING:
+    import httpx
 
 
 class BrawlAPi:
@@ -43,13 +48,13 @@ class BrawlAPi:
         url = f"{self.base_url}players/%23{player_tag}"
         return url
 
-    def get_player_battlelog(self, player_tag: str) -> dict:
+    def get_player_battlelog(self, player_tag: str, client: httpx.AsyncClient) -> dict:
         """Get data from the player's last 24 matches"""
         if player_tag.startswith("#"):
             # We remove the # from the player tag
             player_tag = player_tag[1:]
         url = f"{self.base_url}players/%23{player_tag}/battlelog"
-        response = requests.get(url, headers=self.headers)
+        response = client.get(url, headers=self.headers)
         return response.json()
 
     def get_player_battlelog_url(self, player_tag: str) -> str:
