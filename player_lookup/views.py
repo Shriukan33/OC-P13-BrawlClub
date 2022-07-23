@@ -1,17 +1,18 @@
 import asyncio
-from datetime import datetime
 import logging
+from datetime import datetime
 from typing import Tuple
 
 import dateutil.parser
 import httpx
 from asgiref.sync import async_to_sync, sync_to_async
-from django.http import HttpResponse, JsonResponse
 from django.db.models import Avg, Count
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from . import models
 from . import serializers
+from django.http import HttpResponse, JsonResponse
+
 from .brawlstars_api import BrawlAPi
 
 brawl_api = BrawlAPi()
@@ -419,7 +420,6 @@ async def update_player_profile(request, player_tag: str):
             "player_tag": player_tag,
             "player_name": player_profile["name"],
             "trophy_count": player_profile["trophies"],
-            "player_name": player_profile["name"],
             "club": club,
         },
     )
@@ -430,25 +430,26 @@ async def update_player_profile(request, player_tag: str):
 
     return HttpResponse(status=200)
 
+
 def get_top_clubs(size: int = 10, start: int = 0):
     """
     Get the top clubs in the database, ranked by the average
     BrawlClub Rating of its players
     """
-    top = models.Club.objects.annotate(
-        avg_bcr=Avg("player__brawlclub_rating")
-        ).annotate(nb_of_players=Count("player")
-        ).order_by("-avg_bcr", "-trophies"
-        ).filter(nb_of_players__gte=25
-        )[start:size]
+    top = (
+        models.Club.objects.annotate(avg_bcr=Avg("player__brawlclub_rating"))
+        .annotate(nb_of_players=Count("player"))
+        .order_by("-avg_bcr", "-trophies")
+        .filter(nb_of_players__gte=25)[start:size]
+    )
     return top
+
 
 def get_top_players(size: int = 10, start: int = 0):
     """
     Get the top players in the database, ranked by their Brawlclub Rating
     """
     top = models.Player.objects.order_by(
-        "-brawlclub_rating",
-        "-total_club_war_trophy_count",
-        "-trophy_count")[start:size]
+        "-brawlclub_rating", "-total_club_war_trophy_count", "-trophy_count"
+    )[start:size]
     return top

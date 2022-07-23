@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 import logging
 
 from django.db import models
@@ -41,7 +41,6 @@ class Player(models.Model):
     # Date at which we start counting the playrate
     default_date = datetime(year=2022, month=7, day=20, tzinfo=timezone.utc)
 
-
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
 
@@ -83,7 +82,7 @@ class Player(models.Model):
             since (datetime): The date since when the win rate is calculated.
         """
         winrate = 0
-        
+
         if since:
             all_wins = MatchIssue.objects.filter(
                 player=self, match__date__gte=since, outcome="WIN"
@@ -94,9 +93,9 @@ class Player(models.Model):
         else:
             all_wins = MatchIssue.objects.filter(player=self, outcome="WIN")
             all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS")
-        
+
         if all_wins.count() + all_losses.count() == 0:
-                return 0
+            return 0
 
         winrate = all_wins.count() / (all_wins.count() + all_losses.count())
         self.club_league_winrate = winrate
@@ -116,10 +115,8 @@ class Player(models.Model):
             played_with_clubmate = MatchIssue.objects.filter(
                 player=self, match__date__gte=since, played_with_clubmate=True
             )
-            all_matches = MatchIssue.objects.filter(
-                player=self, match__date__gte=since
-            )
-            
+            all_matches = MatchIssue.objects.filter(player=self, match__date__gte=since)
+
         else:
             played_with_clubmate = MatchIssue.objects.filter(
                 player=self, played_with_clubmate=True
@@ -164,7 +161,6 @@ class Player(models.Model):
                 total_tickets_spent += 2
             else:
                 total_tickets_spent += 1
-
 
         playrate = total_tickets_spent / (
             club_league_weeks_since * 14 + this_weeks_number_of_available_tickets

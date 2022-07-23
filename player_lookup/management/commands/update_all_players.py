@@ -23,8 +23,13 @@ class Command(BaseCommand):
         logger.info("Starting update_all_players command...")
         min_time_since_last_update = datetime.now(timezone.utc) - timedelta(minutes=30)
         total_player_count = Player.objects.count()
-        player_count = Player.objects.filter(last_updated__lte=min_time_since_last_update).count()
-        logger.info(f"Found {player_count} players to update in DB (Total : {total_player_count})")
+        player_count = Player.objects.filter(
+            last_updated__lte=min_time_since_last_update
+        ).count()
+        logger.info(
+            f"Found {player_count} players to update "
+            f"in DB (Total : {total_player_count})"
+        )
         batch_size = 500
         top_limit = player_count // batch_size * batch_size
         first_loop = True
@@ -35,12 +40,16 @@ class Command(BaseCommand):
                 continue
 
             logger.info(f"Updating row {new_start} to {i}")
-            player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)[:batch_size]
+            player_batch = Player.objects.filter(
+                last_updated__lte=min_time_since_last_update
+            )[:batch_size]
             self.update_player_batch(player_batch)
             new_start = i
 
         logger.info("Updating remaining players...")
-        last_player_batch = Player.objects.filter(last_updated__lte=min_time_since_last_update)
+        last_player_batch = Player.objects.filter(
+            last_updated__lte=min_time_since_last_update
+        )
         self.update_player_batch(last_player_batch)
 
         self.stdout.write(
@@ -172,7 +181,6 @@ class Command(BaseCommand):
                 "club_name": club_information["name"],
                 "club_description": club_information.get("description", ""),
                 "club_type": club_information["type"],
-                "club_tag": club_information["tag"],
                 "trophies": club_information["trophies"],
                 "required_trophies": club_information["requiredTrophies"],
             }
