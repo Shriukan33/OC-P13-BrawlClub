@@ -7,8 +7,12 @@ import { useState, useEffect, useRef } from 'react'
 const Home = () => {
 
   
-  const [topPlayers, setTopPlayers] = useState([])
-  const [topClubs, setTopClubs] = useState([])
+  const [topPlayers, setTopPlayers] = useState(
+    localStorage.getItem("topPlayers") ?
+      JSON.parse(localStorage.getItem("topPlayers")) : [])
+  const [topClubs, setTopClubs] = useState(
+    localStorage.getItem("topClubs") ?
+      JSON.parse(localStorage.getItem("topClubs")) : [])
   const hasFetched = useRef(false)
 
   useEffect(() => {
@@ -22,8 +26,14 @@ const Home = () => {
     }
 
     if (!hasFetched.current) {
-      fetchTopEntities("players").then(setTopPlayers)
-      fetchTopEntities("clubs").then(setTopClubs)
+      fetchTopEntities("players").then((response) => {
+        setTopPlayers(response)
+        localStorage.setItem("topPlayers", JSON.stringify(response))
+      })
+      fetchTopEntities("clubs").then((response) => {
+        setTopClubs(response)
+        localStorage.setItem("topClubs", JSON.stringify(response))
+      })
       hasFetched.current = true
     }
   }, [])
