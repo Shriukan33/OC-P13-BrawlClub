@@ -7,12 +7,10 @@ import dateutil.parser
 import httpx
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db.models import Avg, Count
-from rest_framework.generics import ListAPIView
-from rest_framework.response import Response
-from . import models
-from . import serializers
 from django.http import HttpResponse, JsonResponse
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 
+from . import models, serializers
 from .brawlstars_api import BrawlAPi
 
 brawl_api = BrawlAPi()
@@ -42,6 +40,35 @@ class LeaderBoardView(ListAPIView):
             queryset = None
         return queryset
 
+
+class SingleEntityView(RetrieveAPIView):
+    """
+    Return a single entity (Club or player).
+    """
+    # The original tag in url kwargs misses the "#"
+    # so we need to add it back in here.
+    lookup_url_kwarg = "proper_tag"
+
+    def get_queryset(self):
+        """
+        Return the context-appropriate queryset.
+        """
+        entity = self.kwargs.get("entity", None)
+        tag = self.kwargs.get("tag", None)
+        if tag:
+            self.kwargs.update({"proper_tag": "#" + tag})
+        if entity == "player":
+            queryset = models.Player.objects.all()
+            self.lookup_field = "player_tag"
+            self.serializer_class = serializers.PlayerSerializer
+        elif entity == "club":
+            queryset = models.Club.objects.all()
+            self.lookup_field = "club_tag"
+            self.serializer_class = serializers.ClubSerializer
+        else:
+            logger.info(f"Invalid entity type: {entity}")
+            queryset = None
+        return queryset
 
 
 @async_to_sync

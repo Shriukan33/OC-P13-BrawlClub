@@ -1,7 +1,7 @@
 import React from 'react'
 import "./PlayerProfile.css"
 
-const PlayerProfile = () => {
+const PlayerProfile = ({player}) => {
   return (
     <div className="PlayerProfile d-flex flex-column p-2 w-100 h-100">
         <div className='d-flex flex-row'>
@@ -9,9 +9,9 @@ const PlayerProfile = () => {
                 <img src="/images/Player/Portrait_placeholder.png" alt="Player profile pic"/>
             </div>
             <div id="PlayerIdentity" className="d-flex flex-column mleft-2">
-                <span>Poulet</span>
-                <span>Aquablue</span>
-                <span>#ABCDE123</span>
+                <span>{player.player_name}</span>
+                <span>{player.club ? player.club.club_name : "Not in a club"}</span>
+                <span>{player.player_tag}</span>
             </div>
         </div>
         <div id="PlayerProfileMetrics" className="d-flex flex-row my-auto justify-content-evenly">
@@ -26,7 +26,7 @@ const PlayerProfile = () => {
                 <span className="m-auto ">Trophies</span>
                 <div className="m-auto">
                     <img src="/images/Player/trophy.png" alt="Player trophies" />
-                    <span className="m-auto">28250</span>
+                    <span className="m-auto">{player.trophy_count}</span>
                 </div>
             </div>
         </div>
