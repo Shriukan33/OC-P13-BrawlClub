@@ -19,9 +19,26 @@ logger = logging.getLogger("django")
 class Command(BaseCommand):
     help = "Update every player in the database"
 
+    def add_arguments(self, parser) -> None:
+        parser.add_argument(
+            "--force", '-f',
+            action="store_true",
+            help="Force update of all players",
+        )
+        return super().add_arguments(parser)
+
     def handle(self, *args, **options):
+        forced_update = options["force"]
+        if forced_update:
+            logger.info("Forced update")
         logger.info("Starting update_all_players command...")
-        min_time_since_last_update = datetime.now(timezone.utc) - timedelta(minutes=30)
+        if not forced_update:
+            min_time_since_last_update = datetime.now(timezone.utc) - timedelta(
+                minutes=30
+            )
+        else:
+            min_time_since_last_update = datetime.now(timezone.utc)
+
         total_player_count = Player.objects.count()
         player_count = Player.objects.filter(
             last_updated__lte=min_time_since_last_update
@@ -30,7 +47,7 @@ class Command(BaseCommand):
             f"Found {player_count} players to update "
             f"in DB (Total : {total_player_count})"
         )
-        batch_size = 500
+        batch_size = 999
         top_limit = player_count // batch_size * batch_size
         first_loop = True
         for i in range(0, top_limit + 1, batch_size):
@@ -47,9 +64,13 @@ class Command(BaseCommand):
             new_start = i
 
         logger.info("Updating remaining players...")
-        last_player_batch = Player.objects.filter(
-            last_updated__lte=min_time_since_last_update
-        )
+        if not forced_update:
+            last_player_batch = Player.objects.filter(
+                last_updated__lte=min_time_since_last_update
+            )
+        else:
+            last_player_batch = Player.objects.all()[top_limit:]
+
         self.update_player_batch(last_player_batch)
 
         self.stdout.write(
