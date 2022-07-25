@@ -29,6 +29,10 @@ class Player(models.Model):
         null=True,
         validators=[limit_number_of_players],
     )
+    level = models.IntegerField(default=0)
+    total_3v3_wins = models.IntegerField(default=0)
+    solo_wins = models.IntegerField(default=0)
+    duo_wins = models.IntegerField(default=0)
     total_club_war_trophy_count = models.IntegerField(default=0)
     brawlclub_rating = models.FloatField(default=0)
     club_league_winrate = models.FloatField(default=0)
