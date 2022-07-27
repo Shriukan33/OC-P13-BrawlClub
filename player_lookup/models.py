@@ -98,18 +98,18 @@ class Player(models.Model):
         if since:
             all_wins = MatchIssue.objects.filter(
                 player=self, match__date__gte=since, outcome="WIN"
-            )
+            ).count()
             all_losses = MatchIssue.objects.filter(
                 player=self, match__date__gte=since, outcome="LOSS"
-            )
+            ).count()
         else:
-            all_wins = MatchIssue.objects.filter(player=self, outcome="WIN")
-            all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS")
+            all_wins = MatchIssue.objects.filter(player=self, outcome="WIN").count()
+            all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS").count()
 
-        if all_wins.count() + all_losses.count() == 0:
+        if all_wins + all_losses == 0:
             return 0
 
-        winrate = all_wins.count() / (all_wins.count() + all_losses.count())
+        winrate = all_wins / (all_wins + all_losses)
         self.club_league_winrate = winrate
         return winrate
 
@@ -126,19 +126,21 @@ class Player(models.Model):
         if since:
             played_with_clubmate = MatchIssue.objects.filter(
                 player=self, match__date__gte=since, played_with_clubmate=True
-            )
-            all_matches = MatchIssue.objects.filter(player=self, match__date__gte=since)
+            ).count()
+            all_matches = MatchIssue.objects.filter(
+                player=self, match__date__gte=since
+            ).count()
 
         else:
             played_with_clubmate = MatchIssue.objects.filter(
                 player=self, played_with_clubmate=True
-            )
-            all_matches = MatchIssue.objects.filter(player=self)
+            ).count()
+            all_matches = MatchIssue.objects.filter(player=self).count()
 
-        if all_matches.count() == 0:
+        if all_matches == 0:
             return 0
 
-        teamplay_rate = played_with_clubmate.count() / all_matches.count()
+        teamplay_rate = played_with_clubmate / all_matches
         self.club_league_teamplay_rate = teamplay_rate
         return teamplay_rate
 
@@ -164,15 +166,16 @@ class Player(models.Model):
 
         club_league_weeks_since = get_number_of_weeks_since_date(since)
 
-        all_matches_since = MatchIssue.objects.filter(
-            player=self, match__date__gte=since
+        all_power_matches_since_count = MatchIssue.objects.filter(
+            player=self, match__date__gte=since, match__battle_type="Power Match"
+        ).count()
+        all_normal_matches_since_count = (
+            MatchIssue.objects.filter(player=self, match__date__gte=since).count()
+            - all_power_matches_since_count
         )
-        total_tickets_spent = 0
-        for match in all_matches_since:
-            if match.match.battle_type == "Power Match":
-                total_tickets_spent += 2
-            else:
-                total_tickets_spent += 1
+        total_tickets_spent = (
+            all_power_matches_since_count * 2 + all_normal_matches_since_count
+        )
 
         playrate = total_tickets_spent / (
             club_league_weeks_since * 14 + this_weeks_number_of_available_tickets
