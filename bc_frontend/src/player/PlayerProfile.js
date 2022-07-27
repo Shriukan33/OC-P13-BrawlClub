@@ -19,7 +19,7 @@ const PlayerProfile = ({player}) => {
                 <span className="mright-2 m-auto">Level</span>
                 <div className="level-badge">
                     <img className="level-icon " src="/images/Player/level.png" alt="Player level" />
-                    <span>150</span>
+                    <span>{player.level}</span>
                 </div>
             </div>
             <div id="PlayerTotalTrophies" className="d-flex flex-column m-auto flex-wrap">
