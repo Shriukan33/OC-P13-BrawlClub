@@ -20,6 +20,13 @@ def get_number_of_weeks_since_date(since: datetime) -> int:
     offset = (today.weekday() - 2) % 7
     last_wednesday = today - timedelta(days=offset)
 
+    if last_wednesday.date() == since.date() and since.isocalendar()[1] % 2 != 0:
+        # Last week was odd and we're somewhere between Monday and Tuesday
+        # This means that the club war was in progress the last week
+        # and we're in the next week but next hasn't started yet
+        # A full week hasn't passed but the club war is indeed finished
+        return 1
+
     start_week_index = since.isocalendar()[1]
     # So if start index is 52 (last week of the year), next week's index isn't 1
     # but is 53.
@@ -34,7 +41,6 @@ def get_number_of_weeks_since_date(since: datetime) -> int:
     if since.isocalendar()[1] % 2 != 0:
         number_of_odd_weeks_between_dates += 1
     return number_of_odd_weeks_between_dates
-
 
 
 def get_this_weeks_number_of_available_tickets() -> int:
