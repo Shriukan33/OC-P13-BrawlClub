@@ -48,7 +48,7 @@ class Player(models.Model):
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
 
-    def update_brawlclub_rating(self):
+    def update_brawlclub_rating(self, save: bool = True):
         """Update player's club league rating.
 
         Brawlclub rating rates a player according to three parameters :
@@ -65,15 +65,16 @@ class Player(models.Model):
             + self.get_win_rate() * 20
         )
         self.brawlclub_rating = rate
-        self.save(
-            update_fields=[
-                "brawlclub_rating",
-                "club_league_playrate",
-                "club_league_winrate",
-                "club_league_teamplay_rate",
-                "last_updated",
-            ]
-        )
+        if save:
+            self.save(
+                update_fields=[
+                    "brawlclub_rating",
+                    "club_league_playrate",
+                    "club_league_winrate",
+                    "club_league_teamplay_rate",
+                    "last_updated",
+                ]
+            )
 
     def get_brawclub_rating(self, since: datetime = default_date) -> float:
         """Get the brawlclub rating of the player.

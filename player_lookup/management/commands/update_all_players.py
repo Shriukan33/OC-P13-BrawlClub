@@ -89,15 +89,36 @@ class Command(BaseCommand):
         logger.info("Creating matches from battlelog ...")
         for tag, battlelog in tag_battlelog.items():
             create_matches_from_battlelog(tag, battlelog)
-        logger.info("Updating players clubs...")
-        self.update_player_infos(tag_clubtag, tag_info)
+        logger.info("Updating players clubs and infos...")
+        player_batch = self.update_player_infos(tag_clubtag, tag_info)
 
         logger.info("Updating players' brawlclub rating...")
+        player_batch_to_update = []
         for player in player_batch:
             player: Player
             player.last_updated = datetime.now(timezone.utc)
-            # TODO: use a batch update here
-            player.update_brawlclub_rating()
+            player.update_brawlclub_rating(save=False)
+            player_batch_to_update.append(player)
+
+        logger.info(f'Saving {len(player_batch_to_update)} players to DB...')
+        Player.objects.bulk_update(
+            player_batch_to_update,
+            [
+                "last_updated",
+                "brawlclub_rating",
+                "club_league_winrate",
+                "club_league_playrate",
+                "club_league_teamplay_rate",
+                "player_name",
+                "level",
+                "trophy_count",
+                "total_3v3_wins",
+                "solo_wins",
+                "duo_wins",
+                "club",
+            ],
+        )
+        logger.info("Done!")
 
     @async_to_sync
     async def get_all_players_profiles_and_battlelog(
@@ -158,12 +179,15 @@ class Command(BaseCommand):
         logger.info(f"Number of to be updated players : {len(tag_profile.keys())}")
         return tag_battlelog, tag_clubtag, tag_info
 
-    def update_player_infos(self, tag_clubtag: dict, tag_infos: dict) -> None:
+    def update_player_infos(self, tag_clubtag: dict, tag_infos: dict) -> list:
         """Update player's club and infos.
 
         Keyword arguments:
         tag_clubtag -- Dict matching player tag and club tag
         tag_infos -- Dict matching player tag and player info
+
+        Returns:
+        The updated player batch
         """
         players_to_update = []
         clubs_to_create = []
@@ -207,19 +231,7 @@ class Command(BaseCommand):
                 player.club = Club.objects.get(club_tag=tag_clubtag[player.player_tag])
                 players_to_update.append(player)
 
-        print("Number of players to update : ", len(players_to_update))
-        Player.objects.bulk_update(
-            players_to_update,
-            [
-                "player_name",
-                "level",
-                "trophy_count",
-                "total_3v3_wins",
-                "solo_wins",
-                "duo_wins",
-                "club",
-            ],
-        )
+        return players_to_update
 
     @async_to_sync
     async def create_club_batch(self, clubs_to_create: list) -> list:
