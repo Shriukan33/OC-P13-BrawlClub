@@ -12,6 +12,7 @@ from player_lookup.views import (
     get_player_data,
     brawl_api,
 )
+from player_lookup.utils import get_club_league_status
 
 logger = logging.getLogger("django")
 
@@ -40,6 +41,7 @@ class Command(BaseCommand):
         else:
             min_time_since_last_update = datetime.now(timezone.utc)
 
+        self.club_league_running = get_club_league_status()
         total_player_count = Player.objects.count()
         player_count = Player.objects.filter(
             last_updated__lte=min_time_since_last_update
@@ -97,7 +99,8 @@ class Command(BaseCommand):
         for player in player_batch:
             player: Player
             player.last_updated = datetime.now(timezone.utc)
-            player.update_brawlclub_rating(save=False)
+            if self.club_league_running:
+                player.update_brawlclub_rating(save=False)
             player_batch_to_update.append(player)
 
         logger.info(f'Saving {len(player_batch_to_update)} players to DB...')

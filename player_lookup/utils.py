@@ -43,11 +43,11 @@ def get_number_of_weeks_since_date(since: datetime) -> int:
     return number_of_odd_weeks_between_dates
 
 
-def get_this_weeks_number_of_available_tickets() -> int:
-    """Get the number of tickets available for this week.
+def get_club_league_status() -> bool:
+    """Get the club league status.
 
     Returns:
-        int: The number of tickets available for this week.
+        bool: True if the club league is currently in progress, False otherwise.
     """
     current_weeks_number = datetime.today().isocalendar()[1]
     today_index = datetime.today().weekday()
@@ -61,15 +61,26 @@ def get_this_weeks_number_of_available_tickets() -> int:
     else:
         club_war_in_progress = False
 
+    return club_war_in_progress
+
+
+def get_this_weeks_number_of_available_tickets() -> int:
+    """Get the number of tickets available for this week.
+
+    Returns:
+        int: The number of tickets available for this week.
+    """
+    club_war_in_progress = get_club_league_status()
+
     if not club_war_in_progress:
         return 0
 
-    
     # Club league goes from day 2 (Wednesday) to day 0 (Monday) the next week.
     # This means that the only day that has no club war going anywhere is Tuesday
     # We want to compute de playrate accurately, and counting 2 tickets spent on
     # 14 while only 2 were available so far is not accurate.
     this_weeks_number_of_available_tickets = 0
+    today_index = datetime.today().weekday()
     if today_index in range(2, 4):
         # From wednesday to thursday, we only have 4 tickets available
         this_weeks_number_of_available_tickets = 4
