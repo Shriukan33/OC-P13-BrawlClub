@@ -17,6 +17,11 @@ class PlayerAdmin(admin.ModelAdmin):
     search_fields = ('player_tag', 'player_name')
 
 
+class PlayerHistoryAdmin(admin.ModelAdmin):
+    list_display = ('player', 'snapshot_date', 'trophy_count')
+    search_fields = ('player__player_name',)
+
+
 class ClubAdmin(admin.ModelAdmin):
     inlines = [
         PlayerInline,
@@ -56,6 +61,7 @@ class MatchIssueAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.Player, PlayerAdmin)
+admin.site.register(models.PlayerHistory, PlayerHistoryAdmin)
 admin.site.register(models.Club, ClubAdmin)
 admin.site.register(models.BrawlMap, BrawlMapAdin)
 admin.site.register(models.Brawler, BrawlerAdmin)

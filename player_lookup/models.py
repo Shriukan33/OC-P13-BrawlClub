@@ -184,6 +184,35 @@ class Player(models.Model):
         self.club_league_playrate = playrate
         return playrate
 
+    def create_player_history_instance(self):
+        """Create a player history instance for the player."""
+        return PlayerHistory(
+            player=self,
+            trophy_count=self.trophy_count,
+            total_club_war_trophy_count=self.total_club_war_trophy_count,
+            brawlclub_rating=self.brawlclub_rating,
+            club_league_playrate=self.club_league_playrate,
+            club_league_winrate=self.club_league_winrate,
+            club_league_teamplay_rate=self.club_league_teamplay_rate,
+            snapshot_date=datetime.now(timezone.utc),
+        )
+
+
+class PlayerHistory(models.Model):
+    """Make a snapshot of player's current stats"""
+    player: Player = models.ForeignKey(Player, on_delete=models.CASCADE)
+    trophy_count = models.IntegerField(default=0)
+    total_club_war_trophy_count = models.IntegerField(default=0)
+    brawlclub_rating = models.FloatField(default=0)
+    club_league_winrate = models.FloatField(default=0)
+    club_league_playrate = models.FloatField(default=0)
+    club_league_teamplay_rate = models.FloatField(default=0)
+    snapshot_date = models.DateTimeField()
+
+    def __str__(self):
+        return (f"{self.player.player_name} ({self.player.player_tag})"
+                f" - {self.snapshot_date}")
+
 
 class Club(models.Model):
     """Clubs are groups of players up to 30 persons"""
