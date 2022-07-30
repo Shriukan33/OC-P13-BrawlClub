@@ -12,7 +12,8 @@ class MatchIssueInline(admin.TabularInline):
 
 class PlayerAdmin(admin.ModelAdmin):
     inlines = [MatchIssueInline]
-    list_display = ('player_tag', 'player_name', 'club', 'trophy_count')
+    list_display = ('player_tag', 'player_name', 'club', 'trophy_count',
+                    'brawlclub_rating')
     list_filter = ('club',)
     search_fields = ('player_tag', 'player_name')
 
