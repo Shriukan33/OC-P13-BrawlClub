@@ -7,7 +7,7 @@ const PlayerStatLine = ({statName, statValue, statIcon}) => {
         
         <div className="d-flex align-items-center">
           <img className="stat-line-icon" src={`/images/Player/${statIcon}.png`} alt="stat icon" />
-          <span className="stat-name-text">{statName}&nbsp;:&nbsp;</span>
+          <span className="stat-name-text small">{statName}&nbsp;:&nbsp;</span>
         </div>
         
         <span className="my-auto">{statValue}</span>

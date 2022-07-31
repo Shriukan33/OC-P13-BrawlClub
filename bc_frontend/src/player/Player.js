@@ -11,7 +11,7 @@ const Player = () => {
 
   const [playerStats, setPlayerStats] = useState([])
   const [playerInstance, setPlayerInstance] = useState({})
-  const { id } = useParams()
+  const { tag } = useParams()
   const hasFetchedPlayer = useRef(false)
 
   useEffect(() => {
@@ -24,18 +24,21 @@ const Player = () => {
       }
     }
     if (!hasFetchedPlayer.current) {
-      fetchPlayerStats({id}.id).then((response) => {
-          if (response.stats) {
-            setPlayerStats(response.stats)
-          } else {
-            setPlayerStats([])
-          }
+      fetchPlayerStats({tag}.tag).then((response) => {
+          let playerStats = {}
+          playerStats.stats = [
+            {statName: "3v3 wins", statValue: response.total_3v3_wins, statIcon: "3v3"},
+            {statName: "Club league win rate", statValue: parseFloat(response.club_league_playrate).toFixed(2)*100+"%", statIcon: "trophy"},
+            {statName: "Club league play rate", statValue: parseFloat(response.club_league_playrate).toFixed(2)*100+"%", statIcon: "ticket"},
+            {statName: "Club league teamplay rate", statValue: parseFloat(response.club_league_teamplay_rate).toFixed(2)*100+"%", statIcon: "3v3"},
+          ]
+          setPlayerStats(playerStats.stats)
           setPlayerInstance(response)
         })
       hasFetchedPlayer.current = true
       console.log(playerInstance)
     }
-  }, [id])
+  }, [tag])
 
   return (
     <main className='col-10 col-lg-7 Player justify-content-center'>
