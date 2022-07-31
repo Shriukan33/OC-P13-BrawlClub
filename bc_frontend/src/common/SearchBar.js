@@ -27,7 +27,6 @@ const SearchBar = () => {
             <FontAwesomeIcon icon={faSearch} />
         </button>
         <input type="text" className="input-search" placeholder="Enter a player or a club tag"
-          value={searchValue}
           onChange={handleChange}/>
     </form>
   )

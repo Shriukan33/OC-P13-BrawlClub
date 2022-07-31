@@ -22,7 +22,7 @@ const StaticSearchBar = () => {
     setSearchValue(new_value) 
   }
   return (
-    <form method='POST' action='#' onSubmit={handleSubmit}
+    <form onSubmit={handleSubmit}
     className="d-flex flex-row justify-content-center">
         <input type="text" className={styles["input-search"]+" d-flex"}
         placeholder="Enter a player or a club tag"
