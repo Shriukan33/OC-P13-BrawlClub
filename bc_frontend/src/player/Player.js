@@ -3,6 +3,8 @@ import './Player.css'
 import PlayerBcRating from './PlayerBcRating'
 import PlayerProfile from "./PlayerProfile"
 import PlayerStats from "./PlayerStats"
+import PlayerAreaGraph from './PlayerAreaGraph'
+import PlayerRadarGraph from './PlayerRadarGraph'
 import {useState, useEffect, useRef} from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -28,9 +30,9 @@ const Player = () => {
           let playerStats = {}
           playerStats.stats = [
             {statName: "3v3 wins", statValue: response.total_3v3_wins, statIcon: "3v3"},
-            {statName: "Club league win rate", statValue: parseFloat(response.club_league_playrate).toFixed(2)*100+"%", statIcon: "trophy"},
+            {statName: "Club league win rate", statValue: parseFloat(response.club_league_winrate).toFixed(2)*100+"%", statIcon: "club_league_icon"},
             {statName: "Club league play rate", statValue: parseFloat(response.club_league_playrate).toFixed(2)*100+"%", statIcon: "ticket"},
-            {statName: "Club league teamplay rate", statValue: parseFloat(response.club_league_teamplay_rate).toFixed(2)*100+"%", statIcon: "3v3"},
+            {statName: "Club league teamplay rate", statValue: parseFloat(response.club_league_teamplay_rate).toFixed(2)*100+"%", statIcon: "club_mate"},
           ]
           setPlayerStats(playerStats.stats)
           setPlayerInstance(response)
@@ -50,6 +52,15 @@ const Player = () => {
           <PlayerBcRating
           bcRating={playerInstance ? playerInstance.brawlclub_rating : "Unknown"} />
           <PlayerStats stats={playerStats} />
+        </div>
+        
+        <div id="Player-graph" className="d-flex flex-column col-12 ml-2">
+          <div className="PlayerRadarGraph d-flex">
+            <PlayerRadarGraph stats={playerStats} />
+          </div>
+          <div className="PlayerAreaGraph d-flex">
+            <PlayerAreaGraph stats={playerStats} />
+          </div>
         </div>
 
       </div>
