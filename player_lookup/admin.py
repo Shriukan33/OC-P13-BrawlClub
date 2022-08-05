@@ -16,6 +16,10 @@ class PlayerAdmin(admin.ModelAdmin):
                     'brawlclub_rating')
     list_filter = ('club',)
     search_fields = ('player_tag', 'player_name')
+    readonly_fields = ('player_tag', 'player_name', 'club', 'trophy_count',)
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 class PlayerHistoryAdmin(admin.ModelAdmin):
@@ -53,12 +57,18 @@ class MatchAdmin(admin.ModelAdmin):
     list_filter = ('mode', 'map_played')
     search_fields = ('mode', 'map_played')
 
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 class MatchIssueAdmin(admin.ModelAdmin):
     list_display = ("player", "brawler", "outcome", "trophies_won",
                     "is_star_player", "played_with_clubmate")
     list_filter = ("player", "brawler", "outcome")
     search_fields = ("player", "brawler")
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 admin.site.register(models.Player, PlayerAdmin)
