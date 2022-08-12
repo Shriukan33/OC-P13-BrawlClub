@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import "./PlayerProfile.css"
 
 const PlayerProfile = ({player}) => {
@@ -10,7 +11,14 @@ const PlayerProfile = ({player}) => {
             </div>
             <div id="PlayerIdentity" className="d-flex flex-column mleft-2">
                 <span>{player.player_name}</span>
-                <span>{player.club ? player.club.club_name : "Not in a club"}</span>
+                <span>
+                {
+                    player.club ?
+                    <Link to={`/club/${player.club.club_tag.replace("#", "")}`}>{player.club.club_name} ⮕ </Link>
+                    :
+                    "Not in a club."
+                }
+                </span>
                 <span>{player.player_tag}</span>
             </div>
         </div>
