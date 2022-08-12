@@ -42,6 +42,14 @@ const Player = () => {
     }
   }, [tag])
 
+  let statsToDisplay = [
+    'Club league play rate',
+    'Club league win rate',
+    'Club league teamplay rate'
+  ]
+  let statslabels = ['Win Rate', 'Participation', 'Teamplay']
+
+
   return (
     <main className='col-10 col-lg-7 Player justify-content-center'>
       <div className="d-flex flex-row flex-wrap justify-content-center mx-auto">
@@ -56,7 +64,10 @@ const Player = () => {
         
         <div id="Player-graph" className="d-flex flex-column col-12 ml-2">
           <div className="PlayerRadarGraph d-flex">
-            <PlayerRadarGraph stats={playerStats} />
+            <PlayerRadarGraph
+              stats={playerStats}
+              statsToDisplay={statsToDisplay}
+              statslabels={statslabels} />
           </div>
           <div className="PlayerAreaGraph d-flex">
             <PlayerAreaGraph stats={playerStats} />

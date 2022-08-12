@@ -11,7 +11,7 @@ import {
 import { Radar } from 'react-chartjs-2';
 import "./PlayerRadarGraph.css"
 
-const PlayerRadarGraph = ({stats}) => {
+const PlayerRadarGraph = ({stats, statsToDisplay, statslabels}) => {
 
     ChartJS.register(
         RadialLinearScale,
@@ -26,7 +26,7 @@ const PlayerRadarGraph = ({stats}) => {
         stat => {
             return {statName: stat.statName, statValue: parseFloat(stat.statValue).toFixed(2)}
         }).filter((stat) => {
-            return ['Club league play rate', 'Club league win rate', 'Club league teamplay rate'].includes(stat.statName)
+            return statsToDisplay.includes(stat.statName)
         }).map(stat => {
             return stat.statValue
         });
@@ -74,7 +74,7 @@ const PlayerRadarGraph = ({stats}) => {
     }
 
     const data = {
-        labels: ['Win Rate', 'Participation', 'Teamplay'],
+        labels: statslabels,
         datasets: [
         {
             label: 'In %',
