@@ -45,8 +45,18 @@ const Home = () => {
           <StaticSearchBar />
         </div>
         <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
-          <Leaderboard title="Player Rating Leaderboard" topEntities={topPlayers} path="player"/>
-          <Leaderboard title="Club Leaderboard" topEntities={topClubs} path="club" />
+          <div className="leaderboard-frame d-flex flex-column col-10 col-md-4 my-3 mx-5 px-3">
+            <Leaderboard
+              title="Player Rating Leaderboard"
+              topEntities={topPlayers}
+              path="player"/>
+          </div>
+          <div className="leaderboard-frame d-flex flex-column col-10 col-md-4 my-3 mx-5 px-3">
+            <Leaderboard
+              title="Club Leaderboard"
+              topEntities={topClubs}
+              path="club" />
+          </div>
         </section>
     </main>
   )

@@ -2,6 +2,9 @@
     font-size: 1.1em;
     font-weight: bold;
 }
+.leaderboard-line-metric {
+    color: black;
+}
 .leaderboard-line-name a {
     color: black;
     text-decoration: none;
