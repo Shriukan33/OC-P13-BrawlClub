@@ -45,6 +45,7 @@ class SingleEntityView(RetrieveAPIView):
     """
     Return a single entity (Club or player).
     """
+
     # The original tag in url kwargs misses the "#"
     # so we need to add it back in here.
     lookup_url_kwarg = "proper_tag"
@@ -68,6 +69,28 @@ class SingleEntityView(RetrieveAPIView):
         else:
             logger.info(f"Invalid entity type: {entity}")
             queryset = None
+        return queryset
+
+
+class ClubMembersView(ListAPIView):
+    """
+    Return the members of a club.
+    """
+
+    lookup_url_kwarg = "club_tag"
+
+    def get_queryset(self):
+        """
+        Return the context-appropriate queryset.
+        """
+        club_tag = self.kwargs.get("club_tag", None)
+        if club_tag:
+            if not club_tag.startswith("#"):
+                self.kwargs.update({"club_tag": "#" + club_tag})
+        queryset = models.Player.objects.filter(club__club_tag=club_tag).order_by(
+            "-brawlclub_rating"
+        )
+        self.serializer_class = serializers.PlayerSerializer
         return queryset
 
 
