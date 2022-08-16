@@ -1,6 +1,7 @@
 .PlayerRadarGraph {
     background-color: #3fe5ffa8;
     border-radius: 10px;
+    border: 1px solid #353535;
     margin-top: 1em;
     min-height: 27vh;
     max-height: 40vh;
