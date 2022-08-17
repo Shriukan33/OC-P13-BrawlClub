@@ -4,6 +4,7 @@ import ClubProfile from './ClubProfile'
 import PlayerBcRating from '../player/PlayerBcRating'
 import PlayerStats from '../player/PlayerStats'
 import PlayerRadarGraph from '../player/PlayerRadarGraph'
+import Leaderboard from '../home/Leaderboard'
 import { useParams } from 'react-router-dom'
 
 
@@ -11,6 +12,7 @@ export const Club = () => {
 
     const [club, setClub] = useState({})
     const [clubStats, setClubStats] = useState([])
+    const [clubMembers, setClubMembers] = useState([])
     const hasFetchedClub = useRef(false)
     const { tag } = useParams()
 
@@ -23,6 +25,14 @@ export const Club = () => {
                 return json
             }
         }
+        const fetchClubMembers = async (club_id) => {
+          const response = await fetch(`${API_URL}/api/club-members/${club_id}`)
+          if (response.ok) {
+            const json = await response.json()
+            return json
+          }
+        }
+
         if (!hasFetchedClub.current) {
             fetchClub(tag).then((response) => {
                 let clubStats = {}
@@ -50,6 +60,9 @@ export const Club = () => {
                 ]
                 setClubStats(clubStats.stats)
                 setClub(response)
+                fetchClubMembers(tag).then((response) => {
+                  setClubMembers(response)
+                })
             })
             hasFetchedClub.current = true
         }
@@ -82,6 +95,11 @@ export const Club = () => {
             />
           </div>
         </div>
+        <section className="d-flex flex-wrap col-12 justify-content-center mx-auto">
+          <div className="leaderboard-frame d-flex flex-column col-12 col-md-6 my-3 mx-5 px-3">
+            <Leaderboard title="Club's BCR ranking" topEntities={clubMembers} path="player" />
+          </div>
+        </section>
       </div>
     </main>
   )
