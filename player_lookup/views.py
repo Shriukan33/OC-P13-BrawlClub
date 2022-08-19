@@ -9,6 +9,7 @@ from asgiref.sync import async_to_sync, sync_to_async
 from django.db.models import Avg, Count
 from django.http import HttpResponse, JsonResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.pagination import PageNumberPagination
 
 from . import models, serializers
 from .brawlstars_api import BrawlAPi
@@ -23,17 +24,29 @@ class LeaderBoardView(ListAPIView):
     Return the top entities (Club or players).
     """
 
+    class LeaderBoardPagination(PageNumberPagination):
+        page_size = 10
+        page_size_query_param = "page_size"
+        max_page_size = 100
+
+    pagination_class = LeaderBoardPagination
+
     def get_queryset(self):
         """
         Return the context-appropriate queryset.
         """
         entity = self.kwargs.get("entity", None)
-        size = int(self.kwargs.get("size", 10))
         if entity == "players":
-            queryset = get_top_players(size=size)
+            queryset = models.Player.objects.order_by(
+                "-brawlclub_rating", "-total_club_war_trophy_count", "-trophy_count")
             self.serializer_class = serializers.PlayerSerializer
         elif entity == "clubs":
-            queryset = get_top_clubs(size=size)
+            queryset = (
+                models.Club.objects.annotate(avg_bcr=Avg("player__brawlclub_rating"))
+                .annotate(nb_of_players=Count("player"))
+                .order_by("-avg_bcr", "-trophies")
+                .filter(nb_of_players__gte=25)
+            )
             self.serializer_class = serializers.ClubSerializer
         else:
             logger.info(f"Invalid entity type: {entity}")
