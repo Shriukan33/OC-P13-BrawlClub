@@ -2,9 +2,8 @@ import React from 'react'
 import './Leaderboard.css'
 import LeaderboardLine from './LeaderboardLine'
 
-const Leaderboard = ({title, topEntities, path}) => {
+const Leaderboard = ({title, topEntities, path, starting_index}) => {
 
-  
   return (
     <>
       <header className="mx-auto mt-2">{title}</header>
@@ -15,7 +14,7 @@ const Leaderboard = ({title, topEntities, path}) => {
               key={entity.player_tag ?? entity.club_tag}
               entity={entity}
               path={path}
-              ranking={index} />
+              ranking={starting_index ? starting_index + index : 0 + index} />
           ))
           :
           <div className="d-flex justify-content-center">No player or club found</div>

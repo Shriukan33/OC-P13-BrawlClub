@@ -1,12 +1,13 @@
 .leaderboard-line-name {
     font-size: 1.1em;
     font-weight: bold;
+    color: #123C45
 }
 .leaderboard-line-metric {
-    color: black;
+    color: #123C45;
 }
 .leaderboard-line-name a {
-    color: black;
+    color: #123C45;
     text-decoration: none;
 }
 .leaderboard-line-name a:hover {

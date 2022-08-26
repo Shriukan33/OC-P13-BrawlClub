@@ -22,7 +22,7 @@ const Nav = () => {
                 <Link to="/club">Club</Link>
             </li>
             <li>
-                <Link to="leaderboard">Leaderboard</Link>
+                <Link to="leaderboard/players">Leaderboards</Link>
             </li>
         </ul>
         <ul>
