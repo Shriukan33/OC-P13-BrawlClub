@@ -6,31 +6,50 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const StaticSearchBar = () => {
-  const [searchValue, setSearchValue] = useState('')
+  const API_URL = process.env.REACT_APP_API_ENDPOINT
+  const [searchResultNotFound, setSearchResultNotFound] = useState(false)
   const navigate = useNavigate()
+
+  const handleSearch = (user_input) => {
+    fetch(`${API_URL}/api/search/${user_input}`)
+      .then(response => response.json())
+      .then(json => {
+        if (json.club_tag) {
+          navigate(`/club/${json.club_tag.replace("#", "")}`)
+        } else if (json.player_tag) {
+          navigate(`/player/${json.player_tag.replace("#", "")}`)
+        } else {
+          setSearchResultNotFound(true)
+        }
+      })
+  }
+
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Need to check if this is a valid player or club
-    // Check what sort of entity it is (Tag is either player or club)
-    navigate(`/player/${searchValue}`)
-    setSearchValue('')
+    let user_input = document.getElementById("staticsearchbar-input").value 
+    user_input = user_input.replaceAll('#', '')
+    handleSearch(user_input)
+    document.getElementById("staticsearchbar-input").value = ''
   }
-  const handleChange = (e) => {
-    let new_value = e.target.value
-    new_value = new_value.replaceAll('#', '')
-    console.log(new_value)
-    setSearchValue(new_value) 
-  }
+
   return (
+    <>
     <form onSubmit={handleSubmit}
     className="d-flex flex-row justify-content-center">
-        <input type="text" className={styles["input-search"]+" d-flex"}
+        <input  id="staticsearchbar-input" type="text" className={styles["input-search"]+" d-flex"}
+        maxLength="9"
         placeholder="Enter a player or a club tag"
-        onChange={handleChange}/>
-        <button className={styles["btn-search"] + " px-3"}>
+        />
+        <button className={styles["btn-search"] + " px-3"} type="submit">
             <FontAwesomeIcon icon={faSearch} />
         </button>
     </form>
+    {searchResultNotFound && 
+    <span className={styles["error-text"]}>
+      No results for this tag
+    </span>}
+    </>
   )
 }
 

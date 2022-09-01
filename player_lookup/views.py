@@ -10,6 +10,8 @@ from django.db.models import Avg, Count
 from django.http import HttpResponse, JsonResponse
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import status
+from rest_framework.response import Response
 
 from . import models, serializers
 from .brawlstars_api import BrawlAPi
@@ -40,6 +42,7 @@ class LeaderBoardView(ListAPIView):
             queryset = models.Player.objects.order_by(
                 "-brawlclub_rating", "-total_club_war_trophy_count", "-trophy_count")
             self.serializer_class = serializers.PlayerSerializer
+
         elif entity == "clubs":
             queryset = (
                 models.Club.objects.annotate(avg_bcr=Avg("player__brawlclub_rating"))
@@ -83,6 +86,37 @@ class SingleEntityView(RetrieveAPIView):
             logger.info(f"Invalid entity type: {entity}")
             queryset = None
         return queryset
+
+
+class SearchUnknownEntityView(RetrieveAPIView):
+    """Returns either a Player or a Club instance based on a provided tag"""
+
+    queryset = models.Player.objects.all()
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not instance:
+            return Response({"details": "not found"}, status=status.HTTP_404_NOT_FOUND)
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def get_object(self):
+        """
+        Return the context-appropriate object.
+        """
+        tag = self.kwargs.get("tag", None)
+        if tag:
+            tag = "#" + tag
+        try:
+            obj = self.queryset.get(player_tag=tag)
+            self.serializer_class = serializers.PlayerSerializer
+        except models.Player.DoesNotExist:
+            try:
+                obj = models.Club.objects.get(club_tag=tag)
+                self.serializer_class = serializers.ClubSerializer
+            except models.Club.DoesNotExist:
+                obj = None
+        return obj
 
 
 class ClubMembersView(ListAPIView):
