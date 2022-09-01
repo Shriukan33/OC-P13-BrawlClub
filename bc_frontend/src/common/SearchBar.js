@@ -2,23 +2,30 @@ import React from 'react'
 import "./SearchBar.css"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const SearchBar = () => {
-  const [searchValue, setSearchValue] = useState('')
+  const API_URL = process.env.REACT_APP_API_ENDPOINT
   const navigate = useNavigate()
+
+  const handleSearch = (user_input) => {
+    fetch(`${API_URL}/api/search/${user_input}`)
+      .then(response => response.json())
+      .then(json => {
+        if (json.club_tag) {
+          navigate(`/club/${json.club_tag.replace("#", "")}`)
+        } else if (json.player_tag) {
+          navigate(`/player/${json.player_tag.replace("#", "")}`)
+        }
+      })
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Need to check if this is a valid player or club
-    // Check what sort of entity it is (Tag is either player or club)
-    navigate(`/player/${searchValue}`)
-    setSearchValue('')
-  }
-  const handleChange = (e) => {
-    let new_value = e.target.value
-    new_value = new_value.replaceAll('#', '')
-    setSearchValue(new_value) 
+    let user_input = document.getElementById("nav-search").value 
+    user_input = user_input.replaceAll('#', '')
+    handleSearch(user_input)
+    document.getElementById("nav-search").value = ''
   }
 
   return (
@@ -26,8 +33,8 @@ const SearchBar = () => {
         <button type="button" className="btn-search">
             <FontAwesomeIcon icon={faSearch} />
         </button>
-        <input type="text" className="input-search" placeholder="Enter a player or a club tag"
-          onChange={handleChange}/>
+        <input id="nav-search" type="text" className="input-search"
+        placeholder="Enter a player or a club tag" />
     </form>
   )
 }
