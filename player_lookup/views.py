@@ -169,7 +169,7 @@ async def get_club_members_data(request, club_tag) -> dict:
     api_calls = []
     async with httpx.AsyncClient(timeout=3600) as client:
         for tag, _ in tag_profile.items():
-            response = get_player_battlelog(tag)
+            response = get_player_battlelog(tag, client)
             api_calls.append(response)
 
         battlelogs = await asyncio.gather(*api_calls)
