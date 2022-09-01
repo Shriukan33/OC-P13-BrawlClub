@@ -39,17 +39,17 @@ export const Club = () => {
                 clubStats.stats = [
                     {
                       statName:"Avg Win Rate",
-                      statValue: parseFloat(response.avg_win_rate).toFixed(2)*100+"%",
+                      statValue: Math.round((parseFloat(response.avg_win_rate)*100))+"%",
                       statIcon:"club_league_icon"
                     },
                     {
                       statName:"Avg Play Rate",
-                      statValue: parseFloat(response.avg_play_rate).toFixed(2)*100+"%",
+                      statValue: Math.round((parseFloat(response.avg_play_rate)*100))+"%",
                       statIcon:"ticket"
                     },
                     {
                       statName:"Avg Teamplay Rate",
-                      statValue: parseFloat(response.avg_teamplay_rate).toFixed(2)*100+"%",
+                      statValue: Math.round((parseFloat(response.avg_teamplay_rate)*100))+"%",
                       statIcon:"club_mate"
                     },
                     {
