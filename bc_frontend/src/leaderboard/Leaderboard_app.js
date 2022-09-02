@@ -3,7 +3,6 @@ import Leaderboard from '../home/Leaderboard'
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
-import { useNavigate } from 'react-router-dom'
 import './Leaderboard_app.css'
 
 const Leaderboard_app = () => {
@@ -38,7 +37,7 @@ const Leaderboard_app = () => {
       })
     }
     hasFetched.current = true
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entity])
 
 
@@ -112,14 +111,14 @@ const Leaderboard_app = () => {
       <header>
         <Link onClick={handleToggle} to={`/leaderboard/players/`}>
           <button id="leaderboard-players-toggle"
-            className={"leaderboard-toggle players " + (entity_type == "player" ? "active" : "")}>
+            className={"leaderboard-toggle players " + (entity_type === "player" ? "active" : "")}>
             Players
           </button>
         </Link>
         
         <Link onClick={handleToggle} to={`/leaderboard/clubs/`}>
           <button id="leaderboard-clubs-toggle"
-          className={"leaderboard-toggle clubs " + (entity_type == "club" ? "active" : "")}>
+          className={"leaderboard-toggle clubs " + (entity_type === "club" ? "active" : "")}>
             Clubs
           </button>
         </Link>

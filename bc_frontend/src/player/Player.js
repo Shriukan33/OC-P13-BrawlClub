@@ -38,7 +38,6 @@ const Player = () => {
           setPlayerInstance(response)
         })
       hasFetchedPlayer.current = true
-      console.log(playerInstance)
     }
   }, [tag])
 
