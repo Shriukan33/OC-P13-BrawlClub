@@ -1,0 +1,55 @@
+/* Slider classes */
+.range-slider .range-slider__range {
+    background: rgb(255, 25, 25)
+}
+.range-slider .range-slider__thumb {
+    background: rgb(224, 224, 224);
+}
+.range-slider {
+    background: rgb(238, 238, 238);
+}
+#trophy-requirement-slider > div[data-lower="true"] {
+    display: none;
+}
+#trophy-requirement-slider > div.range-slider__range {
+    left:0 !important;
+}
+/* Button classes */
+button.clubfinder-btn {
+    background-color: #3fe5ffa8;
+    font-weight: bold;
+    color: white;
+}
+/* Checkbox classes */ 
+article > label {
+    position:relative;
+    left: -9999px
+}
+article {
+    position:relative;
+    flex-grow: 1;
+    margin: 0 5px;
+}
+article div {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    background-color:#123c457a;
+    color: rgb(189, 189, 189);
+    border-radius: 10px;
+}
+article input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+input[type=checkbox]:checked ~ div {
+    background-color: #3fe5ffa8;
+    color: white;
+  }

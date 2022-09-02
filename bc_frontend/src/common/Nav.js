@@ -16,10 +16,7 @@ const Nav = () => {
         </label>
         <ul className="menu">
             <li>
-                <Link to="/profile">Profile</Link>
-            </li>
-            <li>
-                <Link to="/club">Club</Link>
+                <Link to="/club-finder">Club Finder</Link>
             </li>
             <li>
                 <Link to="leaderboard/players">Leaderboards</Link>
