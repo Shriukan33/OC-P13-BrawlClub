@@ -12,6 +12,7 @@ urlpatterns = [
 drf_patterns = [
     path("api/leaderboard/<str:entity>/", views.LeaderBoardView.as_view()),
     path("api/club-members/<str:club_tag>", views.ClubMembersView.as_view()),
+    path("api/club-finder/results", views.ClubFinderResultsView.as_view()),
     path("api/search/<str:tag>", views.SearchUnknownEntityView.as_view()),
     path("api/<str:entity>/<str:tag>", views.SingleEntityView.as_view()),
 ]

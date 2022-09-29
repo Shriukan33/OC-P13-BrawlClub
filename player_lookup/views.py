@@ -40,7 +40,8 @@ class LeaderBoardView(ListAPIView):
         entity = self.kwargs.get("entity", None)
         if entity == "players":
             queryset = models.Player.objects.order_by(
-                "-brawlclub_rating", "-total_club_war_trophy_count", "-trophy_count")
+                "-brawlclub_rating", "-total_club_war_trophy_count", "-trophy_count"
+            )
             self.serializer_class = serializers.PlayerSerializer
 
         elif entity == "clubs":
@@ -139,6 +140,54 @@ class ClubMembersView(ListAPIView):
         )
         self.serializer_class = serializers.PlayerSerializer
         return queryset
+
+
+class ClubFinderResultsView(ListAPIView):
+    """
+    Return the clubs that match the search query.
+    """
+
+    serializer_class = serializers.ClubSerializer
+
+    def get_queryset(self):
+        """
+        Return the context-appropriate queryset.
+        """
+        max_trophies = self.request.GET.get("max_trophies", None)
+        types_list = self.request.GET.get("type", None)
+        min_members = self.request.GET.get("min_members", None)
+        max_members = self.request.GET.get("max_members", None)
+        queryset = (
+            models.Club.objects.annotate(avg_bcr=Avg("player__brawlclub_rating"))
+            .annotate(nb_of_players=Count("player"))
+            .order_by("-avg_bcr", "-trophies")
+        )
+        if types_list:
+            try:
+                types_list = types_list.split(",")
+                queryset = queryset.filter(club_type__in=types_list)
+            except ValueError:
+                logger.info(f"Invalid types list: {types_list}")
+        if max_trophies:
+            try:
+                max_trophies = int(max_trophies)
+                queryset = queryset.filter(required_trophies__lte=max_trophies)
+            except ValueError:
+                logger.info(f"Invalid max_trophies value: {max_trophies}")
+        if min_members:
+            try:
+                min_members = int(min_members)
+                queryset = queryset.filter(nb_of_players__gte=min_members)
+            except ValueError:
+                logger.info(f"Invalid min_members value: {min_members}")
+        if max_members:
+            try:
+                max_members = int(max_members)
+                queryset = queryset.filter(nb_of_players__lte=max_members)
+            except ValueError:
+                logger.info(f"Invalid max_members value: {max_members}")
+
+        return queryset.order_by("-avg_bcr", "-trophies")[:25]
 
 
 @async_to_sync
