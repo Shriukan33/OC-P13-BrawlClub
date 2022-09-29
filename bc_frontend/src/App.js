@@ -5,6 +5,7 @@ import Player from './player/Player';
 import Club from './club/Club';
 import Leaderboard from './leaderboard/Leaderboard_app';
 import ClubFinder from './club-finder/ClubFinder';
+import Results from './club-finder/Results';
 import { Route, Routes } from 'react-router-dom';
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -23,9 +24,8 @@ function App() {
                     <Route path="leaderboard">
                         <Route index path=":entity" element={<Leaderboard />} />
                     </Route>
-                    <Route path="club-finder" element={<ClubFinder />}>
-
-                    </Route>
+                    <Route path="club-finder/*" element={<ClubFinder />} />
+                    <Route path="club-finder/results" element={<Results />} />
                 </Route>
             </Routes>
         </>

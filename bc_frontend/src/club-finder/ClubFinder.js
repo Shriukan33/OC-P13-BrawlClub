@@ -37,30 +37,32 @@ const ClubFinder = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    let get_params = "?"
+    var get_params = "?type="
+    let club_types = []
     if (checkboxOpen) {
-      get_params += "type=open&"
+      club_types.push("open")
     }
     if (checkboxClosed) {
-      get_params += "type=closed&"
+      club_types.push("closed")
     }
     if (checkboxInviteOnly) {
-      get_params += "type=invite_only&"
+      club_types.push("inviteOnly")
     }
+    get_params += club_types.join(",") + "&"
     get_params += `min_members=${sliderMembersMinValue}&`
     get_params += `max_members=${sliderMembersMaxValue}&`
     get_params += `max_trophies=${sliderRequiredTrophiesMaxValue}`
-    navigate(`/club-finder/results/${get_params}`)
+    navigate(`/club-finder/results${get_params}`, {"replace": true})
   }
 
-  return (
+  return ( 
     <main className='col-10 col-lg-7 Player justify-content-center'>
       <h1>Find your perfect club</h1>
-      <form id="club-finder-form" method='get' action="#"
+      <form id="club-finder-form" method='get' action="club-finder/results"
       className="d-flex flex-column" onSubmit={handleSubmit}>
         <div className="d-flex flex-column my-2">
           <p>Club with trophy requirement at most at
-            <span className="controlled-value">{sliderRequiredTrophiesMaxValue}</span>
+            <span className="controlled-value">&nbsp;{sliderRequiredTrophiesMaxValue}</span>
           </p>
           <RangeSlider
           id="trophy-requirement-slider"
@@ -129,8 +131,6 @@ const ClubFinder = () => {
           />
         </div>
         <button type="submit" className="btn clubfinder-btn">Search</button>
-
-
       </form>
     </main>
   )

@@ -1,0 +1,10 @@
+.results-line {
+    cursor: pointer;
+    background-color: #3fe5ffa8;
+}
+.results-line:hover {
+    color: #F01919;
+}
+.results-line.even {
+    background-color: #37c1d6a8;
+}
