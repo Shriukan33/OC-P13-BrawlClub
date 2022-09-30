@@ -14,7 +14,7 @@ const PlayerProfile = ({player}) => {
                 <span>
                 {
                     player.club ?
-                    <Link to={`/club/${player.club.club_tag.replace("#", "")}`}>{player.club.club_name} ⮕ </Link>
+                    <Link to={`/club/${player.club.club_tag.replace("#", "")}`}>{player.club.club_name} &nbsp;<i className="fa-solid fa-share-from-square"></i> </Link>
                     :
                     "Not in a club."
                 }
