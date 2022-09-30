@@ -13,7 +13,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import "./PlayerAreaGraph.css"
 
-const PlayerAreaGraph = ({player}) => {
+const PlayerAreaGraph = ({history}) => {
     ChartJS.register(
         CategoryScale,
         LinearScale,
@@ -54,7 +54,16 @@ const PlayerAreaGraph = ({player}) => {
             }
         },
     };
-    const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+    const labels = history.map((item) => {
+        let var_date = item.snapshot_date
+        let date = new Date(var_date)
+        let short_date = date.toLocaleDateString()
+        return short_date
+    })
+    const _data = history.map((item) => {
+        return item.brawlclub_rating
+    })
+
 
     const data = {
         labels,
@@ -62,13 +71,15 @@ const PlayerAreaGraph = ({player}) => {
             {
                 fill: true,
                 label: 'Brawlclub rating',
-                data: [77, 66, 99, 55, 44, 66, 88],
+                data: _data,
                 borderColor: 'rgba(240, 25, 25, 0.7)',
                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
                 color: '#000'
             },
         ],
     };
+    
+
 
     return (
         <Line options={options} data={data} />

@@ -13,6 +13,7 @@ const Player = () => {
 
   const [playerStats, setPlayerStats] = useState([])
   const [playerInstance, setPlayerInstance] = useState({})
+  const [playerHistory, setPlayerHistory] = useState([])
   const { tag } = useParams()
   const hasFetchedPlayer = useRef(false)
 
@@ -25,6 +26,14 @@ const Player = () => {
         return json
       }
     }
+    const fetchPlayerHistory = async (player_id) => {
+      const response = await fetch(`${API_URL}/api/player/areagraph/${player_id}`)
+      if (response.ok) {
+        const json = await response.json()
+        return json
+      }
+    }
+
     if (!hasFetchedPlayer.current) {
       fetchPlayerStats({tag}.tag).then((response) => {
           let playerStats = {}
@@ -37,6 +46,9 @@ const Player = () => {
           setPlayerStats(playerStats.stats)
           setPlayerInstance(response)
         })
+      fetchPlayerHistory({tag}.tag).then((response) => {
+        setPlayerHistory(response)
+      })
       hasFetchedPlayer.current = true
     }
   }, [tag])
@@ -69,7 +81,7 @@ const Player = () => {
               statslabels={statslabels} />
           </div>
           <div className="PlayerAreaGraph d-flex">
-            <PlayerAreaGraph stats={playerStats} />
+            <PlayerAreaGraph history={playerHistory} />
           </div>
         </div>
 

@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Tuple
 
 import dateutil.parser
+from django.shortcuts import get_object_or_404
 import httpx
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db.models import Avg, Count
@@ -189,6 +190,28 @@ class ClubFinderResultsView(ListAPIView):
 
         return queryset.order_by("-avg_bcr", "-trophies")[:25]
 
+
+class PlayerAreaGraphView(ListAPIView):
+    """
+    Return the area graph data for a player.
+    """
+
+    serializer_class = serializers.PlayerHistorySerializer
+
+    def get_queryset(self):
+        """
+        Return the context-appropriate queryset.
+        """
+        tag = self.kwargs.get("player_tag", None)
+        if tag:
+            if not tag.startswith("#"):
+                self.kwargs.update({"player_tag": "#" + tag})
+                tag = "#" + tag
+        player = get_object_or_404(models.Player, player_tag=tag)
+        queryset = models.PlayerHistory.objects.filter(player=player).order_by(
+            "snapshot_date")[:8]
+
+        return queryset
 
 @async_to_sync
 async def get_club_members_data(request, club_tag) -> dict:

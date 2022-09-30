@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Player, Club
+from .models import Player, Club, PlayerHistory
 from django.db.models import Avg, Count
 
 
@@ -40,6 +40,16 @@ class PlayerSerializer(serializers.ModelSerializer):
         )
         depth = 1
 
+
+class PlayerHistorySerializer(serializers.ModelSerializer):
+    """Serializer for the PlayerHistory model."""
+
+    class Meta:
+        model = PlayerHistory
+        fields = (
+            "snapshot_date",
+            "brawlclub_rating",
+        )
 
 class ClubSerializer(serializers.ModelSerializer):
     """Serializer for the Club model."""
