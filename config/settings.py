@@ -73,6 +73,10 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "https://brawlclub.app",
+    "https://www.brawlclub.app",
+    "https://api.brawlclub.app",
+    "https://www.api.brawlclub.app",
 ]
 
 ROOT_URLCONF = 'config.urls'
