@@ -11,10 +11,12 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import rollbar
 import os
 from dotenv import load_dotenv
 
 load_dotenv()  # take environment variables from .env.
+rollbar.init(os.environ.get('ROLLBAR_ACCESS_TOKEN'), '')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,6 +38,7 @@ else:
     SESSION_COOKIE_SECURE = True
     SECURE_SSL_REDIRECT = True
     CSRF_COOKIE_SECURE = True
+    DEBUG = False
 
 # Django Debug Toolbar
 INTERNAL_IPS = ["127.0.0.1"]
@@ -69,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -225,4 +229,11 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
+}
+
+ROLLBAR = {
+    'access_token': os.environ.get('ROLLBAR_ACCESS_TOKEN'),
+    'environment': 'development' if DEBUG else 'production',
+    'branch': 'master',
+    'root': BASE_DIR,
 }
