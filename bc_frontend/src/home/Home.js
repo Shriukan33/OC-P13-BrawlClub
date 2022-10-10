@@ -4,6 +4,7 @@ import StaticSearchBar from "./StaticSearchBar"
 import Leaderboard from './Leaderboard'
 import { useState, useEffect, useRef } from 'react'
 
+
 const Home = () => {
 
   
@@ -40,11 +41,42 @@ const Home = () => {
 
   return (
     <main className='HomePage'>
-        <img src="/images/brawlclub_logo.png" alt="Brawlclub logo" className="img-fluid d-flex col-10 col-md-5 col-lg-3 py-3"></img>
-        <div className="my-5">
+    
+    
+    
+    {/* Background image */}
+<div className="bg-image" >
+  <div className="mask">
+    <div className="d-flex justify-content-center align-items-center h-100" style={{flexDirection: 'column'}}>
+    <img src="/images/brawlclub_logo.png" alt="Brawlclub logo" className="img-fluid d-flex col-10 col-md-5 col-lg-3 py-3"></img>
+
+    {/* searchbar  */}    
+
+    <div className="my-5">
           <StaticSearchBar />
         </div>
-        <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
+    </div>
+  </div>
+</div>
+{/* Background image */}
+   
+
+                {/* new proposed about-site section */}
+                
+                <section className="abtsec">
+                <div className="abthead wave">
+                  <h1>Curious about Your Rank?</h1>
+                  <h3>Check it Out by Searching our database </h3>
+                </div>
+                
+                {/* extra info section   */}
+                <div className='py-5 px-5 mt-3 abtinfo'>
+                <h4>Claire is a chicken Queen</h4>
+                <p>Ben makes better cookies than claire</p>
+               <p>The about and how to use goes here</p>
+                </div>
+
+                <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
           <div className="leaderboard-frame d-flex flex-column col-12 col-md-4 my-3 mx-5 px-3">
             <Leaderboard
               title="Player Rating Leaderboard"
@@ -58,6 +90,7 @@ const Home = () => {
               path="club" />
           </div>
         </section>
+                </section>
     </main>
   )
 }
