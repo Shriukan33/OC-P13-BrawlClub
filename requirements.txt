@@ -5,7 +5,7 @@ asyncio==3.4.3
 async-timeout==4.0.2
 autopep8==1.6.0
 backcall==0.2.0
-backports.zoneinfo==0.2.1
+backports.zoneinfo;python_version<"3.9"
 black==22.6.0
 certifi==2022.12.7
 charset-normalizer==2.0.12

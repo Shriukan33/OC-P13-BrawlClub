@@ -26,7 +26,7 @@ const Results = () => {
         resultsLoaded.current = true
       }
     
-  }, [])
+  }, [params])
   
   return (
     

@@ -1,10 +1,11 @@
 .leaderboard-frame {
     max-width: 400px;
     width: 100%;
-    background-color: #3fe5ffa8;
+    background-color: #bcc6f3a8;
     border-radius: 10px;
     font-weight: bold;
-    border: 1px solid black;
+    /* border: 1px solid black; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.281), 0 6px 20px 0 rgba(0, 0, 0, 0.336);
 }
 
 .leaderboard-frame header {

@@ -22,4 +22,17 @@
   position: absolute;
   overflow-x: hidden;
   font-family: 'Poppins', sans-serif;
+
+  /* hide scrollbar for IE, Edge and Firefox */
+-ms-overflow-style: none;
+scrollbar-width: none;
 }
+
+/* hide scrollbar for chrome, safari and opera */
+.App::-webkit-scrollbar {
+display: none;
+}
+
+
+
+
