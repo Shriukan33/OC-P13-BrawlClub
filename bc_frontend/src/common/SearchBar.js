@@ -36,6 +36,10 @@ const SearchBar = () => {
         <input id="nav-search" type="text" className="input-search"
         placeholder="Enter a player or a club tag" />
     </form>
+
+
+    
+
   )
 }
 
