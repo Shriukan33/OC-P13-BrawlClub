@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './StaticSearchBar.module.css'
+import './StaticSearchBar.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSearch } from '@fortawesome/free-solid-svg-icons'
 import { useState } from 'react'
@@ -36,17 +36,18 @@ const StaticSearchBar = () => {
   return (
     <>
     <form onSubmit={handleSubmit}
-    className="d-flex flex-row justify-content-center">
-        <input  id="staticsearchbar-input" type="text" className={styles["input-search"]+" d-flex"}
+    className="d-flex flex-row justify-content-center srchbar">
+        <input  id="staticsearchbar-input" type="text" className="input-search d-flex"
         maxLength="9"
-        placeholder="Enter a player or a club tag"
+        placeholder="#XXXXXXXXX"
         />
-        <button className={styles["btn-search"] + " px-3"} type="submit">
+        <button className="btn-search px-3" type="submit">
             <FontAwesomeIcon icon={faSearch} />
         </button>
     </form>
+    
     {searchResultNotFound && 
-    <span className={styles["error-text"]}>
+    <span className="error-text">
       No results for this tag
     </span>}
     </>
