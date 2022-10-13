@@ -4,6 +4,7 @@ import logging
 import httpx
 from typing import Tuple
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from asgiref.sync import sync_to_async, async_to_sync
 from player_lookup.models import Club, Player
 from player_lookup.views import (
@@ -44,7 +45,7 @@ class Command(BaseCommand):
         self.club_league_running = get_club_league_status()
         total_player_count = Player.objects.count()
         player_count = Player.objects.filter(
-            last_updated__lte=min_time_since_last_update
+            Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
         ).count()
         logger.info(
             f"Found {player_count} players to update "
@@ -61,7 +62,7 @@ class Command(BaseCommand):
 
             logger.info(f"Updating row {new_start} to {i}")
             player_batch = Player.objects.filter(
-                last_updated__lte=min_time_since_last_update
+                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
             )[:batch_size]
             self.update_player_batch(player_batch)
             new_start = i
@@ -69,7 +70,7 @@ class Command(BaseCommand):
         logger.info("Updating remaining players...")
         if not forced_update:
             last_player_batch = Player.objects.filter(
-                last_updated__lte=min_time_since_last_update
+                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
             )
         else:
             last_player_batch = Player.objects.all()[top_limit:]
