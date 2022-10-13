@@ -37,7 +37,7 @@ class Command(BaseCommand):
         logger.info("Starting update_all_players command...")
         if not forced_update:
             min_time_since_last_update = datetime.now(timezone.utc) - timedelta(
-                minutes=30
+                hours=8
             )
         else:
             min_time_since_last_update = datetime.now(timezone.utc)
@@ -51,7 +51,7 @@ class Command(BaseCommand):
             f"Found {player_count} players to update "
             f"in DB (Total : {total_player_count})"
         )
-        batch_size = 999
+        batch_size = 500
         top_limit = player_count // batch_size * batch_size
         first_loop = True
         for i in range(0, top_limit + 1, batch_size):
