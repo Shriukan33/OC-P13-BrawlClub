@@ -1,0 +1,2 @@
+#rename this file ".env.local" and fill in the values.
+REACT_APP_API_ENDPOINT="http://localhost:8000"
