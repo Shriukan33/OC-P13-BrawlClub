@@ -1,14 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+import asyncio
 import os
 import requests
-
-if TYPE_CHECKING:
-    import httpx
+import httpx
 
 
 class BrawlAPi:
-
     def __init__(self) -> None:
         self.base_url = "https://api.brawlstars.com/v1/"
         self._api_key = os.environ.get("BRAWLSTARS_API_KEY")
@@ -29,7 +26,7 @@ class BrawlAPi:
     def headers(self) -> dict:
         header = {
             "Authorization": f"Bearer {self.api_key}",
-            "Accept": "application/json"
+            "Accept": "application/json",
         }
         return header
 
@@ -48,7 +45,7 @@ class BrawlAPi:
         url = f"{self.base_url}players/%23{player_tag}"
         return url
 
-    def get_player_battlelog(self, player_tag: str, client: httpx.AsyncClient) -> dict:
+    def get_player_battlelog(self, player_tag: str, client=httpx.AsyncClient()) -> dict:
         """Get data from the player's last 24 matches"""
         if player_tag.startswith("#"):
             # We remove the # from the player tag
@@ -68,17 +65,20 @@ class BrawlAPi:
         data = self.get_player_stats(player_tag)
         return data["club"]
 
-    def get_club_members(self, club_tag: str) -> dict:
+    async def get_club_members(self, club_tag: str, client=httpx.AsyncClient()) -> dict:
         if club_tag.startswith("#"):
             # We remove the # from the club tag
             club_tag = club_tag[1:]
         url = f"{self.base_url}clubs/%23{club_tag}/members"
-        response = requests.get(url, headers=self.headers)
+        response = await client.get(url, headers=self.headers)
         return response.json()
 
-    def get_club_members_tag_list(self, club_tag: str) -> list:
+    async def get_club_members_tag_list(
+        self, club_tag: str, client=httpx.AsyncClient()
+    ) -> list:
         """Returns a list of the club members' tags."""
-        club_members = self.get_club_members(club_tag)
+        club_members = self.get_club_members(club_tag, client)
+        club_members = asyncio.gather(club_members)
         club_members_tag_list = []
         for member in club_members["items"]:
             club_members_tag_list.append(member["tag"])
@@ -91,3 +91,23 @@ class BrawlAPi:
         url = f"{self.base_url}clubs/%23{club_tag}"
         response = requests.get(url, headers=self.headers)
         return response.json()
+
+    async def get_club_batch_player_tags_list(self, club_tags: list):
+        """Returns a list of the clubs members' tags."""
+        club_members_tag_list = []
+        api_calls = []
+        # We fetch all clubs members' tags, for each club in club_tags
+        async with httpx.AsyncClient(timeout=None) as client:
+            for club_tag in club_tags:
+                response = self.get_club_members(club_tag, client)
+                api_calls.append(response)
+            responses = await asyncio.gather(*api_calls)
+
+        # 1 api call = 1 club
+        # Each response is a dict with an "items" key, which is a list where each
+        # element is a dict with a "tag" key, which is the player tag.
+        for response in responses:
+            for member in response["items"]:
+                club_members_tag_list.append(member["tag"])
+
+        return club_members_tag_list
