@@ -43,7 +43,7 @@ class Player(models.Model):
     last_updated = models.DateTimeField(null=True, blank=True)
 
     # Date at which we start counting the playrate
-    default_date = datetime(year=2022, month=7, day=20, tzinfo=timezone.utc)
+    default_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
@@ -76,19 +76,19 @@ class Player(models.Model):
                 ]
             )
 
-    def get_brawclub_rating(self, since: datetime = default_date) -> float:
+    def get_brawclub_rating(self) -> float:
         """Get the brawlclub rating of the player.
 
         Args:
             since (datetime): The date since when the brawlclub rating is calculated.
         """
         return (
-            self.get_win_rate(since) * 50
-            + self.get_teamplay_rate(since) * 30
-            + self.get_playrate(since) * 20
+            self.get_win_rate(self.default_date) * 50
+            + self.get_teamplay_rate(self.default_date) * 30
+            + self.get_playrate(self.default_date) * 20
         )
 
-    def get_win_rate(self, since: datetime = default_date) -> float:
+    def get_win_rate(self) -> float:
         """Get the win rate of the player.
 
         Args:
@@ -96,12 +96,12 @@ class Player(models.Model):
         """
         winrate = 0
 
-        if since:
+        if self.default_date:
             all_wins = MatchIssue.objects.filter(
-                player=self, match__date__gte=since, outcome="WIN"
+                player=self, match__date__gte=self.default_date, outcome="WIN"
             ).count()
             all_losses = MatchIssue.objects.filter(
-                player=self, match__date__gte=since, outcome="LOSS"
+                player=self, match__date__gte=self.default_date, outcome="LOSS"
             ).count()
         else:
             all_wins = MatchIssue.objects.filter(player=self, outcome="WIN").count()
@@ -114,7 +114,7 @@ class Player(models.Model):
         self.club_league_winrate = winrate
         return winrate
 
-    def get_teamplay_rate(self, since: datetime = default_date) -> float:
+    def get_teamplay_rate(self) -> float:
         """Get the teamplay rate of the player.
 
         Args:
@@ -124,12 +124,12 @@ class Player(models.Model):
             float: The teamplay rate of the player.
         """
         teamplay_rate = 0
-        if since:
+        if self.default_date:
             played_with_clubmate = MatchIssue.objects.filter(
-                player=self, match__date__gte=since, played_with_clubmate=True
+                player=self, match__date__gte=self.default_date, played_with_clubmate=True
             ).count()
             all_matches = MatchIssue.objects.filter(
-                player=self, match__date__gte=since
+                player=self, match__date__gte=self.default_date
             ).count()
 
         else:
@@ -145,33 +145,24 @@ class Player(models.Model):
         self.club_league_teamplay_rate = teamplay_rate
         return teamplay_rate
 
-    def get_playrate(self, since: datetime = default_date) -> float:
+    def get_playrate(self) -> float:
         """
         Get the rate of the number of tickets spent on the number of tickets available.
 
         Every other week, one has 14 tickets to spend, from wednesday to wednesday.
         """
-        if not since:
-            since = datetime(year=2022, month=1, day=1, tzinfo=timezone.utc)
 
         this_weeks_number_of_available_tickets = (
             get_this_weeks_number_of_available_tickets()
         )
 
-        # Because a club league is likely to be going on at any time, we count
-        # the results to end of last week's league and add to that the partial
-        # results of this week.
-        # The formula goes as follows:
-        # total tickets spent since date / (number of whole weeks since date * 14)
-        # + partial results
-
-        club_league_weeks_since = get_number_of_weeks_since_date(since)
+        club_league_weeks_since = get_number_of_weeks_since_date(self.default_date)
 
         all_power_matches_since_count = MatchIssue.objects.filter(
-            player=self, match__date__gte=since, match__battle_type="Power Match"
+            player=self, match__date__gte=self.default_date, match__battle_type="Power Match"
         ).count()
         all_normal_matches_since_count = (
-            MatchIssue.objects.filter(player=self, match__date__gte=since).count()
+            MatchIssue.objects.filter(player=self, match__date__gte=self.default_date).count()
             - all_power_matches_since_count
         )
         total_tickets_spent = (
