@@ -77,11 +77,14 @@ class BrawlAPi:
         self, club_tag: str, client=httpx.AsyncClient()
     ) -> list:
         """Returns a list of the club members' tags."""
-        club_members = self.get_club_members(club_tag, client)
-        club_members = asyncio.gather(club_members)
+        api_calls = []
+        response = self.get_club_members(club_tag, client)
+        api_calls.append(response)
+        responses = await asyncio.gather(*api_calls)
         club_members_tag_list = []
-        for member in club_members["items"]:
-            club_members_tag_list.append(member["tag"])
+        for club_members in responses:
+            for member in club_members["items"]:
+                club_members_tag_list.append(member["tag"])
         return club_members_tag_list
 
     def get_club_information(self, club_tag: str) -> dict:

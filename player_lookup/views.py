@@ -216,7 +216,7 @@ class PlayerAreaGraphView(ListAPIView):
 @async_to_sync
 async def get_club_members_data(request, club_tag) -> dict:
     """Get the profile page and battlelog of every member of a given club"""
-    member_list = brawl_api.get_club_members_tag_list(club_tag)
+    member_list = await brawl_api.get_club_members_tag_list(club_tag)
     # We prepare the api calls in a list so we're able to await them all
     api_calls = []
     async with httpx.AsyncClient(timeout=3600) as client:
