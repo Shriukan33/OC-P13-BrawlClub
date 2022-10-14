@@ -1,6 +1,7 @@
 from __future__ import annotations
 import asyncio
 import os
+from typing import Union
 import requests
 import httpx
 
@@ -114,3 +115,32 @@ class BrawlAPi:
                 club_members_tag_list.append(member["tag"])
 
         return club_members_tag_list
+
+    def is_player_or_club(self, tag: str) -> Union[str, None]:
+        """Returns wheter or not a tag represents a player or club or none of these
+
+        Note that a tag can belong to both a player and a club.
+        We return the player in priority because most likely the user is looking for a
+        player (themselves) and will get the club from here.
+
+        Returns:
+        'player' -- If the tag is associated with a player
+        'club' -- If the tag is associated with a club
+        None -- If the tag doesn't match any of the above
+        """
+        if tag.startswith("#"):
+            # We remove the # from the club tag
+            tag = tag[1:]
+
+        # Battlelog will return 404 if the player hasn't played in a long time
+        url = f"{self.base_url}players/%23{tag}/battlelog"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code == 200:
+            return "player"
+
+        url = f"{self.base_url}clubs/%23{tag}"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code == 200:
+            return "club"
+
+        return None

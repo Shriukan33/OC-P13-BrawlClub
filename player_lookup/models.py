@@ -57,7 +57,8 @@ class Player(models.Model):
         - The win rate
         """
         # Do not update if the player is not in a club
-        if not self.club:
+        # Players under 900 trophies don't have clubs
+        if not self.club or self.trophy_count < 900:
             return
         rate = (
             self.get_playrate() * 50

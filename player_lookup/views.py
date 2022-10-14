@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import Tuple
+from typing import Tuple, Union
 
 import dateutil.parser
 from django.shortcuts import get_object_or_404
@@ -98,9 +98,31 @@ class SearchUnknownEntityView(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         if not instance:
-            return Response({"details": "not found"}, status=status.HTTP_404_NOT_FOUND)
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+            self.fetch_entity(request, *args, **kwargs)
+            instance = self.get_object()
+            if isinstance(instance, models.Player):
+                if instance.club:
+                    update_club_members(instance.club.club_tag)
+
+        if instance:
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @async_to_sync
+    async def fetch_entity(
+        self, request, *args, **kwargs
+    ) -> Union[models.Player, models.Club, None]:
+        entity_type = brawl_api.is_player_or_club(kwargs["tag"])
+        if entity_type == "player":
+            self.serializer_class = serializers.PlayerSerializer
+            await update_player_profile(kwargs["tag"])
+
+        elif entity_type == "club":
+            self.serializer_class = serializers.ClubSerializer
+            create_or_update_club(kwargs["tag"])
+            update_club_members(kwargs["tag"])
 
     def get_object(self):
         """
@@ -209,12 +231,14 @@ class PlayerAreaGraphView(ListAPIView):
                 tag = "#" + tag
         player = get_object_or_404(models.Player, player_tag=tag)
         queryset = models.PlayerHistory.objects.filter(player=player).order_by(
-            "snapshot_date")[:8]
+            "snapshot_date"
+        )[:8]
 
         return queryset
 
+
 @async_to_sync
-async def get_club_members_data(request, club_tag) -> dict:
+async def get_club_members_data(club_tag) -> dict:
     """Get the profile page and battlelog of every member of a given club"""
     member_list = await brawl_api.get_club_members_tag_list(club_tag)
     # We prepare the api calls in a list so we're able to await them all
@@ -262,9 +286,9 @@ async def get_player_data(player_tag: str, client: httpx.AsyncClient) -> dict:
 
 
 # Entry point
-def update_club_members(request, club_tag: str) -> JsonResponse:
+def update_club_members(club_tag: str) -> JsonResponse:
     """Test async to sync"""
-    tag_profile, tag_battlelogs = get_club_members_data(request, club_tag)
+    tag_profile, tag_battlelogs = get_club_members_data(club_tag)
     club = create_or_update_club(club_tag)
     player_ids = models.Player.objects.values_list("player_tag", flat=True)
     players_to_update = []
@@ -277,7 +301,9 @@ def update_club_members(request, club_tag: str) -> JsonResponse:
             players_to_create.append(player_instance)
 
     models.Player.objects.bulk_create(players_to_create)
-    models.Player.objects.bulk_update(players_to_update, ["trophy_count", "club"], 999)
+    models.Player.objects.bulk_update(
+        players_to_update, ["trophy_count", "club", "player_name"], 999
+    )
 
     for tag, battlelog in tag_battlelogs.items():
         create_matches_from_battlelog(tag, battlelog)
@@ -289,7 +315,7 @@ def update_all_clubs(request):
     """Update all clubs"""
     clubs = models.Club.objects.all().iterator()
     for club in clubs:
-        update_club_members({}, club.club_tag)
+        update_club_members(club.club_tag)
 
     return HttpResponse("Updated all clubs")
 
@@ -564,7 +590,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
     models.MatchIssue.objects.bulk_create(match_issues_with_pre_existing_match_batch)
 
 
-async def update_player_profile(request, player_tag: str):
+async def update_player_profile(player_tag: str):
     """
     Update on demand the profile of a single player.
 
@@ -573,7 +599,7 @@ async def update_player_profile(request, player_tag: str):
     """
     if not player_tag.startswith("#"):
         player_tag = "#" + player_tag
-    async with httpx.AsyncClient as client:
+    async with httpx.AsyncClient(timeout=None) as client:
         response = get_player_data(player_tag, client)
         player_profile = await asyncio.gather(response)
         player_profile = player_profile[0]
