@@ -27,7 +27,6 @@ class Player(models.Model):
         "Club",
         on_delete=models.SET_NULL,
         null=True,
-        validators=[limit_number_of_players],
     )
     level = models.IntegerField(default=0)
     total_3v3_wins = models.IntegerField(default=0)
