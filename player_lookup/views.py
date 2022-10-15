@@ -1,21 +1,24 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import Tuple, Union
+from typing import TYPE_CHECKING, Tuple, Union
 
 import dateutil.parser
-from django.shortcuts import get_object_or_404
 import httpx
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db.models import Avg, Count
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import status
 from rest_framework.response import Response
 
 from . import models, serializers
 from .brawlstars_api import BrawlAPi
+
+if TYPE_CHECKING:
+    from django.db.models.query import QuerySet
+    from player_lookup.models import Club, Player
 
 brawl_api = BrawlAPi()
 
@@ -285,9 +288,12 @@ async def get_player_data(player_tag: str, client: httpx.AsyncClient) -> dict:
     return response.json()
 
 
-# Entry point
-def update_club_members(club_tag: str) -> JsonResponse:
-    """Test async to sync"""
+def update_club_members(club_tag: str) -> None:
+    """Update a single club's members
+
+    Keyword arguments :
+    club_tag -- the club's tag
+    """
     tag_profile, tag_battlelogs = get_club_members_data(club_tag)
     club = create_or_update_club(club_tag)
     player_ids = models.Player.objects.values_list("player_tag", flat=True)
@@ -307,17 +313,6 @@ def update_club_members(club_tag: str) -> JsonResponse:
 
     for tag, battlelog in tag_battlelogs.items():
         create_matches_from_battlelog(tag, battlelog)
-
-    return JsonResponse(tag_battlelogs, safe=False)
-
-
-def update_all_clubs(request):
-    """Update all clubs"""
-    clubs = models.Club.objects.all().iterator()
-    for club in clubs:
-        update_club_members(club.club_tag)
-
-    return HttpResponse("Updated all clubs")
 
 
 def create_or_update_club(club_tag: str) -> models.Club:
@@ -590,7 +585,7 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
     models.MatchIssue.objects.bulk_create(match_issues_with_pre_existing_match_batch)
 
 
-async def update_player_profile(player_tag: str):
+async def update_player_profile(player_tag: str) -> None:
     """
     Update on demand the profile of a single player.
 
@@ -623,10 +618,8 @@ async def update_player_profile(player_tag: str):
 
     await sync_to_async(create_matches_from_battlelog)(player_tag, battlelog[0])
 
-    return HttpResponse(status=200)
 
-
-def get_top_clubs(size: int = 10, start: int = 0):
+def get_top_clubs(size: int = 10, start: int = 0) -> 'QuerySet[Club]':
     """
     Get the top clubs in the database, ranked by the average
     BrawlClub Rating of its players
@@ -640,7 +633,7 @@ def get_top_clubs(size: int = 10, start: int = 0):
     return top
 
 
-def get_top_players(size: int = 10, start: int = 0):
+def get_top_players(size: int = 10, start: int = 0) -> 'QuerySet[Player]':
     """
     Get the top players in the database, ranked by their Brawlclub Rating
     """
