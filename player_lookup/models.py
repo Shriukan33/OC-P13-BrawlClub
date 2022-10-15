@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 import logging
 
 from django.db import models
-from django.forms import ValidationError
 
 from player_lookup.utils import (
     get_number_of_weeks_since_date,
@@ -12,10 +11,13 @@ from player_lookup.brawlstars_api import BrawlAPi
 
 logger = logging.getLogger("django")
 
-
-def limit_number_of_players(value):
-    if Player.objects.filter(club__id=value).count() > 30:
-        raise ValidationError("The number of players in a club must be less than 30.")
+# Used to be a validation function
+# Because migration 0001_initial.py is using
+# player_lookup.models.limit_number_of_players to create the Player model,
+# the migration process expects this module to have a limit_number_of_players
+# attribute. Although it's not used, Django will still look for it, so we leave
+# it here.
+limit_number_of_players = None
 
 
 class Player(models.Model):
@@ -126,7 +128,8 @@ class Player(models.Model):
         teamplay_rate = 0
         if self.default_date:
             played_with_clubmate = MatchIssue.objects.filter(
-                player=self, match__date__gte=self.default_date, played_with_clubmate=True
+                player=self, match__date__gte=self.default_date,
+                played_with_clubmate=True
             ).count()
             all_matches = MatchIssue.objects.filter(
                 player=self, match__date__gte=self.default_date
@@ -159,10 +162,13 @@ class Player(models.Model):
         club_league_weeks_since = get_number_of_weeks_since_date(self.default_date)
 
         all_power_matches_since_count = MatchIssue.objects.filter(
-            player=self, match__date__gte=self.default_date, match__battle_type="Power Match"
+            player=self, match__date__gte=self.default_date,
+            match__battle_type="Power Match"
         ).count()
         all_normal_matches_since_count = (
-            MatchIssue.objects.filter(player=self, match__date__gte=self.default_date).count()
+            MatchIssue.objects.filter(
+                player=self, match__date__gte=self.default_date
+                ).count()
             - all_power_matches_since_count
         )
         total_tickets_spent = (
