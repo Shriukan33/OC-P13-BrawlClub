@@ -106,7 +106,19 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-if ROLE == "DEV":
+
+if os.environ.get("DJANGO_DB", "") == "postgres" or ROLE == "prod":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'brawlclub',
+            'USER': os.environ.get('PG_PROD_USER'),
+            'PASSWORD': os.environ.get('PG_PASSWORD'),
+            'HOST': 'localhost',
+            'PORT': '5432',
+        }
+    }
+elif os.environ.get("DJANGO_DB", "") == "sqlite":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -116,12 +128,8 @@ if ROLE == "DEV":
 else:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'brawlclub',
-            'USER': os.environ.get('PG_PROD_USER'),
-            'PASSWORD': os.environ.get('PG_PASSWORD'),
-            'HOST': 'localhost',
-            'PORT': '5432',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
