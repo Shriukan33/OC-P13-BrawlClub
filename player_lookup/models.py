@@ -110,6 +110,7 @@ class Player(models.Model):
             all_losses = MatchIssue.objects.filter(player=self, outcome="LOSS").count()
 
         if all_wins + all_losses == 0:
+            self.club_league_winrate = 0
             return 0
 
         winrate = all_wins / (all_wins + all_losses)
@@ -142,6 +143,7 @@ class Player(models.Model):
             all_matches = MatchIssue.objects.filter(player=self).count()
 
         if all_matches == 0:
+            self.club_league_teamplay_rate = 0
             return 0
 
         teamplay_rate = played_with_clubmate / all_matches
