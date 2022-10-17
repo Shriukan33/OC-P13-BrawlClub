@@ -46,6 +46,10 @@ class Player(models.Model):
     # Date at which we start counting the playrate
     default_date = models.DateTimeField(auto_now_add=True)
 
+    # Searched players will get updated more often
+    # The first time a club or a player is searched, this flag is set to True
+    has_been_searched = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
 
@@ -223,6 +227,9 @@ class Club(models.Model):
     required_trophies = models.IntegerField(default=0)
     trophies = models.IntegerField(default=0)
     last_updated = models.DateTimeField(auto_now=True)
+    # Searched clubs are updated more frequently
+    # The first time a club or a player is searched, this flag is set to True
+    has_been_searched = models.BooleanField(default=False)
 
     def __str__(self):
         return self.club_name

@@ -71,6 +71,15 @@ class SingleEntityView(RetrieveAPIView):
     # so we need to add it back in here.
     lookup_url_kwarg = "proper_tag"
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        if not instance.has_been_searched:
+            instance: Union["Player", "Club"]
+            instance.has_been_searched = True
+            instance.save()
+        return Response(serializer.data)
+
     def get_queryset(self):
         """
         Return the context-appropriate queryset.
@@ -108,6 +117,10 @@ class SearchUnknownEntityView(RetrieveAPIView):
                     update_club_members(instance.club.club_tag)
 
         if instance:
+            instance: Union["Player", "Club"]
+            if not instance.has_been_searched:
+                instance.has_been_searched = True
+                instance.save()
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
 
