@@ -1,12 +1,13 @@
 import asyncio
 from datetime import datetime, timedelta, timezone
 import logging
+import time
 import httpx
 from typing import Tuple
 from django.core.management.base import BaseCommand
 from django.db.models import Q
 from asgiref.sync import sync_to_async, async_to_sync
-from player_lookup.models import Club, Player
+from player_lookup.models import BrawlMap, Brawler, Club, MatchIssue, Player
 from player_lookup.views import (
     create_matches_from_battlelog,
     get_player_battlelog,
@@ -36,12 +37,14 @@ class Command(BaseCommand):
             logger.info("Forced update")
         logger.info("Starting update_all_players command...")
         if not forced_update:
-            min_time_since_last_update = datetime.now(timezone.utc) - timedelta(
-                hours=8
-            )
+            min_time_since_last_update = datetime.now(timezone.utc) - timedelta(hours=8)
         else:
             min_time_since_last_update = datetime.now(timezone.utc)
 
+        # Because these are small tables, to save on number of queries, we'll
+        # fetch all the data we need in memory
+        self.all_brawlers = Brawler.objects.all()
+        self.all_maps = BrawlMap.objects.all()
         self.club_league_running = get_club_league_status()
         total_player_count = Player.objects.count()
         player_count = Player.objects.filter(
@@ -83,6 +86,7 @@ class Command(BaseCommand):
 
     def update_player_batch(self, player_batch):
 
+        time_start = time.time()
         logger.info("Fetching player batch's profiles and battlelogs from API...")
         (
             tag_battlelog,
@@ -90,8 +94,17 @@ class Command(BaseCommand):
             tag_info,
         ) = self.get_all_players_profiles_and_battlelog(player_batch)
         logger.info("Creating matches from battlelog ...")
+        match_batch = []
         for tag, battlelog in tag_battlelog.items():
-            create_matches_from_battlelog(tag, battlelog)
+            matches = create_matches_from_battlelog(
+                tag, battlelog, self.all_brawlers, self.all_maps
+            )
+            match_batch.extend(matches)
+
+        if match_batch:
+            logger.info(f"Saving {len(match_batch)} matches...")
+            MatchIssue.objects.bulk_create(match_batch)
+
         logger.info("Updating players clubs and infos...")
         player_batch = self.update_player_infos(tag_clubtag, tag_info)
 
@@ -104,7 +117,7 @@ class Command(BaseCommand):
                 player.update_brawlclub_rating(save=False)
             player_batch_to_update.append(player)
 
-        logger.info(f'Saving {len(player_batch_to_update)} players to DB...')
+        logger.info(f"Saving {len(player_batch_to_update)} players to DB...")
         Player.objects.bulk_update(
             player_batch_to_update,
             [
@@ -122,7 +135,8 @@ class Command(BaseCommand):
                 "club",
             ],
         )
-        logger.info("Done!")
+        time_end = time.time()
+        logger.info(f"Done! Time elapsed : {time_end - time_start}")
 
     @async_to_sync
     async def get_all_players_profiles_and_battlelog(

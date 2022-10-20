@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Tuple, Union
+from typing import TYPE_CHECKING, List, Tuple, Union
 
 import dateutil.parser
 import httpx
@@ -325,7 +325,10 @@ def update_club_members(club_tag: str) -> None:
     )
 
     for tag, battlelog in tag_battlelogs.items():
-        create_matches_from_battlelog(tag, battlelog)
+        match_issues = create_matches_from_battlelog(tag, battlelog)
+
+    if match_issues:
+        models.MatchIssue.objects.bulk_create(match_issues)
 
 
 def create_or_update_club(club_tag: str) -> models.Club:
@@ -382,13 +385,27 @@ async def get_player_battlelog(player_tag: str, client: httpx.AsyncClient) -> di
     return response.json()
 
 
-def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
+def create_matches_from_battlelog(
+    player_tag: str,
+    battlelog: dict,
+    all_brawlers: "QuerySet[models.Brawler]" = models.Brawler.objects.all(),
+    all_maps: "QuerySet[models.BrawlMap]" = models.BrawlMap.objects.all(),
+) -> List[models.MatchIssue]:
     """
     Create matches from a given battlelog.
+
+    Because this function is looping through the battlelog and to avoid
+    hitting the database on each loop (24 times per player), we pass the
+    brawlers and maps as arguments.
 
     Keyword arguments:
     - player_tag -- the player's tag
     - battlelog -- the battlelog of the player, including its 24 last matches
+    - all_brawlers -- a queryset of all brawlers
+    - all_maps -- a queryset of all maps
+
+    Returns:
+    - a list of match issues, ready to be bulk created
     """
 
     def get_battle_data(
@@ -516,11 +533,12 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
     incomplete_match_issue_list = []
     match_issues_with_pre_existing_match_batch = []
     match_issues_batch = []
+    player = None
     if battlelog.get("reason", None) == "notFound":
         # Happens sometimes that the player's battlelog can't be found
         # It's not specific to this app
         logger.info(player_tag + ": Battlelog not found")
-        return
+        return []
     for battle in battlelog["items"]:
         (
             player_list,
@@ -536,6 +554,10 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
         ) = get_battle_data(player_tag, battle)
         match_already_exists = False
         if player_list:
+            if not player:
+                # We get the player from the database the first time only as the player
+                # tag is the same for all battles
+                player = models.Player.objects.get(player_tag=player_tag)
             # We don't want to create a match if it already exists
             match_id = f"{star_players_tag}{battle_date.strftime('%s')}"
             played_with_team, is_power_match = get_match_type(match_outcome)
@@ -545,9 +567,13 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
             except models.Match.DoesNotExist:
                 # We create a match instance but don't save it yet
                 battle_type = "Power Match" if is_power_match else "Normal Match"
-                the_map = models.BrawlMap.objects.get_or_create(
-                    name=map_played, defaults={"name": map_played}
-                )[0]
+                # Map pool has a reasonabily small size, so we can store it in memory
+                # and avoid querying the database
+                try:
+                    # Using cached version
+                    the_map = all_maps.get(name=map_played)
+                except models.BrawlMap.DoesNotExist:
+                    the_map = models.BrawlMap.objects.create(name=map_played)
                 the_match = models.Match(
                     match_id=match_id,
                     mode=mode,
@@ -558,7 +584,6 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
                 match_batch.append(the_match)
 
             # We now create the associated MatchIssue
-            player = models.Player.objects.get(player_tag=player_tag)
 
             if match_already_exists:
                 # We check if the match already has an issue with the player
@@ -568,9 +593,13 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
                 if match_issue_exists:
                     continue
 
-            brawler = models.Brawler.objects.get_or_create(
-                name=brawler_used, defaults={"name": brawler_used}
-            )[0]
+            # The brawler table has a small number of rows, so we can afford to load
+            # it in memory
+            try:
+                # Using cached version
+                brawler = all_brawlers.get(name=brawler_used)
+            except models.Brawler.DoesNotExist:
+                brawler = models.Brawler.objects.create(name=brawler_used)
             # MatchIssue has a FK to Match, which might not be created yet.
             # We're going to add it once the Match is created
             the_match_issue = models.MatchIssue(
@@ -594,8 +623,9 @@ def create_matches_from_battlelog(player_tag: str, battlelog: dict) -> None:
         incomplete_match_issue.match = match
         match_issues_batch.append(incomplete_match_issue)
 
-    models.MatchIssue.objects.bulk_create(match_issues_batch)
-    models.MatchIssue.objects.bulk_create(match_issues_with_pre_existing_match_batch)
+    match_issues_batch.extend(match_issues_with_pre_existing_match_batch)
+
+    return match_issues_batch
 
 
 async def update_player_profile(player_tag: str) -> None:
@@ -629,10 +659,14 @@ async def update_player_profile(player_tag: str) -> None:
     player.club = club
     await sync_to_async(player.save)()
 
-    await sync_to_async(create_matches_from_battlelog)(player_tag, battlelog[0])
+    match_issues = await sync_to_async(create_matches_from_battlelog)(
+        player_tag, battlelog[0]
+    )
+    if match_issues:
+        await sync_to_async(models.MatchIssue.objects.bulk_create)(match_issues)
 
 
-def get_top_clubs(size: int = 10, start: int = 0) -> 'QuerySet[Club]':
+def get_top_clubs(size: int = 10, start: int = 0) -> "QuerySet[Club]":
     """
     Get the top clubs in the database, ranked by the average
     BrawlClub Rating of its players
@@ -646,7 +680,7 @@ def get_top_clubs(size: int = 10, start: int = 0) -> 'QuerySet[Club]':
     return top
 
 
-def get_top_players(size: int = 10, start: int = 0) -> 'QuerySet[Player]':
+def get_top_players(size: int = 10, start: int = 0) -> "QuerySet[Player]":
     """
     Get the top players in the database, ranked by their Brawlclub Rating
     """
