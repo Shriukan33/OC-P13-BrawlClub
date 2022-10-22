@@ -8,7 +8,11 @@
 }
 .footer{
     background-color: #2b336ae0;
-    width: -webkit-fill-available;
+    width: 100%;
+    width: -moz-available;          /* WebKit-based browsers will ignore this. */
+    width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+    width: fill-available;
+
 }
 footer a {
     color: gold;

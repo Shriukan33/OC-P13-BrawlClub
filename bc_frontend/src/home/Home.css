@@ -10,12 +10,15 @@
     height: 100vh;
     position: relative;
     overflow: hidden;
-    width: -webkit-fill-available;
+    width: 100%;
+    width: -moz-available;          /* WebKit-based browsers will ignore this. */
+    width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+    width: fill-available;
     background-position: center;
     box-shadow: 2px 4px 11px 2px #000000;
 }
 .mask{
-    height: -webkit-fill-available;
+    height: inherit;
     background: linear-gradient(
         to bottom,
         hsla(0, 0%, 0%, 0),
@@ -23,7 +26,10 @@
 }
 
 .abtsec{
-    width: -webkit-fill-available;
+  width: 100%;
+  width: -moz-available;          /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  width: fill-available;
     min-height: 50em;
     box-shadow: inset 1px 0px 9px 2px #00000094;
     display: flex;
