@@ -38,9 +38,9 @@ nav a:hover {
 nav a.active {
     font-weight: bold;
 }
-nav a img {
+/* nav a img {
   min-height: 50px;
-}
+} */
 nav ul {
     list-style: none;
     margin-bottom: 0;

@@ -76,7 +76,7 @@ const Home = () => {
                <p>The about and how to use goes here</p>
                 </div>
 
-                <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
+                <section className="d-flex flex-wrap col-10 justify-content-center mx-auto h-460px">
           <div className="leaderboard-frame d-flex flex-column col-12 col-md-4 my-3 mx-5 px-3">
             <Leaderboard
               title="Player Rating Leaderboard"
@@ -90,6 +90,12 @@ const Home = () => {
               path="club" />
           </div>
         </section>
+
+
+        {/* <section className="playlist">
+
+        
+        </section> */}
                 </section>
     </main>
   )
