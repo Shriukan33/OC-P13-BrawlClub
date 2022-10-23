@@ -13,3 +13,7 @@
     font-size:1.2em;
     color: #123C45;
 }
+.leadheader{
+    padding-block: 10px;
+    border-bottom: 1px solid #00000036;
+}

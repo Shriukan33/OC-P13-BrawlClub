@@ -6,7 +6,9 @@ const Leaderboard = ({title, topEntities, path, starting_index}) => {
 
   return (
     <>
+    <div className="leadheader">
       <header className="mx-auto mt-2">{title}</header>
+      </div>
       <div className="d-flex flex-column p-1 leaderboard-body mb-2">
         {topEntities.length ?
           topEntities.map((entity, index) => (

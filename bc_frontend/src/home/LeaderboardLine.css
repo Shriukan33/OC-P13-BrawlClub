@@ -10,14 +10,39 @@
     color: #123C45;
     text-decoration: none;
 }
-.leaderboard-line-name a:hover {
+
+/* .leaderboard-line-name a:hover + .hiddeninfo{
     color: #F01919;
-}
-.leaderboard-line-name:hover+.leaderboard-line-metric {
+    display: block;
+} */
+.leaderboard-line-name:hover + .leaderboard-line-metric + .hiddeninfo {
     font-size: 1.1em;
     font-weight: bold;
     color: #F01919;
+    
 }
-.leaderboard-line-name:hover a {
+/* .leaderboard-line-name:hover a + .hiddeninfo{
     color: #F01919;
+    display: block;
+} */
+
+.ff :hover + .hiddeninfo{
+    display: block;
+    
+}
+.gg{
+    display: flex;
+    justify-content: space-between;
+}
+
+.hiddeninfo{
+    display: none;
+    border: 1px solid #00000014;
+    border-top-width: 0px;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+.hiddeninfo:hover{
+    display: block;
+    
 }
