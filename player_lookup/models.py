@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 import logging
 
 from django.db import models
@@ -8,6 +9,9 @@ from player_lookup.utils import (
     get_this_weeks_number_of_available_tickets,
 )
 from player_lookup.brawlstars_api import BrawlAPi
+
+if TYPE_CHECKING:
+    from django.db.models.query import QuerySet
 
 logger = logging.getLogger("django")
 
@@ -50,6 +54,9 @@ class Player(models.Model):
     # The first time a club or a player is searched, this flag is set to True
     has_been_searched = models.BooleanField(default=False)
 
+    # The number of tickets the player could spend right now
+    number_of_available_tickets = models.IntegerField(default=0)
+
     def __str__(self):
         return f"{self.player_name} ({self.player_tag})"
 
@@ -65,6 +72,10 @@ class Player(models.Model):
         # Players under 900 trophies don't have clubs
         if not self.club or self.trophy_count < 900:
             return
+        # TODO
+        # Multiple fetch and filters are done inside those functions
+        # Maybe consider use of prefetch_related or simply cache the results
+        # before calling those functions
         rate = (
             self.get_playrate() * 50
             + self.get_teamplay_rate() * 30
@@ -133,8 +144,9 @@ class Player(models.Model):
         teamplay_rate = 0
         if self.default_date:
             played_with_clubmate = MatchIssue.objects.filter(
-                player=self, match__date__gte=self.default_date,
-                played_with_clubmate=True
+                player=self,
+                match__date__gte=self.default_date,
+                played_with_clubmate=True,
             ).count()
             all_matches = MatchIssue.objects.filter(
                 player=self, match__date__gte=self.default_date
@@ -168,13 +180,14 @@ class Player(models.Model):
         club_league_weeks_since = get_number_of_weeks_since_date(self.default_date)
 
         all_power_matches_since_count = MatchIssue.objects.filter(
-            player=self, match__date__gte=self.default_date,
-            match__battle_type="Power Match"
+            player=self,
+            match__date__gte=self.default_date,
+            match__battle_type="Power Match",
         ).count()
         all_normal_matches_since_count = (
             MatchIssue.objects.filter(
                 player=self, match__date__gte=self.default_date
-                ).count()
+            ).count()
             - all_power_matches_since_count
         )
         total_tickets_spent = (
@@ -201,8 +214,50 @@ class Player(models.Model):
         )
 
 
+def update_player_batch_remaining_tickets(
+    player_batch: "QuerySet[Player]",
+    today_number_of_tickets: int,
+    last_club_league_day_start: datetime,
+) -> list:
+    """Update the remaining tickets of a batch of players.
+
+    Args:
+        player_batch (QuerySet[Player]): A batch of players.
+
+    Returns:
+        list: A list of players with their remaining tickets updated.
+    """
+    # We're fetching all matches from the last club league day for current batch
+    # This means possibly fetching up to 6 matches per player
+    player_batch_match_issues = MatchIssue.objects.select_related("match").filter(
+        player__in=player_batch, match__date__gte=last_club_league_day_start
+    )
+    updated_players = []
+    for player in player_batch:
+        tickets_spent = 0
+        this_players_match_issues = player_batch_match_issues.filter(player=player)
+        all_power_matches_count = this_players_match_issues.filter(
+            player=player,
+            match__date__gte=last_club_league_day_start,
+            match__battle_type="Power Match",
+        ).count()
+        # Each power match uses 2 tickets
+        tickets_spent += all_power_matches_count * 2
+        # Each normal match uses 1 ticket
+        all_normal_matches_count = (
+            this_players_match_issues.count() - all_power_matches_count
+        )
+        tickets_spent += all_normal_matches_count
+
+        player.number_of_available_tickets = today_number_of_tickets - tickets_spent
+
+        updated_players.append(player)
+    return updated_players
+
+
 class PlayerHistory(models.Model):
     """Make a snapshot of player's current stats"""
+
     player: Player = models.ForeignKey(Player, on_delete=models.CASCADE)
     trophy_count = models.IntegerField(default=0)
     total_club_war_trophy_count = models.IntegerField(default=0)
@@ -213,8 +268,10 @@ class PlayerHistory(models.Model):
     snapshot_date = models.DateTimeField()
 
     def __str__(self):
-        return (f"{self.player.player_name} ({self.player.player_tag})"
-                f" - {self.snapshot_date}")
+        return (
+            f"{self.player.player_name} ({self.player.player_tag})"
+            f" - {self.snapshot_date}"
+        )
 
 
 class Club(models.Model):

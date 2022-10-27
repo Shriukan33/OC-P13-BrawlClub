@@ -1,11 +1,13 @@
 from datetime import datetime, timedelta, timezone
+from typing import Union
 
 
 def get_number_of_weeks_since_date(since: datetime) -> int:
     """Get the number club league weeks since a date.
 
     Args:
-        since (datetime): The date since when the number of club league weeks is calculated.
+        since (datetime): The date since when the number of club league weeks is
+        calculated.
 
     Returns:
         int: The number of club league weeks since the date.
@@ -94,3 +96,76 @@ def get_this_weeks_number_of_available_tickets() -> int:
         this_weeks_number_of_available_tickets = 14
 
     return this_weeks_number_of_available_tickets
+
+
+def get_today_number_of_remaining_tickets() -> int:
+    """Return the number of available tickets for a given day.
+
+    Every other week, one has 14 tickets to spend, from wednesday to monday.
+
+    A normal match uses 1 ticket and a Power match uses 2 tickets.
+
+    On wednesday, 4 tickets are granted out of 14 tickets. If they aren't used
+    before Friday, they are lost.
+    On Friday, 4 more tickets are granted. If they aren't used before Sunday, they
+    are lost.
+    On Sunday, 6 tickets are granted. If they aren't used before Tuesday, they are
+    lost.
+
+    Returns:
+        int: The number of tickets a given player has available for the day.
+    """
+    club_league_running = get_club_league_status()
+    if not club_league_running:
+        return 0
+
+    today = datetime.now(timezone.utc).weekday()
+
+    if today in (2, 3, 4, 5):
+        # Wednesday, Thursday, Friday, Saturday
+        available_tickets = 4
+    elif today in (6, 0):
+        # Sunday, Monday
+        available_tickets = 6
+    else:
+        return 0
+
+    return available_tickets
+
+
+def get_last_club_league_day_start() -> Union[datetime, None]:
+    """Get the datetime of the start of the last club league day.
+
+    Returns:
+        datetime: The datetime of the start of the last club league day.
+        None is no club league is running.
+    """
+    club_league_running = get_club_league_status()
+    if not club_league_running:
+        return None
+
+    today = datetime.now(timezone.utc)
+    today = today.replace(hour=0, minute=0, second=0, microsecond=0)
+    # 2 is wednesday's index in weekdays
+    offset = (today.weekday() - 2) % 7
+    if today.weekday() == 2:
+        offset = 0
+    last_wednesday = today - timedelta(days=offset)
+    last_friday = last_wednesday + timedelta(days=2)
+    last_sunday = last_wednesday + timedelta(days=4)
+
+    today = datetime.now(timezone.utc).weekday()
+
+    if today in (2, 3, 4, 5):
+        # Wednesday, Thursday, Friday, Saturday
+        if today in (2, 3):
+            club_league_day = last_wednesday
+        else:
+            club_league_day = last_friday
+    elif today in (6, 0):
+        # Sunday, Monday
+        club_league_day = last_sunday
+    else:
+        return None
+
+    return club_league_day

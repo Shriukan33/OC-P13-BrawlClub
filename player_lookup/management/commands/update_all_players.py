@@ -8,13 +8,18 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from asgiref.sync import sync_to_async, async_to_sync
 from player_lookup.models import BrawlMap, Brawler, Club, MatchIssue, Player
+from player_lookup.models import update_player_batch_remaining_tickets
 from player_lookup.views import (
     create_matches_from_battlelog,
     get_player_battlelog,
     get_player_data,
     brawl_api,
 )
-from player_lookup.utils import get_club_league_status
+from player_lookup.utils import (
+    get_club_league_status,
+    get_last_club_league_day_start,
+    get_today_number_of_remaining_tickets,
+)
 
 logger = logging.getLogger("django")
 
@@ -45,10 +50,29 @@ class Command(BaseCommand):
         # fetch all the data we need in memory
         self.all_brawlers = Brawler.objects.all()
         self.all_maps = BrawlMap.objects.all()
+
+        # last_club_league_day and today_number_of_remaining_tickets are used
+        # to calculate the number of remaining tickets for each player
+        self.last_club_league_day = get_last_club_league_day_start()
+        self.today_number_of_remaining_tickets = get_today_number_of_remaining_tickets()
+
+        # Because computing the Brawlclub rating is a bit expensive, we do it
+        # only while the club league is running
         self.club_league_running = get_club_league_status()
+        if not self.club_league_running:
+            logger.info("Club league is not running, updating remaining tickets to 0")
+            Player.objects.update(number_of_available_tickets=0)
+        else:
+            logger.info("Replenishing players' tickets...")
+            Player.objects.filter(last_updated__lt=self.last_club_league_day).update(
+                number_of_available_tickets=self.today_number_of_remaining_tickets
+            )
+
         total_player_count = Player.objects.count()
         player_count = Player.objects.filter(
-            Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
+            Q(last_updated__lte=min_time_since_last_update)
+            | Q(last_updated=None),
+            number_of_available_tickets__gt=0
         ).count()
         logger.info(
             f"Found {player_count} players to update "
@@ -57,28 +81,26 @@ class Command(BaseCommand):
         batch_size = 500
         top_limit = player_count // batch_size * batch_size
         first_loop = True
-        for i in range(0, top_limit + 1, batch_size):
+        for i in range(0, top_limit + batch_size + 1, batch_size):
             if first_loop:
                 first_loop = False
                 new_start = i
                 continue
 
             logger.info(f"Updating row {new_start} to {i}")
-            player_batch = Player.objects.filter(
-                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
-            )[:batch_size]
+            if self.club_league_running:
+                player_batch = Player.objects.filter(
+                    Q(last_updated__lte=min_time_since_last_update)
+                    | Q(last_updated=None),
+                    number_of_available_tickets__gt=0
+                )[:batch_size]
+            else:
+                player_batch = Player.objects.filter(
+                    Q(last_updated__lte=min_time_since_last_update)
+                    | Q(last_updated=None)
+                )[:batch_size]
             self.update_player_batch(player_batch)
             new_start = i
-
-        logger.info("Updating remaining players...")
-        if not forced_update:
-            last_player_batch = Player.objects.filter(
-                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
-            )
-        else:
-            last_player_batch = Player.objects.all()[top_limit:]
-
-        self.update_player_batch(last_player_batch)
 
         self.stdout.write(
             self.style.SUCCESS("Successfully updated all players"), ending="\n"
@@ -93,6 +115,7 @@ class Command(BaseCommand):
             tag_clubtag,
             tag_info,
         ) = self.get_all_players_profiles_and_battlelog(player_batch)
+
         logger.info("Creating matches from battlelog ...")
         match_batch = []
         for tag, battlelog in tag_battlelog.items():
@@ -117,6 +140,14 @@ class Command(BaseCommand):
                 player.update_brawlclub_rating(save=False)
             player_batch_to_update.append(player)
 
+        if self.club_league_running:
+            logger.info("Updating players' remaining tickets...")
+            player_batch_to_update = update_player_batch_remaining_tickets(
+                player_batch_to_update,
+                self.today_number_of_remaining_tickets,
+                self.last_club_league_day,
+            )
+
         logger.info(f"Saving {len(player_batch_to_update)} players to DB...")
         Player.objects.bulk_update(
             player_batch_to_update,
@@ -133,6 +164,7 @@ class Command(BaseCommand):
                 "solo_wins",
                 "duo_wins",
                 "club",
+                "number_of_available_tickets",
             ],
         )
         time_end = time.time()
