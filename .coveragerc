@@ -1,0 +1,7 @@
+[report]
+omit =  */migrations/*
+        */apps.py
+        */admin.py  
+        */__init__.py
+        config/*
+        manage.py
