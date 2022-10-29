@@ -3,6 +3,8 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Tuple, Union
 
+from django.http import Http404
+
 import dateutil.parser
 import httpx
 from asgiref.sync import async_to_sync, sync_to_async
@@ -16,7 +18,7 @@ from rest_framework.response import Response
 from . import models, serializers
 from .brawlstars_api import BrawlAPi
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from django.db.models.query import QuerySet
     from player_lookup.models import Club, Player
 
@@ -58,7 +60,7 @@ class LeaderBoardView(ListAPIView):
             self.serializer_class = serializers.ClubSerializer
         else:
             logger.info(f"Invalid entity type: {entity}")
-            queryset = None
+            raise Http404
         return queryset
 
 
@@ -98,7 +100,7 @@ class SingleEntityView(RetrieveAPIView):
             self.serializer_class = serializers.ClubSerializer
         else:
             logger.info(f"Invalid entity type: {entity}")
-            queryset = None
+            raise Http404
         return queryset
 
 
@@ -137,8 +139,7 @@ class SearchUnknownEntityView(RetrieveAPIView):
 
         elif entity_type == "club":
             self.serializer_class = serializers.ClubSerializer
-            create_or_update_club(kwargs["tag"])
-            update_club_members(kwargs["tag"])
+            await sync_to_async(update_club_members)(kwargs["tag"])
 
     def get_object(self):
         """
@@ -146,7 +147,8 @@ class SearchUnknownEntityView(RetrieveAPIView):
         """
         tag = self.kwargs.get("tag", None)
         if tag:
-            tag = "#" + tag
+            if not tag.startswith("#"):
+                tag = "#" + tag
         try:
             obj = self.queryset.get(player_tag=tag)
             self.serializer_class = serializers.PlayerSerializer
@@ -204,6 +206,9 @@ class ClubFinderResultsView(ListAPIView):
         if types_list:
             try:
                 types_list = types_list.split(",")
+                for type in types_list:
+                    if type not in ["open", "inviteOnly", "closed"]:
+                        raise ValueError
                 queryset = queryset.filter(club_type__in=types_list)
             except ValueError:
                 logger.info(f"Invalid types list: {types_list}")
@@ -333,8 +338,6 @@ def update_club_members(club_tag: str) -> None:
 
 def create_or_update_club(club_tag: str) -> models.Club:
     """Create  or udpate a club"""
-    if not club_tag:
-        return None
     club_information = brawl_api.get_club_information(club_tag)
     defaults = {
         "club_name": club_information["name"],

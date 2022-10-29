@@ -1,0 +1,31 @@
+{
+    "tag": "#P0GVGVRP",
+    "name": "Aquablue",
+    "description": "🐬Aquablue🐬|Club 🇫🇷|Joueurs actif et rusheur 🏆|3 jours inactif 👉🚪|Minimum 12 tickets de gdc par semaine|Création: 06/06/19",
+    "type": "open",
+    "badgeId": 8000057,
+    "requiredTrophies": 29000,
+    "trophies": 1007575,
+    "members": [
+      {
+        "tag": "#9090YYGQ",
+        "name": "Poulet",
+        "nameColor": "0xff1ba5f5",
+        "role": "senior",
+        "trophies": 30616,
+        "icon": {
+          "id": 28000141
+        }
+      },
+      {
+        "tag": "#2RQRYV0L",
+        "name": "Shriukan",
+        "nameColor": "0xff1ba5f5",
+        "role": "senior",
+        "trophies": 30425,
+        "icon": {
+          "id": 28000141
+        }
+      }
+    ]
+  }

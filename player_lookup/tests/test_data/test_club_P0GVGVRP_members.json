@@ -1,0 +1,27 @@
+{
+    "items": [
+      {
+        "tag": "#9090YYGQ",
+        "name": "Poulet",
+        "nameColor": "0xff1ba5f5",
+        "role": "senior",
+        "trophies": 30616,
+        "icon": {
+          "id": 28000141
+        }
+      },
+      {
+        "tag": "#2RQRYV0L",
+        "name": "Shriukan",
+        "nameColor": "0xff1ba5f5",
+        "role": "senior",
+        "trophies": 30425,
+        "icon": {
+          "id": 28000141
+        }
+      }
+    ],
+    "paging": {
+      "cursors": {}
+    }
+  }
