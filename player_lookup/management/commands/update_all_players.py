@@ -64,7 +64,10 @@ class Command(BaseCommand):
             Player.objects.update(number_of_available_tickets=0)
         else:
             logger.info("Replenishing players' tickets...")
-            Player.objects.filter(last_updated__lt=self.last_club_league_day).update(
+            Player.objects.filter(
+                Q(last_updated__lt=self.last_club_league_day)
+                | (Q(last_updated__isnull=True))
+                ).update(
                 number_of_available_tickets=self.today_number_of_remaining_tickets
             )
 
