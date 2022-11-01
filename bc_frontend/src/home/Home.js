@@ -45,8 +45,8 @@ const Home = () => {
     
     
     {/* Background image */}
-<div className="bg-image" >
-  <div className="mask">
+<div className="bgimage" >
+  <div className="bgmask">
     <div className="d-flex justify-content-center align-items-center h-100" style={{flexDirection: 'column'}}>
     <img src="/images/brawlclub_logo.png" alt="Brawlclub logo" className="img-fluid d-flex col-10 col-md-5 col-lg-3 py-3"></img>
 
@@ -92,37 +92,8 @@ const Home = () => {
         </section>
 
 
-        <section className="playlist">
-
-        <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
-  <ol class="carousel-indicators">
-    <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-    <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-  </ol>
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/G_wxQe2Litw" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      {/* <img class="d-block w-100" src="https://www.youtube.com/watch?v=G_wxQe2Litw" alt="First slide"></img> */}
-    </div>
-    <div class="carousel-item">
-      <img class="d-block w-100" src="..." alt="Second slide"></img>
-    </div>
-    <div class="carousel-item">
-      <img class="d-block w-100" src="..." alt="Third slide"></img>
-    </div>
-  </div>
-  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
-    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-    <span class="sr-only">Previous</span>
-  </a>
-  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
-    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-    <span class="sr-only">Next</span>
-  </a>
-</div>
-        
-        </section>
+        {/* <section className="playlist">
+        </section> */}
                 </section>
     </main>
   )

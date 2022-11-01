@@ -10,6 +10,7 @@
   align-items: center;
 }
 .App {
+  font-family: 'Lilita One', cursive;
   text-align: center;
   flex-direction: column;
   display: flex;
