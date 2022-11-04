@@ -2,8 +2,14 @@ from datetime import datetime, timedelta, timezone
 from typing import Union
 
 
+def daterange(start_date: datetime, end_date: datetime):
+    """Yields dates between two dates, both included."""
+    for n in range(int((end_date - start_date).days)+1):
+        yield start_date + timedelta(n)
+
+
 def get_number_of_weeks_since_date(since: datetime) -> int:
-    """Get the number club league weeks since a date.
+    """Get the number whole club league weeks since a date.
 
     Args:
         since (datetime): The date since when the number of club league weeks is
@@ -17,32 +23,22 @@ def get_number_of_weeks_since_date(since: datetime) -> int:
         # an odd week. Club wars only happen in odd weeks.
         since = datetime(year=2022, month=7, day=6, tzinfo=timezone.utc)
 
-    today = datetime.now(timezone.utc)
-    # 2 is wednesday's index in weekdays
-    offset = (today.weekday() - 2) % 7
-    last_wednesday = today - timedelta(days=offset)
+    today = datetime.now(timezone.utc).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    club_league_days = 0
+    club_league_weeks = 0
+    for _date in daterange(since, today):
+        if (_date.isocalendar()[1] % 2 != 0 and _date.weekday() not in (0, 1)) or (
+            _date.isocalendar()[1] % 2 == 0 and _date.weekday() == 0
+        ):
+            club_league_days += 1
+        if _date.weekday() == 1:
+            if club_league_days // 5 > 0:
+                club_league_weeks += 1
+            club_league_days = 0
 
-    if last_wednesday.date() == since.date() and since.isocalendar()[1] % 2 != 0:
-        # Last week was odd and we're somewhere between Monday and Tuesday
-        # This means that the club war was in progress the last week
-        # and we're in the next week but next hasn't started yet
-        # A full week hasn't passed but the club war is indeed finished
-        return 1
-
-    start_week_index = since.isocalendar()[1]
-    # So if start index is 52 (last week of the year), next week's index isn't 1
-    # but is 53.
-    end_week_index = start_week_index + ((last_wednesday - since).days // 7)
-    # We get the number of odd number from the start_week_index to the end_week_index
-    if start_week_index % 2 != 0:
-        start_week_index += 1
-    if end_week_index % 2 != 0:
-        end_week_index -= 1
-    number_of_odd_weeks_between_dates = (end_week_index - start_week_index) // 2
-
-    if since.isocalendar()[1] % 2 != 0:
-        number_of_odd_weeks_between_dates += 1
-    return number_of_odd_weeks_between_dates
+    return club_league_weeks
 
 
 def get_club_league_status() -> bool:
