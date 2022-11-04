@@ -4,7 +4,7 @@ from typing import Union
 
 def daterange(start_date: datetime, end_date: datetime):
     """Yields dates between two dates, both included."""
-    for n in range(int((end_date - start_date).days)+1):
+    for n in range(int((end_date - start_date).days) + 1):
         yield start_date + timedelta(n)
 
 

@@ -67,15 +67,12 @@ class Command(BaseCommand):
             Player.objects.filter(
                 Q(last_updated__lt=self.last_club_league_day)
                 | (Q(last_updated__isnull=True))
-                ).update(
-                number_of_available_tickets=self.today_number_of_remaining_tickets
-            )
+            ).update(number_of_available_tickets=self.today_number_of_remaining_tickets)
 
         total_player_count = Player.objects.count()
         player_count = Player.objects.filter(
-            Q(last_updated__lte=min_time_since_last_update)
-            | Q(last_updated=None),
-            number_of_available_tickets__gt=0
+            Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None),
+            number_of_available_tickets__gt=0,
         ).count()
         logger.info(
             f"Found {player_count} players to update "
@@ -95,7 +92,7 @@ class Command(BaseCommand):
                 player_batch = Player.objects.filter(
                     Q(last_updated__lte=min_time_since_last_update)
                     | Q(last_updated=None),
-                    number_of_available_tickets__gt=0
+                    number_of_available_tickets__gt=0,
                 )[:batch_size]
             else:
                 player_batch = Player.objects.filter(

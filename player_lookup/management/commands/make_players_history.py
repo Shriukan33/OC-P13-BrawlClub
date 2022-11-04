@@ -11,9 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         player_count = Player.objects.count()
 
-        logger.info(
-            f"About to create {player_count} player history records."
-        )
+        logger.info(f"About to create {player_count} player history records.")
         batch_size = 999
         top_limit = player_count // batch_size * batch_size
         first_loop = True

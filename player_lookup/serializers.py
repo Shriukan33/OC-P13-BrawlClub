@@ -51,6 +51,7 @@ class PlayerHistorySerializer(serializers.ModelSerializer):
             "brawlclub_rating",
         )
 
+
 class ClubSerializer(serializers.ModelSerializer):
     """Serializer for the Club model."""
 

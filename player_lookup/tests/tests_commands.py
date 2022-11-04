@@ -10,16 +10,15 @@ from player_lookup.models import Club, MatchIssue, Player, PlayerHistory, Match
 
 
 class UpdateAllPlayersTests(TestCase):
-
     def setUp(self):
         self.player_9090YYGQ = Player.objects.create(
-            player_tag='#9090YYGQ',
-            player_name='Player 9090YYGQ',
+            player_tag="#9090YYGQ",
+            player_name="Player 9090YYGQ",
             trophy_count=1000,
         )
         self.player_2RQRYV0L = Player.objects.create(
-            player_tag='#2RQRYV0L',
-            player_name='Player 2RQRYV0L',
+            player_tag="#2RQRYV0L",
+            player_name="Player 2RQRYV0L",
             trophy_count=1000,
         )
 
@@ -73,11 +72,10 @@ class UpdateAllPlayersTests(TestCase):
 
 
 class TestGetNewPlayers(TestCase):
-
     def setUp(self):
         self.club_P0GVGVRP = Club.objects.create(
-            club_tag='#P0GVGVRP',
-            club_name='Test Club',
+            club_tag="#P0GVGVRP",
+            club_name="Test Club",
         )
 
         THIS_DIR = Path(__file__).parent
@@ -95,24 +93,25 @@ class TestGetNewPlayers(TestCase):
         call_command("get_new_players")
         self.assertEqual(Player.objects.count(), 2)
         self.assertEqual(
-            list(Player.objects.values_list(
-                "player_tag", flat=True
-            ).order_by("player_tag")),
+            list(
+                Player.objects.values_list("player_tag", flat=True).order_by(
+                    "player_tag"
+                )
+            ),
             ["#2RQRYV0L", "#9090YYGQ"],
         )
 
 
 class TestMakePlayersHistory(TestCase):
-
     def setUp(self):
         self.player_9090YYGQ = Player.objects.create(
-            player_tag='#9090YYGQ',
-            player_name='Player 9090YYGQ',
+            player_tag="#9090YYGQ",
+            player_name="Player 9090YYGQ",
             trophy_count=1000,
         )
         self.player_2RQRYV0L = Player.objects.create(
-            player_tag='#2RQRYV0L',
-            player_name='Player 2RQRYV0L',
+            player_tag="#2RQRYV0L",
+            player_name="Player 2RQRYV0L",
             trophy_count=1000,
         )
 
@@ -121,8 +120,10 @@ class TestMakePlayersHistory(TestCase):
 
         self.assertEqual(PlayerHistory.objects.count(), 2)
         self.assertEqual(
-            list(PlayerHistory.objects.values_list(
-                "player__player_tag", flat=True
-            ).order_by("player__player_tag")),
+            list(
+                PlayerHistory.objects.values_list(
+                    "player__player_tag", flat=True
+                ).order_by("player__player_tag")
+            ),
             ["#2RQRYV0L", "#9090YYGQ"],
         )

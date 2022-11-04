@@ -109,31 +109,34 @@ class ClubFinderTests(TestCase):
         response = self.client.get(self.club_finder_url + "?" + invalid_get_args)
         # Still returns 200 and no filter is applied on types
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 3, f'{response.data}')
+        self.assertEqual(len(response.data), 3, f"{response.data}")
 
         # Now we're making the max_trophies invalid
         invalid_get_args = valid_get_args.replace(
-            "max_trophies=100000", "max_trophies=invalid")
+            "max_trophies=100000", "max_trophies=invalid"
+        )
         response = self.client.get(self.club_finder_url + "?" + invalid_get_args)
         # Still returns 200 and no filter is applied on max_trophies
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2, f'{response.data}')
+        self.assertEqual(len(response.data), 2, f"{response.data}")
 
         # Now we're making the min_members invalid
         invalid_get_args = valid_get_args.replace(
-            "min_members=0", "min_members=invalid")
+            "min_members=0", "min_members=invalid"
+        )
         response = self.client.get(self.club_finder_url + "?" + invalid_get_args)
         # Still returns 200 and no filter is applied on min_members
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2, f'{response.data}')
+        self.assertEqual(len(response.data), 2, f"{response.data}")
 
         # Now we're making the max_members invalid
         invalid_get_args = valid_get_args.replace(
-            "max_members=30", "max_members=invalid")
+            "max_members=30", "max_members=invalid"
+        )
         response = self.client.get(self.club_finder_url + "?" + invalid_get_args)
         # Still returns 200 and no filter is applied on max_members
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2, f'{response.data}')
+        self.assertEqual(len(response.data), 2, f"{response.data}")
 
 
 class ClubMembersTests(TestCase):
@@ -400,7 +403,6 @@ class SearchUnknownEntityTests(TestCase):
 
 
 class SingleEntityViewTests(TestCase):
-
     def setUp(self):
         self.club = Club.objects.create(
             club_tag="#P0GVGVRP",
@@ -408,14 +410,11 @@ class SingleEntityViewTests(TestCase):
             club_description="Test Club Description",
         )
         self.player = Player.objects.create(
-            player_tag="#2RQRYV0L",
-            player_name="Test Player",
-            club=self.club
+            player_tag="#2RQRYV0L", player_name="Test Player", club=self.club
         )
 
     def test_single_entity_player(self):
-        url = reverse("player_lookup:search_specific",
-                      args=["player", "2RQRYV0L"])
+        url = reverse("player_lookup:search_specific", args=["player", "2RQRYV0L"])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["player_tag"], self.player.player_tag)
