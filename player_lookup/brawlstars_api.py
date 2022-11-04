@@ -31,14 +31,6 @@ class BrawlAPi:
         }
         return header
 
-    def get_player_stats(self, player_tag: str) -> dict:
-        if player_tag.startswith("#"):
-            # We remove the # from the player tag
-            player_tag = player_tag[1:]
-        url = f"{self.base_url}players/%23{player_tag}"
-        response = requests.get(url, headers=self.headers)
-        return response.json()
-
     def get_player_stats_url(self, player_tag: str) -> str:
         if player_tag.startswith("#"):
             # We remove the # from the player tag
@@ -61,10 +53,6 @@ class BrawlAPi:
             player_tag = player_tag[1:]
         url = f"{self.base_url}players/%23{player_tag}/battlelog"
         return url
-
-    def get_player_club(self, player_tag: str) -> dict:
-        data = self.get_player_stats(player_tag)
-        return data["club"]
 
     async def get_club_members(self, club_tag: str, client=httpx.AsyncClient()) -> dict:
         if club_tag.startswith("#"):

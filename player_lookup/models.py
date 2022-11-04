@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 import logging
 
 from django.db import models
+from freezegun import freeze_time
 
 from player_lookup.utils import (
     get_number_of_weeks_since_date,
@@ -93,18 +94,6 @@ class Player(models.Model):
                 ]
             )
 
-    def get_brawclub_rating(self) -> float:
-        """Get the brawlclub rating of the player.
-
-        Args:
-            since (datetime): The date since when the brawlclub rating is calculated.
-        """
-        return (
-            self.get_win_rate(self.default_date) * 50
-            + self.get_teamplay_rate(self.default_date) * 30
-            + self.get_playrate(self.default_date) * 20
-        )
-
     def get_win_rate(self) -> float:
         """Get the win rate of the player.
 
@@ -172,6 +161,8 @@ class Player(models.Model):
 
         Every other week, one has 14 tickets to spend, from wednesday to wednesday.
         """
+        with freeze_time(self.default_date.strftime("%Y-%m-%d")):
+            first_weeks_number_of_tickets = get_this_weeks_number_of_available_tickets()
 
         this_weeks_number_of_available_tickets = (
             get_this_weeks_number_of_available_tickets()
@@ -195,7 +186,9 @@ class Player(models.Model):
         )
 
         playrate = total_tickets_spent / (
-            club_league_weeks_since * 14 + this_weeks_number_of_available_tickets
+            first_weeks_number_of_tickets
+            + club_league_weeks_since * 14
+            + this_weeks_number_of_available_tickets
         )
         self.club_league_playrate = playrate
         return playrate
