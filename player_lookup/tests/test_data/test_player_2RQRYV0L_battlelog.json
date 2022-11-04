@@ -1967,9 +1967,9 @@
         "battle": {
           "mode": "gemGrab",
           "type": "teamRanked",
-          "result": "victory",
+          "result": "defeat",
           "duration": 107,
-          "trophyChange": 9,
+          "trophyChange": 5,
           "starPlayer": {
             "tag": "#2RQRYV0L",
             "name": "Shriukan",
