@@ -24,7 +24,7 @@ class Command(BaseCommand):
         batch_size = 999
         number_of_batches = club_count // batch_size * batch_size
         first_loop = True
-        for i in range(0, number_of_batches + 1, batch_size):
+        for i in range(0, number_of_batches + batch_size + 1, batch_size):
             if first_loop:
                 first_loop = False
                 start = i
@@ -33,11 +33,6 @@ class Command(BaseCommand):
             tag_list = self.fetch_player_tag_list(self.all_club_tags[start:i])
             start = i
             self.create_player_records(tag_list)
-
-        # Do the last batch of clubs, it's always smaller than batch_size
-        logger.info(f"Creating Player records for clubs {start} to {club_count}")
-        tag_list = self.fetch_player_tag_list(self.all_club_tags[start:club_count])
-        self.create_player_records(tag_list)
 
     @async_to_sync
     async def fetch_player_tag_list(self, club_tag_list: list) -> list:

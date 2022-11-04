@@ -17,7 +17,7 @@ class Command(BaseCommand):
         batch_size = 999
         top_limit = player_count // batch_size * batch_size
         first_loop = True
-        for i in range(0, top_limit + 1, batch_size):
+        for i in range(0, top_limit + batch_size + 1, batch_size):
             if first_loop:
                 first_loop = False
                 new_start = i
@@ -27,10 +27,6 @@ class Command(BaseCommand):
             player_batch = Player.objects.all()[new_start:i]
             self.create_records(player_batch)
             new_start = i
-
-        logger.info("Updating remaining players...")
-        remaining_players = Player.objects.all()[top_limit:]
-        self.create_records(remaining_players)
 
         self.stdout.write(
             self.style.SUCCESS("Successfully created all records"), ending="\n"
