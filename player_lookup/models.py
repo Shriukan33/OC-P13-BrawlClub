@@ -11,7 +11,7 @@ from player_lookup.utils import (
 )
 from player_lookup.brawlstars_api import BrawlAPi
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from django.db.models.query import QuerySet
 
 logger = logging.getLogger("django")
@@ -58,7 +58,7 @@ class Player(models.Model):
     # The number of tickets the player could spend right now
     number_of_available_tickets = models.IntegerField(default=0)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return f"{self.player_name} ({self.player_tag})"
 
     def update_brawlclub_rating(self, save: bool = True):
@@ -260,7 +260,7 @@ class PlayerHistory(models.Model):
     club_league_teamplay_rate = models.FloatField(default=0)
     snapshot_date = models.DateTimeField()
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return (
             f"{self.player.player_name} ({self.player.player_tag})"
             f" - {self.snapshot_date}"
@@ -281,21 +281,24 @@ class Club(models.Model):
     # The first time a club or a player is searched, this flag is set to True
     has_been_searched = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.club_name
 
-    def get_average_brawlclub_rating(self):
+    # Dev env only, not used in production
+    def get_average_brawlclub_rating(self):  # pragma: no cover
         """Get the average brawlclub rating of the club."""
         return self.player_set.aggregate(models.Avg("brawlclub_rating"))[
             "brawlclub_rating__avg"
         ]
 
-    def update_all_club_members_ratings(self):
+    # Dev env only, not used in production
+    def update_all_club_members_ratings(self):  # pragma: no cover
         """Update all club members ratings."""
         for player in self.player_set.all():
             player.update_brawlclub_rating()
 
-    def update_members(self):
+    # Dev env only, not used in production
+    def update_members(self):  # pragma: no cover
         """Update the club's member list
         This method is meant to update a single instance, on demand.
         """
@@ -319,7 +322,7 @@ class Brawler(models.Model):
     name = models.CharField(max_length=30)
     image = models.ImageField(upload_to="brawlers/")
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name
 
 
@@ -327,7 +330,7 @@ class BrawlMap(models.Model):
     name = models.CharField(max_length=30)
     image = models.ImageField(upload_to="maps/")
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return self.name
 
 
@@ -345,7 +348,7 @@ class Match(models.Model):
     # Provided in the API
     date = models.DateTimeField()
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return (
             f"{self.battle_type} - {self.mode} " f"- {self.date.strftime('%d/%m/%Y')}"
         )
@@ -368,5 +371,5 @@ class MatchIssue(models.Model):
     is_star_player = models.BooleanField(default=False)
     played_with_clubmate = models.BooleanField(default=False)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover
         return f"{self.player} - {self.brawler} - {self.match}"
