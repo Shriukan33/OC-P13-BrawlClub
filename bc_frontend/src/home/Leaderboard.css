@@ -17,3 +17,8 @@
     padding-block: 10px;
     border-bottom: 1px solid #00000036;
 }
+@media screen and (max-width: 1200px){
+    .leaderboard-frame {
+height: 425px;
+    }
+  }
