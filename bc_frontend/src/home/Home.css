@@ -88,10 +88,10 @@
     padding-bottom: 50px;
     height: 555px;
     max-height: 555px;
+    flex-direction: row;
 }
-@media screen {
-  
-}
+
+
 .playlist{
   width: 100%;
   width: -moz-available;          /* WebKit-based browsers will ignore this. */
@@ -101,3 +101,29 @@
   background-color: rgba(125, 155, 223, 0.32);
   padding-block: 30px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media screen and (max-width: 1200px){
+  .plo{
+   height: 999px;
+   max-height: 999px;
+  }
+
+  .bgimage{
+    position: relative;
+  background-position: 69% 50%;
+  }
+  }
