@@ -52,7 +52,7 @@ const Home = () => {
 
     {/* searchbar  */}    
 
-    <div className="my-5">
+    <div className="my-5 ">
           <StaticSearchBar />
         </div>
     </div>
