@@ -48,11 +48,11 @@ const Home = () => {
 <div className="bgimage" >
   <div className="bgmask">
     <div className="d-flex justify-content-center align-items-center h-100" style={{flexDirection: 'column'}}>
-    <img src="/images/brawlclub_logo.png" alt="Brawlclub logo" className="img-fluid d-flex col-10 col-md-5 col-lg-3 py-3"></img>
+    <img src="/images/brawlclub_logo.png" alt="Brawlclub logo" className="img-fluid d-flex col-10 col-md-5 col-lg-3 py-3 hvr-pop"></img>
 
     {/* searchbar  */}    
 
-    <div className="my-5 ">
+    <div className="my-5 hvr-underline-from-center">
           <StaticSearchBar />
         </div>
     </div>
@@ -64,7 +64,7 @@ const Home = () => {
                 {/* new proposed about-site section */}
                 
                 <section className="abtsec">
-                <div className="abthead wave">
+                <div className="abthead wave hvr-sink">
                   <h1>Curious about Your Rank?</h1>
                   <h3>Check it Out by Searching our database </h3>
                 </div>
