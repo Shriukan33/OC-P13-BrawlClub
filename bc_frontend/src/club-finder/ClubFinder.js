@@ -56,14 +56,12 @@ const ClubFinder = () => {
   }
 
   return ( 
-    <main className='col-10 col-lg-7 Player justify-content-center'>
+    <main className='col-10 col-lg-7 Player justify-content-center ' style={{paddingTop:"80px",paddingBottom:"40px"}}>
       <h1>Find your perfect club</h1>
       <form id="club-finder-form" method='get' action="club-finder/results"
       className="d-flex flex-column" onSubmit={handleSubmit}>
         <div className="d-flex flex-column my-2">
-          <p>Club with trophy requirement at most at
-            <span className="controlled-value">&nbsp;{sliderRequiredTrophiesMaxValue}</span>
-          </p>
+          <p>Club With <span className="controlled-value">&nbsp;{sliderRequiredTrophiesMaxValue}</span> Trophy Requirement </p>
           <RangeSlider
           id="trophy-requirement-slider"
           min={0}
@@ -72,10 +70,11 @@ const ClubFinder = () => {
           defaultValue={[0, sliderRequiredTrophiesMaxValue]}
           thumbsDisabled={[true, false]}
           onInput={sliderRequiredTrophiesHandleInput}
+          rangeSlideDisabled = {[true]}
           />
         </div>
-        <div className="mt-3">
-          <p>Club type is :</p>
+        <div className="mt-3 mb-3">
+          <h4>Club Type</h4>
           <div className="d-flex justify-content-around">
             <article>
               <input type="checkbox" name="type-open" checked={checkboxOpen ? true : ""}
@@ -110,18 +109,21 @@ const ClubFinder = () => {
             </article>
           </div>
         </div>
-        <div className="d-flex flex-column mx-auto my-3">
+        <div className=" mt-3 mb-3 my-1 p-2">
           
             {
               sliderMembersMaxValue !== sliderMembersMinValue ?
               <p>
-                Clubs with between {sliderMembersMinValue} and {sliderMembersMaxValue} 
-                &nbsp;members
+                Clubs between {sliderMembersMinValue} and {sliderMembersMaxValue} 
+                &nbsp;Members
               </p>
               :
-              <p>Clubs with exactly ${sliderMembersMinValue} members</p>
+              <p>Clubs with Exactly {sliderMembersMinValue} Members</p>
             }
           
+        </div>
+        <div className="wee p-3">
+          <div style={{width:"100%"}}>
           <RangeSlider
           id="number-of-players-slider"
           min={1}
@@ -129,8 +131,11 @@ const ClubFinder = () => {
           defaultValue={[sliderMembersMinValue, sliderMembersMaxValue]}
           onInput={sliderMembersHandleInput}
           />
+          </div> 
+          </div>
+        <div>
+        <button type="submit" className="btn clubfinder-btn freakinghoveryoupieceofshit">Search</button>
         </div>
-        <button type="submit" className="btn clubfinder-btn">Search</button>
       </form>
     </main>
   )
