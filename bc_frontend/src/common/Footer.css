@@ -49,6 +49,6 @@ text-align:center;
 margin: 40px auto;
 text-transform: lowercase;
 /* line-height: 145%; */
-font-size: 12pt;
+font-size: clamp(12px,10px,9px);
 font-variant: small-caps;
 }
