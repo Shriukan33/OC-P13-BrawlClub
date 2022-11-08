@@ -184,12 +184,15 @@ class Player(models.Model):
         total_tickets_spent = (
             all_power_matches_since_count * 2 + all_normal_matches_since_count
         )
+        try:
+            playrate = total_tickets_spent / (
+                first_weeks_number_of_tickets
+                + club_league_weeks_since * 14
+                + this_weeks_number_of_available_tickets
+            )
+        except ZeroDivisionError:
+            playrate = 0
 
-        playrate = total_tickets_spent / (
-            first_weeks_number_of_tickets
-            + club_league_weeks_since * 14
-            + this_weeks_number_of_available_tickets
-        )
         self.club_league_playrate = playrate
         return playrate
 
