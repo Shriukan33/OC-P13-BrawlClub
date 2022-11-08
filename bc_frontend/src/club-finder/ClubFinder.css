@@ -1,12 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+
+.p,h1,h4{
+    font-family: 'Lilita One', cursive !important;
+}
 /* Slider classes */
 .range-slider .range-slider__range {
-    background: rgb(255, 25, 25)
+    background: linear-gradient( 315deg, rgb(233, 43, 220) 3%, rgb(86, 78, 179) 38%, rgb(23, 55, 231) 68%, rgb(230, 131, 131) 98% );
+    background-size: auto;
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
 }
 .range-slider .range-slider__thumb {
-    background: rgb(224, 224, 224);
+    background: rgb(181, 179, 240);
+    border-radius: 30%;
+    transition: transform .3s;
+}
+.range-slider .range-slider__thumb[data-active] {
+    transform: translate(-50%, -50%) scale(1.25);
+}
+
+.range-slider .range-slider__range[data-active] {
+    height: 16px;
 }
 .range-slider {
-    background: rgb(238, 238, 238);
+    background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23555' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E") #333;
 }
 #trophy-requirement-slider > div[data-lower="true"] {
     display: none;
@@ -16,8 +33,13 @@
 }
 /* Button classes */
 button.clubfinder-btn {
-    background-color: #3fe5ffa8;
+    background-color: #7d9bdf;
     font-weight: bold;
+    color: #123c45;
+    max-width: 50%;
+}
+.freakinghoveryoupieceofshit:hover {
+    background-color: rgba(146, 177, 223, 0.39);
     color: white;
 }
 /* Checkbox classes */ 
@@ -30,6 +52,10 @@ article {
     flex-grow: 1;
     margin: 0 5px;
 }
+article :hover{
+    background-color: rgba(222, 222, 222, 0.25);
+    color: white;
+  }
 article div {
     display: flex;
     width: 100%;
@@ -50,6 +76,12 @@ article input {
     cursor: pointer;
 }
 input[type=checkbox]:checked ~ div {
-    background-color: #3fe5ffa8;
-    color: white;
+    background-color: #7d9bdf;
+    color: #123c45;
+  }
+  .wee{
+    max-width: 50%;
+    min-width: 50%;
+    align-self: center;
+    display: flex;
   }
