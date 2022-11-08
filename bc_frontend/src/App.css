@@ -23,7 +23,7 @@
   position: absolute;
   overflow-x: hidden;
   font-family: 'Poppins', sans-serif;
-
+width: 100%;
   /* hide scrollbar for IE, Edge and Firefox */
 -ms-overflow-style: none;
 scrollbar-width: none;
