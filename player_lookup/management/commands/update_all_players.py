@@ -1,5 +1,4 @@
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 import logging
 import time
@@ -67,22 +66,52 @@ class Command(BaseCommand):
         # Because computing the Brawlclub rating is a bit expensive, we do it
         # only while the club league is running
         self.club_league_running = get_club_league_status()
+        last_update = PlayersUpdate.objects.last()
+
         if not self.club_league_running:
-            logger.info("Club league is not running, updating remaining tickets to 0")
-            Player.objects.update(number_of_available_tickets=0)
-            queryset = Player.objects.filter(
-                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None),
-                number_of_available_tickets__gt=0,
-            ).order_by("-brawlclub_rating", "last_updated")
+            # Update the remaining tickets for all players if necessary
+            if last_update.club_league_running:
+                logger.info(
+                    "Club league is not running anymore,"
+                    " updating remaining tickets to 0"
+                )
+                Player.objects.update(number_of_available_tickets=0)
+
+            # Prepare a list of players that need to be updated
+            queryset = (
+                Player.objects.filter(
+                    Q(last_updated__lte=min_time_since_last_update)
+                    | Q(last_updated=None)
+                )
+                .order_by("-brawlclub_rating", "last_updated")
+                .values_list("player_tag", flat=True)
+            )
         else:
-            logger.info("Replenishing players' tickets...")
+            logger.info(
+                "Club league is running, updating remaining tickets"
+                " to the number of tickets for today"
+            )
             Player.objects.filter(
                 Q(last_updated__lt=self.last_club_league_day)
                 | (Q(last_updated__isnull=True))
-            ).update(number_of_available_tickets=self.today_number_of_remaining_tickets)
-            queryset = Player.objects.filter(
-                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
-            ).order_by("-brawlclub_rating", "last_updated")
+            ).update(
+                number_of_available_tickets=self.today_number_of_remaining_tickets
+            )
+
+            # Prepare a list of players that need to be updated
+            queryset = (
+                Player.objects.filter(
+                    Q(last_updated__lte=min_time_since_last_update)
+                    | Q(last_updated=None)
+                )
+                .order_by("-brawlclub_rating", "last_updated")
+                .values_list("player_tag", flat=True)
+            )
+
+        # We can create a PlayersUpdate object now, because we updated the
+        # remaining tickets for all players, we want to avoid repeating that work
+        # if the update_all_players command is interrupted
+        PlayersUpdate.objects.create(club_league_running=self.club_league_running)
 
         for start, end, total, qs in self.batch_qs(queryset, 500):
             logger.info(
@@ -94,7 +123,7 @@ class Command(BaseCommand):
             self.style.SUCCESS("Successfully updated all players"), ending="\n"
         )
 
-    def batch_qs(self, qs: "QuerySet[Player]", batch_size):
+    def batch_qs(self, qs: "QuerySet", batch_size):
         """Returns a (start, end, total, queryset) tuple for each batch in the given
         queryset.
 
@@ -193,8 +222,8 @@ class Command(BaseCommand):
         players = await sync_to_async(list)(players)
         api_calls = []
         async with httpx.AsyncClient(timeout=3600) as client:
-            for player in players:
-                response = get_player_data(player.player_tag, client)
+            for tag in players:
+                response = get_player_data(tag, client)
                 api_calls.append(response)
             responses = await asyncio.gather(*api_calls)
         results = {"Player data": responses}

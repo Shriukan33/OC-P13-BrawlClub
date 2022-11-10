@@ -376,3 +376,13 @@ class MatchIssue(models.Model):
 
     def __str__(self):  # pragma: no cover
         return f"{self.player} - {self.brawler} - {self.match}"
+
+
+class PlayersUpdate(models.Model):
+    """Keep track of the last time the players were updated."""
+
+    last_update = models.DateTimeField(auto_now=True)
+    club_league_running = models.BooleanField(default=False)
+
+    def __str__(self):  # pragma: no cover
+        return f"Last update: {self.last_update}"
