@@ -1,13 +1,21 @@
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 import logging
 import time
 import httpx
 from typing import Tuple
 from django.core.management.base import BaseCommand
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 from asgiref.sync import sync_to_async, async_to_sync
-from player_lookup.models import BrawlMap, Brawler, Club, MatchIssue, Player
+from player_lookup.models import (
+    BrawlMap,
+    Brawler,
+    Club,
+    MatchIssue,
+    Player,
+    PlayersUpdate,
+)
 from player_lookup.models import update_player_batch_remaining_tickets
 from player_lookup.views import (
     create_matches_from_battlelog,
@@ -62,49 +70,46 @@ class Command(BaseCommand):
         if not self.club_league_running:
             logger.info("Club league is not running, updating remaining tickets to 0")
             Player.objects.update(number_of_available_tickets=0)
+            queryset = Player.objects.filter(
+                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None),
+                number_of_available_tickets__gt=0,
+            ).order_by("-brawlclub_rating", "last_updated")
         else:
             logger.info("Replenishing players' tickets...")
             Player.objects.filter(
                 Q(last_updated__lt=self.last_club_league_day)
                 | (Q(last_updated__isnull=True))
             ).update(number_of_available_tickets=self.today_number_of_remaining_tickets)
+            queryset = Player.objects.filter(
+                Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None)
+            ).order_by("-brawlclub_rating", "last_updated")
 
-        total_player_count = Player.objects.count()
-        player_count = Player.objects.filter(
-            Q(last_updated__lte=min_time_since_last_update) | Q(last_updated=None),
-            number_of_available_tickets__gt=0,
-        ).count()
-        logger.info(
-            f"Found {player_count} players to update "
-            f"in DB (Total : {total_player_count})"
-        )
-        batch_size = 500
-        top_limit = player_count // batch_size * batch_size
-        first_loop = True
-        for i in range(0, top_limit + batch_size + 1, batch_size):
-            if first_loop:
-                first_loop = False
-                new_start = i
-                continue
-
-            logger.info(f"Updating row {new_start} to {i}")
-            if self.club_league_running:
-                player_batch = Player.objects.filter(
-                    Q(last_updated__lte=min_time_since_last_update)
-                    | Q(last_updated=None),
-                    number_of_available_tickets__gt=0,
-                ).order_by("-brawlclub_rating", "last_updated")[:batch_size]
-            else:
-                player_batch = Player.objects.filter(
-                    Q(last_updated__lte=min_time_since_last_update)
-                    | Q(last_updated=None)
-                ).order_by("-brawlclub_rating", "last_updated")[:batch_size]
-            self.update_player_batch(player_batch)
-            new_start = i
+        for start, end, total, qs in self.batch_qs(queryset, 500):
+            logger.info(
+                f"Updating row {start} to {end} on {total} ({start/total*100:.2f}%)"
+            )
+            self.update_player_batch(qs)
 
         self.stdout.write(
             self.style.SUCCESS("Successfully updated all players"), ending="\n"
         )
+
+    def batch_qs(self, qs: "QuerySet[Player]", batch_size):
+        """Returns a (start, end, total, queryset) tuple for each batch in the given
+        queryset.
+
+        Usage:
+            # Make sure to order your querset
+            article_qs = Article.objects.order_by('id')
+            for start, end, total, qs in batch_qs(article_qs):
+                print("Now processing %s - %s of %s" % (start + 1, end, total))
+                for article in qs:
+                    print(article.body)
+        """
+        total = qs.count()
+        for start in range(0, total, batch_size):
+            end = start + batch_size
+            yield (start, end, total, qs[start:end])
 
     def update_player_batch(self, player_batch):
 
