@@ -93,12 +93,12 @@ class Command(BaseCommand):
                     Q(last_updated__lte=min_time_since_last_update)
                     | Q(last_updated=None),
                     number_of_available_tickets__gt=0,
-                )[:batch_size]
+                ).order_by("-brawlclub_rating", "last_updated")[:batch_size]
             else:
                 player_batch = Player.objects.filter(
                     Q(last_updated__lte=min_time_since_last_update)
                     | Q(last_updated=None)
-                )[:batch_size]
+                ).order_by("-brawlclub_rating", "last_updated")[:batch_size]
             self.update_player_batch(player_batch)
             new_start = i
 
