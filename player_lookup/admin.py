@@ -36,6 +36,11 @@ class PlayerHistoryAdmin(admin.ModelAdmin):
     search_fields = ("player__player_name",)
 
 
+class PlayersUpdateAdmin(admin.ModelAdmin):
+    readonly_fields = ("last_update", "club_league_running")
+    list_display = ("last_update", "club_league_running")
+
+
 class ClubAdmin(admin.ModelAdmin):
     inlines = [
         PlayerInline,
@@ -93,6 +98,7 @@ class MatchIssueAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Player, PlayerAdmin)
 admin.site.register(models.PlayerHistory, PlayerHistoryAdmin)
+admin.site.register(models.PlayersUpdate)
 admin.site.register(models.Club, ClubAdmin)
 admin.site.register(models.BrawlMap, BrawlMapAdin)
 admin.site.register(models.Brawler, BrawlerAdmin)
