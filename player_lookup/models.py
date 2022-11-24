@@ -69,9 +69,8 @@ class Player(models.Model):
         - The frequence the player plays with a club mate
         - The win rate
         """
-        # Do not update if the player is not in a club
         # Players under 900 trophies don't have clubs
-        if not self.club or self.trophy_count < 900:
+        if self.trophy_count < 900:
             return
         # TODO
         # Multiple fetch and filters are done inside those functions
