@@ -3,13 +3,14 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Tuple, Union
 
-from django.http import Http404
-
 import dateutil.parser
 import httpx
 from asgiref.sync import async_to_sync, sync_to_async
 from django.db.models import Avg, Count
+from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.pagination import PageNumberPagination
@@ -38,6 +39,10 @@ class LeaderBoardView(ListAPIView):
         max_page_size = 100
 
     pagination_class = LeaderBoardPagination
+
+    @method_decorator(cache_page(60 * 60 * 12))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         """
