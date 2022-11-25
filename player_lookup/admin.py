@@ -25,6 +25,8 @@ class PlayerAdmin(admin.ModelAdmin):
         "player_name",
         "club",
         "trophy_count",
+        "last_updated",
+        "default_date",
     )
 
     def has_change_permission(self, request, obj=None):
