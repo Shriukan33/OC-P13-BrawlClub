@@ -80,10 +80,12 @@ class Player(models.Model):
         # Because filters do hit the database while we only need counts here,
         # also because this list is not huge, we store in memory the matches
         self.match_data = defaultdict(int)
-        self.match_data["all_matches_count"] = len(match_issues)
-        if self.match_data["all_matches_count"] > 0:
-            for match in match_issues:
-                match: MatchIssue
+
+        for match in match_issues:
+            match: MatchIssue
+            if match.match.date > self.default_date:
+
+                self.match_data["all_matches_count"] += 1
 
                 if match.outcome == "WIN":
                     self.match_data["all_wins"] += 1
@@ -96,12 +98,19 @@ class Player(models.Model):
                 if match.match.battle_type == "Power Match":
                     self.match_data["power_match"] += 1
 
+        if self.match_data["all_matches_count"] > 0:
             rate = (
                 self.get_playrate() * 50
                 + self.get_teamplay_rate() * 30
                 + self.get_win_rate() * 20
             )
             self.brawlclub_rating = rate
+        else:
+            self.brawlclub_rating = 0
+            self.club_league_winrate = 0
+            self.club_league_playrate = 0
+            self.club_league_teamplay_rate = 0
+
         if save:
             self.save(
                 update_fields=[
