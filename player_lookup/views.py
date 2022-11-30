@@ -523,17 +523,36 @@ def create_matches_from_battlelog(
             if trophies_won == 9:
                 played_with_team = True
                 is_power_match = True
+            elif trophies_won == 7:
+                is_power_match = True
+                played_with_team = False
             elif trophies_won == 4:
                 played_with_team = True
+            elif trophies_won == 3:
+                played_with_team = False
+                is_power_match = False
         elif match_outcome == "LOSS":
             if trophies_won == 5:
                 played_with_team = True
                 is_power_match = True
+            elif trophies_won == 3:
+                is_power_match = True
+                played_with_team = False
             elif trophies_won == 2:
                 played_with_team = True
+                is_power_match = False
+            elif trophies_won == 1:
+                played_with_team = False
+                is_power_match = False
+
         # Can't draw in Power matches
-        elif match_outcome == "DRAW" and trophies_won == 3:
-            played_with_team = True
+        elif match_outcome == "DRAW":
+            if trophies_won == 3:
+                played_with_team = True
+                is_power_match = False
+            elif trophies_won == 2:
+                played_with_team = False
+                is_power_match = False
 
         return (is_power_match, played_with_team)
 
