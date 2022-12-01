@@ -9,6 +9,7 @@ from freezegun import freeze_time
 from player_lookup.utils import (
     get_number_of_weeks_since_date,
     get_this_weeks_number_of_available_tickets,
+    get_this_weeks_number_of_remaining_tickets,
 )
 from player_lookup.brawlstars_api import BrawlAPi
 
@@ -169,7 +170,7 @@ class Player(models.Model):
         Every other week, one has 14 tickets to spend, from wednesday to wednesday.
         """
         with freeze_time(self.default_date.strftime("%Y-%m-%d")):
-            first_weeks_number_of_tickets = get_this_weeks_number_of_available_tickets()
+            first_weeks_number_of_tickets = get_this_weeks_number_of_remaining_tickets()
 
         this_weeks_number_of_available_tickets = (
             get_this_weeks_number_of_available_tickets()

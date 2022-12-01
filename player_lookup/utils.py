@@ -94,6 +94,38 @@ def get_this_weeks_number_of_available_tickets() -> int:
     return this_weeks_number_of_available_tickets
 
 
+def get_this_weeks_number_of_remaining_tickets() -> int:
+    """Get the number of remaining tickets for this week.
+
+    Returns:
+        int: The number of remaining tickets for this week.
+    """
+
+    club_league_running = get_club_league_status()
+    if not club_league_running:
+        return 0
+
+    today = datetime.now(timezone.utc).weekday()
+
+    # We are in a club league week
+    # 4 tickets on wednesday, 4 tickets on friday, 6 tickets on sunday
+    total_available_tickets = 14
+
+    if today in (2, 3):
+        # Wednesday, Thursday, Friday, Saturday
+        available_tickets = total_available_tickets
+    elif today in (4, 5):
+        # Friday, Saturday
+        # We lost the 4 tickets from wednesday
+        available_tickets = total_available_tickets - 4
+    elif today in (6, 0):
+        # Sunday, Monday
+        # We lost the 4 tickets from wednesday and the 4 tickets from friday
+        available_tickets = total_available_tickets - 8
+
+    return available_tickets
+
+
 def get_today_number_of_remaining_tickets() -> int:
     """Return the number of available tickets for a given day.
 

@@ -222,3 +222,46 @@ class GetClubLeagueStatusTests(TestCase):
             self.assertEqual(
                 utils.get_number_of_weeks_since_date(starting_date + timedelta(1)), 2
             )
+
+    def test_get_this_weeks_number_of_remaining_tickets(self):
+
+        # 2022-10-25 is a wednesday
+        with freeze_time("2022-10-26"):
+            # All tickets are available
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 14)
+
+        # 2022-10-26 is a thursday
+        with freeze_time("2022-10-27"):
+            # All tickets are available
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 14)
+
+        # 2022-10-27 is a friday
+        with freeze_time("2022-10-28"):
+            # We can't use the 4 first tickets
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 10)
+
+        # 2022-10-28 is a saturday
+        with freeze_time("2022-10-29"):
+            # We can't use the 4 first tickets
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 10)
+
+        # 2022-10-29 is a sunday
+        with freeze_time("2022-10-30"):
+            # We can't use the 8 first tickets
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 6)
+
+        # 2022-10-30 is a monday
+        with freeze_time("2022-10-31"):
+            # We can't use the 8 first tickets
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 6)
+
+        # 2022-10-31 is a tuesday
+        with freeze_time("2022-11-01"):
+            # No tickets are available at this point
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 0)
+
+        # No club league is running
+        # 2022-11-01 is a wednesday
+        with freeze_time("2022-11-02"):
+            # No tickets are available at this point
+            self.assertEqual(utils.get_this_weeks_number_of_remaining_tickets(), 0)
