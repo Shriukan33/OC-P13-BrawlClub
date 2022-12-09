@@ -16,11 +16,11 @@ from player_lookup.models import (
     PlayersUpdate,
 )
 from player_lookup.models import update_player_batch_remaining_tickets
-from player_lookup.views import (
+from player_lookup.views import brawl_api
+from player_lookup.update_services import (
     create_matches_from_battlelog,
-    get_player_battlelog,
     get_player_data,
-    brawl_api,
+    get_player_battlelog,
 )
 from player_lookup.utils import (
     get_club_league_status,
@@ -94,9 +94,7 @@ class Command(BaseCommand):
             Player.objects.filter(
                 Q(last_updated__lt=self.last_club_league_day)
                 | (Q(last_updated__isnull=True))
-            ).update(
-                number_of_available_tickets=self.today_number_of_remaining_tickets
-            )
+            ).update(number_of_available_tickets=self.today_number_of_remaining_tickets)
 
             # Prepare a list of players that need to be updated
             queryset = (
