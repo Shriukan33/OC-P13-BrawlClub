@@ -70,7 +70,7 @@ const Home = () => {
       {/* new proposed about-site section */}
 
       <section className="abtsec">
-        <section className="d-flex flex-wrap col-10 justify-content-center mx-auto plo">
+        <section className="d-flex flex-wrap col-10 justify-content-center mx-auto">
           <div className="leaderboard-frame d-flex flex-column col-12 col-md-4 my-3 mx-5 px-3">
             <Leaderboard
               title="Player Rating Leaderboard"
