@@ -144,7 +144,7 @@ const ClubFinder = () => {
             <p>Clubs with Exactly {sliderMembersMinValue} Members</p>
           )}
         </div>
-        <div className="wee p-3">
+        <div className="d-flex col-12 col-md-6 mx-auto p-3 mb-4">
           <div style={{ width: "100%" }}>
             <RangeSlider
               id="number-of-players-slider"

@@ -88,9 +88,3 @@ input[type="checkbox"]:checked ~ div {
   background-color: #7d9bdf;
   color: #123c45;
 }
-.wee {
-  max-width: 50%;
-  min-width: 50%;
-  align-self: center;
-  display: flex;
-}
