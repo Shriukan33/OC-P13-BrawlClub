@@ -8,7 +8,7 @@
   flex-grow: 1;
 }
 .bgimage {
-  background-image: url(../pub/bs3.jpg);
+  background-image: url("../../public/images/Home/bs3.jpg");
   height: 100vh;
   position: relative;
   overflow: hidden;
