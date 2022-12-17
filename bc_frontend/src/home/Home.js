@@ -70,18 +70,6 @@ const Home = () => {
       {/* new proposed about-site section */}
 
       <section className="abtsec">
-        <div className="abthead wave hvr-sink">
-          <h1>Curious about Your Rank?</h1>
-          <h3>Check it Out by Searching our database </h3>
-        </div>
-
-        {/* extra info section   */}
-        <div className="py-5 px-5 mt-3 abtinfo">
-          <h4>Claire is a chicken Queen</h4>
-          <p>Ben makes better cookies than claire</p>
-          <p>The about and how to use goes here</p>
-        </div>
-
         <section className="d-flex flex-wrap col-10 justify-content-center mx-auto plo">
           <div className="leaderboard-frame d-flex flex-column col-12 col-md-4 my-3 mx-5 px-3">
             <Leaderboard
