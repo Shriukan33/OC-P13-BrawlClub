@@ -15,7 +15,7 @@ It also shows you statistics about yourself or clubs!
 Please install all these:
 - [Python](https://www.python.org/downloads/) > = 3.8
 - [Git](https://git-scm.com/downloads)
-- [Redis](https://redis.io/download/)
+- [Redis](https://redis.io/download/) (optional but runs on production)
 - [PostgreSQL](https://www.postgresql.org/download/)
 - [Node Package Manager](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [React JS](https://reactjs.org/tutorial/tutorial.html#setup-option-2-local-development-environment)
@@ -53,6 +53,7 @@ Example: `BRAWLSTARS_API_KEY = "thisIsKey1#thisIsKey2"`
 
 
 ### 8. Start the redis server
+(Optional)
 Redis server is used to cache leaderboard pages, as they are computation heavy.
 Use the command `redis-server` to start the cache server and keep the terminal open.
 You should see something that looks like this:
@@ -101,6 +102,7 @@ npm start
 
 ## Tests
 
+If you use Redis, you may want to launch the tests with the cache server running.
 To launch the tests, first activate the redis server
 
 `redis-server`
