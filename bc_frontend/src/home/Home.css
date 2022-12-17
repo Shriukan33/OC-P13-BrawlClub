@@ -35,6 +35,7 @@
     display: flex;
     flex-direction: column;
     padding-top: 30px;
+    padding-bottom: 50px;
 }
 .abthead{
     color: #b4d9e7eb;
@@ -76,4 +77,15 @@
     /* max-Width:40vw; */
     align-self: center;
     border-radius: 30px;
+}
+
+
+.playlist{
+  width: 100%;
+  width: -moz-available;          /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  width: fill-available;
+  height: 90vh;
+  background-color: rgba(125, 155, 223, 0.32);
+  padding-block: 30px;
 }
