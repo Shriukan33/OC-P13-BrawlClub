@@ -15,7 +15,7 @@
     width: 100%;
     width: -moz-available;          /* WebKit-based browsers will ignore this. */
     width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-    width: fill-available;
+    width: stretch;
     background-position: center;
     box-shadow: 2px 4px 11px 2px #000000;
 }
@@ -31,7 +31,7 @@
   width: 100%;
   width: -moz-available;          /* WebKit-based browsers will ignore this. */
   width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-  width: fill-available;
+  width: stretch;
     min-height: 50em;
     box-shadow: inset 1px 0px 9px 2px #00000094;
     display: flex;
@@ -96,7 +96,7 @@
   width: 100%;
   width: -moz-available;          /* WebKit-based browsers will ignore this. */
   width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-  width: fill-available;
+  width: stretch;
   height: 90vh;
   background-color: rgba(125, 155, 223, 0.32);
   padding-block: 30px;
