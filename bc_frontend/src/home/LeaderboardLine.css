@@ -1,23 +1,23 @@
 .leaderboard-line-name {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #123C45
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #123c45;
 }
 .leaderboard-line-metric {
-    color: #123C45;
+  color: #123c45;
 }
 .leaderboard-line-name a {
-    color: #123C45;
-    text-decoration: none;
+  color: #123c45;
+  text-decoration: none;
 }
 .leaderboard-line-name a:hover {
-    color: #F01919;
+  color: #f01919;
 }
-.leaderboard-line-name:hover+.leaderboard-line-metric {
-    font-size: 1.1em;
-    font-weight: bold;
-    color: #F01919;
+.leaderboard-line-name:hover + .leaderboard-line-metric {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #f01919;
 }
 .leaderboard-line-name:hover a {
-    color: #F01919;
+  color: #f01919;
 }

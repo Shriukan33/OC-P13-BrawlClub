@@ -1,54 +1,54 @@
-.copyrightsec{
-    display: flex;
-    background-color: rgba(0, 0, 0, 0.2);
-    flex-direction: row;
-    justify-content:center;
-    align-items: center;
-    box-shadow: inset 1px 0px 9px 2px #00000094;
+.copyrightsec {
+  display: flex;
+  background-color: rgba(0, 0, 0, 0.2);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  box-shadow: inset 1px 0px 9px 2px #00000094;
 }
-.footer{
-    background-color: #2b336ae0;
-    width: 100%;
-    width: -moz-available;          /* WebKit-based browsers will ignore this. */
-    width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-    width: stretch;
-
+.footer {
+  background-color: #2b336ae0;
+  width: 100%;
+  width: -moz-available; /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
+  width: stretch;
 }
 footer a {
-    text-decoration: none;
+  text-decoration: none;
 }
 footer a:hover {
-    color:#fff;
+  color: #fff;
 }
 footer a.active {
-    font-weight: bold;
+  font-weight: bold;
 }
-.linksec{
-    display: flex;
-    flex-direction: row;
-    justify-content:center;
-    align-items: center;
-    padding-bottom: 0.5rem;
+.linksec {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 0.5rem;
 }
 
 .copybtn {
-    color: #c5d3e0;
-    --bs-btn-color: #c5d3e0;
-    /* --bs-btn-border-color: #0d6efd; */
-    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+  color: #c5d3e0;
+  --bs-btn-color: #c5d3e0;
+  /* --bs-btn-border-color: #0d6efd; */
+  --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
 }
 
-footer p:first-letter{
-    text-transform: uppercase;
+footer p:first-letter {
+  text-transform: uppercase;
 }
 footer p {
-    color: #c5d3e0;
-font-family: "Adobe Caslon Pro", "Hoefler Text", Georgia, Garamond, Times, serif;
-/* letter-spacing:0.1em; */
-text-align:center;
-margin: 40px auto;
-text-transform: lowercase;
-/* line-height: 145%; */
-font-size: clamp(12px,10px,9px);
-font-variant: small-caps;
+  color: #c5d3e0;
+  font-family: "Adobe Caslon Pro", "Hoefler Text", Georgia, Garamond, Times,
+    serif;
+  /* letter-spacing:0.1em; */
+  text-align: center;
+  margin: 40px auto;
+  text-transform: lowercase;
+  /* line-height: 145%; */
+  font-size: clamp(12px, 10px, 9px);
+  font-variant: small-caps;
 }
