@@ -6,6 +6,7 @@
   align-items: center;
   width: 100vw;
   flex-grow: 1;
+  margin-bottom: -60px; /* to compensate for the navbar */
 }
 .bgimage {
   background-image: url("../../public/images/Home/bs3.jpg");
@@ -18,6 +19,8 @@
   width: stretch;
   background-position: center;
   box-shadow: 2px 4px 11px 2px #000000;
+  position: relative;
+  top: -60px; /* to compensate for the navbar */
 }
 .bgmask {
   height: inherit;
@@ -39,6 +42,8 @@
   flex-direction: column;
   padding-top: 30px;
   padding-bottom: 50px;
+  position: relative;
+  top: -60px; /* to compensate for the navbar */
 }
 .abthead {
   font-family: "Lilita One", cursive;

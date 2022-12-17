@@ -15,7 +15,6 @@ nav {
   transition: top 0.3s; /* Transition effect when sliding down (and up) */
   z-index: 1000000;
   box-shadow: 10px 10px 5px #4a585c7a;
-  position: absolute;
 }
 @media screen and (max-width: 768px) {
   nav {
