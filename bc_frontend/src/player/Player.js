@@ -80,7 +80,7 @@ const Player = () => {
               statsToDisplay={statsToDisplay}
               statslabels={statslabels} />
           </div>
-          <div className="PlayerAreaGraph d-flex">
+          <div className="PlayerAreaGraph d-flex mb-5">
             <PlayerAreaGraph history={playerHistory} />
           </div>
         </div>
