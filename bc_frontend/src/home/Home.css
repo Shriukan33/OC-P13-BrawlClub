@@ -1,57 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&display=swap");
 
 .HomePage {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100vw;
-    flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100vw;
+  flex-grow: 1;
 }
-.bgimage{
-    background-image: url(../pub/bs3.jpg);
-    height: 100vh;
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    width: -moz-available;          /* WebKit-based browsers will ignore this. */
-    width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
-    width: stretch;
-    background-position: center;
-    box-shadow: 2px 4px 11px 2px #000000;
-}
-.bgmask{
-    height: inherit;
-    background: linear-gradient(
-        to bottom,
-        hsla(0, 0%, 0%, 0),
-        hsla(0, 0%, 0%, 89%));
-}
-
-.abtsec{
+.bgimage {
+  background-image: url(../pub/bs3.jpg);
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  width: -moz-available;          /* WebKit-based browsers will ignore this. */
-  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  width: -moz-available; /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
   width: stretch;
-    min-height: 50em;
-    box-shadow: inset 1px 0px 9px 2px #00000094;
-    display: flex;
-    flex-direction: column;
-    padding-top: 30px;
-    padding-bottom: 50px;
+  background-position: center;
+  box-shadow: 2px 4px 11px 2px #000000;
 }
-.abthead{
-  font-family: 'Lilita One', cursive;
-    color: #b4d9e7eb;
-    padding-block: 15px;
-    box-shadow: 13px -3px 20px 2px #000000;
-    border-radius: 50px;
-    /* background: linear-gradient( to right, hsl(222deg 15% 21% / 57%), rgb(35 33 131)); */
+.bgmask {
+  height: inherit;
+  background: linear-gradient(
+    to bottom,
+    hsla(0, 0%, 0%, 0),
+    hsla(0, 0%, 0%, 89%)
+  );
 }
 
+.abtsec {
+  width: 100%;
+  width: -moz-available; /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
+  width: stretch;
+  min-height: 50em;
+  box-shadow: inset 1px 0px 9px 2px #00000094;
+  display: flex;
+  flex-direction: column;
+  padding-top: 30px;
+  padding-bottom: 50px;
+}
+.abthead {
+  font-family: "Lilita One", cursive;
+  color: #b4d9e7eb;
+  padding-block: 15px;
+  box-shadow: 13px -3px 20px 2px #000000;
+  border-radius: 50px;
+  /* background: linear-gradient( to right, hsl(222deg 15% 21% / 57%), rgb(35 33 131)); */
+}
 
 /* for the wave effect in the about header  */
 .wave {
-    background: linear-gradient(
+  background: linear-gradient(
     315deg,
     rgba(101, 0, 94, 1) 3%,
     rgb(1, 38, 201) 38%,
@@ -72,30 +72,21 @@
   }
   100% {
     background-position: 0% 0%;
-    }
+  }
 }
-.abtinfo{
-  font-family: 'Lilita One', cursive;
-    color:#bec8ff;;
-    background-Color:rgba(125, 155, 223, 0.32);
-    /* max-Width:40vw; */
-    align-self: center;
-    border-radius: 30px;
-}
-
-.plo{
-  padding-top: 54px;
-    padding-bottom: 50px;
-    height: 555px;
-    max-height: 555px;
-    flex-direction: row;
+.abtinfo {
+  font-family: "Lilita One", cursive;
+  color: #bec8ff;
+  background-color: rgba(125, 155, 223, 0.32);
+  /* max-Width:40vw; */
+  align-self: center;
+  border-radius: 30px;
 }
 
-
-.playlist{
+.playlist {
   width: 100%;
-  width: -moz-available;          /* WebKit-based browsers will ignore this. */
-  width: -webkit-fill-available;  /* Mozilla-based browsers will ignore this. */
+  width: -moz-available; /* WebKit-based browsers will ignore this. */
+  width: -webkit-fill-available; /* Mozilla-based browsers will ignore this. */
   width: stretch;
   height: 90vh;
   background-color: rgba(125, 155, 223, 0.32);
@@ -122,7 +113,7 @@
   left: 51%;
   right: 51%;
   bottom: 0;
-  background: #2098D1;
+  background: #2098d1;
   height: 4px;
   -webkit-transition-property: left, right;
   transition-property: left, right;
@@ -131,7 +122,9 @@
   -webkit-transition-timing-function: ease-out;
   transition-timing-function: ease-out;
 }
-.hvr-underline-from-center:hover:before, .hvr-underline-from-center:focus:before, .hvr-underline-from-center:active:before {
+.hvr-underline-from-center:hover:before,
+.hvr-underline-from-center:focus:before,
+.hvr-underline-from-center:active:before {
   left: 0;
   right: 0;
 }
@@ -156,7 +149,9 @@
   transform: perspective(1px) translateZ(0);
   box-shadow: 0 0 1px rgba(0, 0, 0, 0);
 }
-.hvr-pop:hover, .hvr-pop:focus, .hvr-pop:active {
+.hvr-pop:hover,
+.hvr-pop:focus,
+.hvr-pop:active {
   -webkit-animation-name: hvr-pop;
   animation-name: hvr-pop;
   -webkit-animation-duration: 0.3s;
@@ -180,30 +175,16 @@
   -webkit-transition-timing-function: ease-out;
   transition-timing-function: ease-out;
 }
-.hvr-sink:hover, .hvr-sink:focus, .hvr-sink:active {
+.hvr-sink:hover,
+.hvr-sink:focus,
+.hvr-sink:active {
   -webkit-transform: translateY(4px);
   transform: translateY(4px);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-@media screen and (max-width: 1200px){
-  .plo{
-   height: 999px;
-   max-height: 999px;
-  }
-
-  .bgimage{
+@media screen and (max-width: 1200px) {
+  .bgimage {
     position: relative;
-  background-position: 69% 50%;
+    background-position: 69% 50%;
   }
-  }
+}
