@@ -1,43 +1,43 @@
 .leaderboard_app {
-    flex-grow: 1 !important;
-    width: 100vw;
-    padding-top: 30px;
-    color: white;
+  flex-grow: 1 !important;
+  width: 100vw;
+  padding-top: 30px;
+  color: white;
 }
 .leaderboard_app > header > h1 {
-    font-weight: bold;
-    text-transform: capitalize;
+  font-weight: bold;
+  text-transform: capitalize;
 }
 button.leaderboard-btn {
-    background-color: #3fe5ffa8;
-    color: #123C45;
-    font-weight: bold;
+  background-color: #3fe5ffa8;
+  color: #123c45;
+  font-weight: bold;
 }
 .leaderboard-toggle {
-    padding: 5px;
-    width: 150px;
-    background-color: #3fe5ffa8;
-    color: #123C45;
-    font-weight: bold;
+  padding: 5px;
+  width: 150px;
+  background-color: #3fe5ffa8;
+  color: #123c45;
+  font-weight: bold;
 }
 .leaderboard-toggle.players {
-    border-radius: 10px 0 0 10px; 
+  border-radius: 10px 0 0 10px;
 }
 .leaderboard-toggle.clubs {
-    border-radius: 0 10px 10px 0;
+  border-radius: 0 10px 10px 0;
 }
 .leaderboard-toggle a {
-    color: inherit;
-    text-decoration: none;
+  color: inherit;
+  text-decoration: none;
 }
 .leaderboard-toggle:active {
-    background-color: #123C45;
-    color: #3fe5ffa8;
+  background-color: #123c45;
+  color: #3fe5ffa8;
 }
 .leaderboard-toggle a:hover {
-    color: #123C45;
+  color: #123c45;
 }
 .leaderboard-toggle.active {
-    background-color: #123C45;
-    color: #3fe5ffa8;
+  background-color: #123c45;
+  color: #3fe5ffa8;
 }

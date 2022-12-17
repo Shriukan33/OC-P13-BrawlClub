@@ -1,87 +1,96 @@
-@import url('https://fonts.googleapis.com/css2?family=Lilita+One&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Lilita+One&display=swap");
 
-.p,h1,h4{
-    font-family: 'Lilita One', cursive !important;
+.p,
+h1,
+h4 {
+  font-family: "Lilita One", cursive !important;
 }
 /* Slider classes */
 .range-slider .range-slider__range {
-    background: linear-gradient( 315deg, rgb(233, 43, 220) 3%, rgb(86, 78, 179) 38%, rgb(23, 55, 231) 68%, rgb(230, 131, 131) 98% );
-    background-size: auto;
+  background: linear-gradient(
+    315deg,
+    rgb(233, 43, 220) 3%,
+    rgb(86, 78, 179) 38%,
+    rgb(23, 55, 231) 68%,
+    rgb(230, 131, 131) 98%
+  );
+  background-size: auto;
   animation: gradient 15s ease infinite;
   background-size: 400% 400%;
 }
 .range-slider .range-slider__thumb {
-    background: rgb(181, 179, 240);
-    border-radius: 30%;
-    transition: transform .3s;
+  background: rgb(181, 179, 240);
+  border-radius: 30%;
+  transition: transform 0.3s;
 }
 .range-slider .range-slider__thumb[data-active] {
-    transform: translate(-50%, -50%) scale(1.25);
+  transform: translate(-50%, -50%) scale(1.25);
 }
 
 .range-slider .range-slider__range[data-active] {
-    height: 16px;
+  height: 16px;
 }
 .range-slider {
-    background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23555' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E") #333;
+  background: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23555' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")
+    #333;
 }
 #trophy-requirement-slider > div[data-lower="true"] {
-    display: none;
+  display: none;
 }
 #trophy-requirement-slider > div.range-slider__range {
-    left:0 !important;
+  left: 0 !important;
 }
 /* Button classes */
 button.clubfinder-btn {
-    background-color: #7d9bdf;
-    font-weight: bold;
-    color: #123c45;
-    max-width: 50%;
+  background-color: #7d9bdf;
+  font-weight: bold;
+  color: #123c45;
+  max-width: 50%;
 }
 .freakinghoveryoupieceofshit:hover {
-    background-color: rgba(146, 177, 223, 0.39);
-    color: white;
+  background-color: rgba(146, 177, 223, 0.39);
+  color: white;
 }
-/* Checkbox classes */ 
+/* Checkbox classes */
 article > label {
-    position:relative;
-    left: -9999px
+  position: relative;
+  left: -9999px;
 }
 article {
-    position:relative;
-    flex-grow: 1;
-    margin: 0 5px;
+  position: relative;
+  flex-grow: 1;
+  margin: 0 5px;
 }
-article :hover{
-    background-color: rgba(222, 222, 222, 0.25);
-    color: white;
-  }
+article :hover {
+  background-color: rgba(222, 222, 222, 0.25);
+  color: white;
+}
 article div {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
-    background-color:#123c457a;
-    color: rgb(189, 189, 189);
-    border-radius: 10px;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background-color: #123c457a;
+  color: rgb(189, 189, 189);
+  border-radius: 10px;
 }
 article input {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
-input[type=checkbox]:checked ~ div {
-    background-color: #7d9bdf;
-    color: #123c45;
-  }
-  .wee{
-    max-width: 50%;
-    min-width: 50%;
-    align-self: center;
-    display: flex;
-  }
+input[type="checkbox"]:checked ~ div {
+  background-color: #7d9bdf;
+  color: #123c45;
+}
+.wee {
+  max-width: 50%;
+  min-width: 50%;
+  align-self: center;
+  display: flex;
+}

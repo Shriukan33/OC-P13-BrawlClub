@@ -1,8 +1,8 @@
 .back-btn {
-    background-color: #3fe5ffa8 !important;
+  background-color: #3fe5ffa8 !important;
 }
 .back-btn > a {
-    text-decoration: none;
-    color: #123C45 !important;
-    font-weight: bold;
+  text-decoration: none;
+  color: #123c45 !important;
+  font-weight: bold;
 }
