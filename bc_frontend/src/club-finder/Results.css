@@ -1,5 +1,8 @@
 .back-btn {
   background-color: #3fe5ffa8 !important;
+  border-radius: 10px;
+  padding: 5px;
+  border: none;
 }
 .back-btn > a {
   text-decoration: none;

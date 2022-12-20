@@ -37,6 +37,7 @@ button.clubfinder-btn {
   font-weight: bold;
   color: #123c45;
   max-width: 50%;
+  border: none;
   border-radius: 10px;
 }
 /* Checkbox classes */

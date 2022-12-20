@@ -12,6 +12,9 @@ button.leaderboard-btn {
   background-color: #3fe5ffa8;
   color: #123c45;
   font-weight: bold;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border: none;
 }
 .leaderboard-toggle {
   padding: 5px;
@@ -19,6 +22,11 @@ button.leaderboard-btn {
   background-color: #3fe5ffa8;
   color: #123c45;
   font-weight: bold;
+}
+.leaderboard-toggle {
+  border: none;
+  border-top: 1px solid hsl(191, 59%, 77%);
+  border-bottom: 1px solid hsl(191, 59%, 30%);
 }
 .leaderboard-toggle.players {
   border-radius: 10px 0 0 10px;
@@ -40,4 +48,6 @@ button.leaderboard-btn {
 .leaderboard-toggle.active {
   background-color: #123c45;
   color: #3fe5ffa8;
+  border-top: 1px solid hsl(191, 59%, 10%);
+  border-bottom: 1px solid hsl(191, 59%, 37%);
 }
