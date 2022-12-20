@@ -67,6 +67,7 @@ const Footer = () => {
             {/* Linkedin*/}
             <a
               className="btn btn-primary btn-floating m-1"
+              data-mdb-ripple-duration="0"
               style={{ backgroundColor: "#0082ca" }}
               href="https://www.linkedin.com/in/benjamin-mourgues-33000/"
               role="button"
@@ -76,6 +77,7 @@ const Footer = () => {
             {/* Github*/}
             <a
               className="btn btn-primary btn-floating m-1"
+              data-mdb-ripple-duration="0"
               style={{ backgroundColor: "#333333" }}
               href="https://github.com/Shriukan33/OC-P13-BrawlClub"
               role="button"

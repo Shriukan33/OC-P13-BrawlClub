@@ -142,10 +142,10 @@ const Leaderboard_app = () => {
       </header>
       <div className="d-flex flex-column justify-content-center mx-auto">
         <div className="d-flex justify-content-between col-10 col-md-4 my-3 mx-auto">
-          <button className="btn leaderboard-btn" onClick={handlePrev}>
+          <button className="leaderboard-btn" data-mdb-ripple-duration="0" onClick={handlePrev}>
             Previous
           </button>
-          <button className="btn leaderboard-btn" onClick={handleNext}>
+          <button className="leaderboard-btn" data-mdb-ripple-duration="0" onClick={handleNext}>
             Next
           </button>
         </div>
@@ -158,10 +158,11 @@ const Leaderboard_app = () => {
           />
         </div>
         <div className="d-flex justify-content-between col-10 col-md-4 my-3 mx-auto">
-          <button className="btn leaderboard-btn" onClick={handlePrev}>
+          <button
+            className="leaderboard-btn" data-mdb-ripple-duration="0" onClick={handlePrev}>
             Previous
           </button>
-          <button className="btn leaderboard-btn" onClick={handleNext}>
+          <button className="leaderboard-btn" data-mdb-ripple-duration="0" onClick={handleNext}>
             Next
           </button>
         </div>

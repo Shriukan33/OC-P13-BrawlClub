@@ -30,7 +30,7 @@ const Results = () => {
 
   return (
     <main className="col-11 col-lg-7 Player justify-content-center">
-      <button className="back-btn btn d-flex me-auto mb-2">
+      <button className="back-btn d-flex me-auto mb-2">
         <Link to="/club-finder">
           <i className="fa-solid fa-arrow-left"></i>&nbsp;Back to filters
         </Link>
