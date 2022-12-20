@@ -7,26 +7,17 @@ h4 {
 }
 /* Slider classes */
 .range-slider .range-slider__range {
-  background: linear-gradient(
-    315deg,
-    rgb(233, 43, 220) 3%,
-    rgb(86, 78, 179) 38%,
-    rgb(23, 55, 231) 68%,
-    rgb(230, 131, 131) 98%
-  );
+  background-color: #ed1e1e;
   background-size: auto;
-  animation: gradient 15s ease infinite;
   background-size: 400% 400%;
 }
 .range-slider .range-slider__thumb {
   background: rgb(181, 179, 240);
   border-radius: 30%;
-  transition: transform 0.3s;
 }
 .range-slider .range-slider__thumb[data-active] {
   transform: translate(-50%, -50%) scale(1.25);
 }
-
 .range-slider .range-slider__range[data-active] {
   height: 16px;
 }
@@ -46,10 +37,7 @@ button.clubfinder-btn {
   font-weight: bold;
   color: #123c45;
   max-width: 50%;
-}
-.freakinghoveryoupieceofshit:hover {
-  background-color: rgba(146, 177, 223, 0.39);
-  color: white;
+  border-radius: 10px;
 }
 /* Checkbox classes */
 article > label {

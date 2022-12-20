@@ -57,8 +57,7 @@ const ClubFinder = () => {
 
   return (
     <main
-      className="col-10 col-lg-7 Player justify-content-center "
-      style={{ paddingTop: "80px", paddingBottom: "40px" }}
+      className="col-10 col-lg-7 Player justify-content-center px-2 py-5"
     >
       <h1>Find your perfect club</h1>
       <form
@@ -69,12 +68,12 @@ const ClubFinder = () => {
         onSubmit={handleSubmit}
       >
         <div className="d-flex flex-column my-2">
-          <p>
-            Club With{" "}
+          <p style={{fontSize: "1.3em"}}>
+            Club with at most{" "}
             <span className="controlled-value">
               &nbsp;{sliderRequiredTrophiesMaxValue}
             </span>{" "}
-            Trophy Requirement{" "}
+            trophies requirement{" "}
           </p>
           <RangeSlider
             id="trophy-requirement-slider"
@@ -88,7 +87,7 @@ const ClubFinder = () => {
           />
         </div>
         <div className="mt-3 mb-3">
-          <h4>Club Type</h4>
+          <p style={{fontSize: "1.3em"}}>Club Type</p>
           <div className="d-flex justify-content-around">
             <article>
               <input
@@ -134,14 +133,16 @@ const ClubFinder = () => {
             </article>
           </div>
         </div>
-        <div className=" mt-3 mb-3 my-1 p-2">
+        <div className="my-1 p-2">
           {sliderMembersMaxValue !== sliderMembersMinValue ? (
-            <p>
+            <p style={{fontSize: "1.3em"}}>
               Clubs between {sliderMembersMinValue} and {sliderMembersMaxValue}
               &nbsp;Members
             </p>
           ) : (
-            <p>Clubs with Exactly {sliderMembersMinValue} Members</p>
+            <p style={{fontSize: "1.3em"}}>
+              Clubs with Exactly {sliderMembersMinValue} Members
+            </p>
           )}
         </div>
         <div className="d-flex col-12 col-md-6 mx-auto p-3 mb-4">
@@ -158,7 +159,7 @@ const ClubFinder = () => {
         <div>
           <button
             type="submit"
-            className="btn clubfinder-btn freakinghoveryoupieceofshit"
+            className="clubfinder-btn btn-rounded p-2"
           >
             Search
           </button>
