@@ -1,7 +1,7 @@
 .PlayerStatLine {
     border: 1px solid #000;
     border-radius: 5px;
-    background-color: #3fe5ffa8;
+    background-color: var(--primary-blue-700);
     color: white;
     text-shadow: 1px 1px 1px #000;
 }

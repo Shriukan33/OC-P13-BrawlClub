@@ -1,10 +1,10 @@
 .results-line {
   cursor: pointer;
-  background-color: #3fe5ffa8;
+  background-color: var(--primary-blue-800);
 }
 .results-line:hover {
   color: #f01919;
 }
 .results-line.even {
-  background-color: #37c1d6a8;
+  background-color: var(--primary-blue-700);
 }

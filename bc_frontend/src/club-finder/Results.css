@@ -1,11 +1,11 @@
 .back-btn {
-  background-color: #3fe5ffa8 !important;
+  background-color: var(--primary-blue-700) !important;
   border-radius: 10px;
   padding: 5px;
   border: none;
 }
 .back-btn > a {
   text-decoration: none;
-  color: #123c45 !important;
+  color: black !important;
   font-weight: bold;
 }

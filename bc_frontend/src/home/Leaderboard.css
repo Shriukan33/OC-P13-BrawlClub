@@ -1,6 +1,6 @@
 .leaderboard-frame {
   width: 100%;
-  background-color: #bcc6f3a8;
+  background-color: var(--primary-blue-700);
   border-radius: 10px;
   font-weight: bold;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.281),
