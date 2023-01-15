@@ -13,7 +13,7 @@
     font-weight:900;
     border-color: black;
     text-shadow: 1px 1px 1px black;
-    background: linear-gradient(110deg, #0076B9 55%, #3fe5ffa8 50%);
+    background: linear-gradient(110deg, var(--primary-blue-400) 55%, var(--primary-blue-700) 50%);
 }
 #PlayerProfilePicture img {
     max-height: 8vh;

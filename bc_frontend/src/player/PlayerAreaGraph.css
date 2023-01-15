@@ -1,5 +1,5 @@
 .PlayerAreaGraph {
-    background-color: #3fe5ffa8;
+    background-color: var(--primary-blue-700);
     border-radius: 10px;
     border: 1px solid #353535;
     padding: 10px;

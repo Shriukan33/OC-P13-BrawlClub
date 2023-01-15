@@ -34,6 +34,16 @@ scrollbar-width: none;
 display: none;
 }
 
-
+:root {
+  --primary-blue-100: hsl(202, 100%, 10%);
+  --primary-blue-200: hsl(202, 90%, 15%);
+  --primary-blue-300: hsl(202, 80%, 20%);
+  --primary-blue-400: hsl(202, 90%, 30%);
+  --primary-blue-500: hsl(202, 60%, 40%);
+  --primary-blue-600: hsl(202, 50%, 50%);
+  --primary-blue-700: hsl(202, 60%, 60%);
+  --primary-blue-800: hsl(202, 75%, 75%);
+  --primary-blue-900: hsl(202, 90%, 85%);
+}
 
 
